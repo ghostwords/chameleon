@@ -72,11 +72,15 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 // TODO set plugins to "ask by default"
 
-//chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-//	console.log(request);
-//	console.log(sender);
-//	sendResponse({});
-//});
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	var response = {};
+
+	if (request == 'injected') {
+		response.insertScript = ENABLED;
+	}
+
+	sendResponse(response);
+});
 
 chrome.browserAction.onClicked.addListener(function (/*tab*/) {
 	ENABLED = !ENABLED;

@@ -123,4 +123,9 @@ var script = '(' + function () {
 
 } + '());';
 
-insertScript(script);
+// TODO async messaging introduces race condition (page JS could execute before our script)
+chrome.runtime.sendMessage('injected', function (response) {
+	if (response.insertScript) {
+		insertScript(script);
+	}
+});
