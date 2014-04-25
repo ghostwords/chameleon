@@ -13,8 +13,8 @@
 
 	"browser_action": {
 		"default_icon": {
-			"19": "icons/19_off.png",
-			"38": "icons/38_off.png"
+			"19": "icons/19.png",
+			"38": "icons/38.png"
 		}
 	},
 
