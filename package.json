@@ -1,8 +1,17 @@
 {
-	"name": "chameleon",
+	"name": "chameleon-browser-extension",
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"jshint": "2.4.4"
+		"gulp": "3.6.x",
+		"gulp-clean": "0.2.x",
+		"gulp-shell": "0.2.x",
+		"jshint": "2.4.4",
+		"moment": "2.6.x"
+	},
+	"scripts": {
+		"clean": "gulp clean",
+		"dist": "gulp dist",
+		"lint": "jshint ."
 	}
 }

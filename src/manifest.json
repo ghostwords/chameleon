@@ -16,7 +16,6 @@
 			"19": "icons/19_off.png",
 			"38": "icons/38_off.png"
 		}
-		//"default_popup": "html/panel.html"
 	},
 
 	"author": "ghostwords",
@@ -27,10 +26,8 @@
 	},
 	"content_scripts": [
 		{
-			// TODO
-			"all_frames": false,
+			"all_frames": true,
 			"js": [
-				// TODO name?
 				"js/injected.js"
 			],
 			"matches": [
@@ -40,9 +37,7 @@
 			"run_at": "document_start"
 		}
 	],
-	//"homepage_url": "http://path/to/homepage",
 	"minimum_chrome_version": "33",
-	//"options_page": "html/options.html",
 	"permissions": [
 		"http://*/*",
 		"https://*/*",
