@@ -4,6 +4,31 @@
  * Copyright 2014 ghostwords. All rights reserved.
  */
 
+// acceptable signatures:
+// name
+// name, message
+// name, callback
+// name, message, callback
+function sendMessage(name, message, callback) {
+	var args = [{ name: name }];
+
+	if (Object.prototype.toString.call(message) == '[object Function]') {
+		// name, callback
+		args.push(message);
+	} else {
+		if (message) {
+			// name, message, [callback]
+			args[0].message = message;
+		}
+		if (callback) {
+			// name, [message], callback
+			args.push(callback);
+		}
+	}
+
+	chrome.runtime.sendMessage.apply(chrome.runtime, args);
+}
+
 function insertScript(src) {
 	var head = document.getElementsByTagName('head')[0] || document.documentElement,
 		script = document.createElement('script');
@@ -18,10 +43,18 @@ function insertScript(src) {
 	head.insertBefore(script, head.firstChild);
 }
 
+var event_id = Math.random();
 // http://stackoverflow.com/questions/9515704/building-a-chrome-extension-inject-code-in-a-page-using-a-content-script
-var script = '(' + function () {
+var script = '(' + function (event_id) {
 
 // start of page JS ////////////////////////////////////////////////////////////
+
+	// message the injected script
+	function send(msg) {
+		document.dispatchEvent(new CustomEvent(event_id, {
+			detail: msg
+		}));
+	}
 
 	function trap(obj, overrides) {
 		overrides = overrides || {};
@@ -45,6 +78,11 @@ var script = '(' + function () {
 			Object.defineProperty(obj, prop, {
 				get: function () {
 					console.log("%s.%s prop access", obj, prop);
+
+					send({
+						obj: obj.toString(),
+						prop: prop.toString()
+					});
 
 					if (overrides.hasOwnProperty(prop)) {
 						return overrides[prop];
@@ -97,6 +135,13 @@ var script = '(' + function () {
 
 				// TODO make trap work with (standard class) instance function
 				date.getTimezoneOffset = function () {
+					console.log("date.getTimezoneOffset prop access");
+
+					send({
+						obj: 'Date instance',
+						prop: 'getTimezoneOffset'
+					});
+
 					return 0;
 				};
 				// TODO take care of toString, etc.
@@ -121,11 +166,17 @@ var script = '(' + function () {
 
 // end of page JS //////////////////////////////////////////////////////////////
 
-} + '());';
+} + '(' + event_id + '));';
 
 // TODO async messaging introduces race condition (page JS could execute before our script)
-chrome.runtime.sendMessage('injected', function (response) {
+sendMessage('injected', function (response) {
 	if (response.insertScript) {
+		// listen for messages from the script we are about to insert
+		document.addEventListener(event_id, function (e) {
+			// pass these on to the background page
+			sendMessage('trapped', e.detail);
+		});
+
 		insertScript(script);
 	}
 });

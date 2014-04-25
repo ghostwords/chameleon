@@ -75,8 +75,12 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	var response = {};
 
-	if (request == 'injected') {
+	if (request.name == 'injected') {
 		response.insertScript = ENABLED;
+	} else if (request.name == 'trapped') {
+		// TODO keep track of these
+		// TODO update the badge for the tab
+		console.log(request.message);
 	}
 
 	sendResponse(response);
