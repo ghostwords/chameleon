@@ -42,6 +42,7 @@
 	"permissions": [
 		"http://*/*",
 		"https://*/*",
+		"webNavigation",
 		"webRequest",
 		"webRequestBlocking"
 	]
