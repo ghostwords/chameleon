@@ -52,19 +52,19 @@ var HEADER_OVERRIDES = {
 // functions ///////////////////////////////////////////////////////////////////
 
 // TODO handlerBehaviorChanged, etc.: https://developer.chrome.com/extensions/webRequest#implementation
-function filterRequests(details) {
-	var cancel = false;
-
-	if (!ENABLED) {
-		return;
-	}
-
-	console.log("onBeforeRequest: %o", details);
-
-	return {
-		cancel: cancel
-	};
-}
+//function filterRequests(details) {
+//	var cancel = false;
+//
+//	if (!ENABLED) {
+//		return;
+//	}
+//
+//	console.log("onBeforeRequest: %o", details);
+//
+//	return {
+//		cancel: cancel
+//	};
+//}
 
 function normalizeHeaders(details) {
 	var headers = details.requestHeaders;
@@ -125,11 +125,12 @@ function onNavigation(details) {
 
 // initialization //////////////////////////////////////////////////////////////
 
-chrome.webRequest.onBeforeRequest.addListener(
-	filterRequests,
-	ALL_URLS,
-	[ "blocking" ]
-);
+// TODO filter out known fingerprinters
+//chrome.webRequest.onBeforeRequest.addListener(
+//	filterRequests,
+//	ALL_URLS,
+//	[ "blocking" ]
+//);
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	normalizeHeaders,
