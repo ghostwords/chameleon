@@ -21,6 +21,7 @@
 	"author": "ghostwords",
 	"background": {
 		"scripts": [
+			"lib/vendor/underscore.js",
 			"js/background.js"
 		]
 	},
