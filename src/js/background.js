@@ -67,13 +67,11 @@ var HEADER_OVERRIDES = {
 //}
 
 function normalizeHeaders(details) {
-	var headers = details.requestHeaders;
-
 	if (!ENABLED) {
 		return;
 	}
 
-	console.log("onBeforeSendHeaders: %o", details);
+	var headers = details.requestHeaders;
 
 	for (var i = 0; i < headers.length; ++i) {
 		if (HEADER_OVERRIDES.hasOwnProperty(headers[i].name)) {
