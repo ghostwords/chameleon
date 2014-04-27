@@ -109,6 +109,21 @@ function updateButton() {
 	});
 }
 
+function onMessage(request, sender, sendResponse) {
+	var response = {};
+
+	if (request.name == 'injected') {
+		response.insertScript = ENABLED;
+	} else if (request.name == 'trapped') {
+		//if (sender.tab && sender.tab.id) {
+		tabData.record(sender.tab.id, request.message);
+		updateBadge(sender.tab.id);
+		//}
+	}
+
+	sendResponse(response);
+}
+
 function onNavigation(details) {
 	var tab_id = details.tabId;
 
@@ -138,20 +153,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 // TODO set plugins to "ask by default"
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	var response = {};
-
-	if (request.name == 'injected') {
-		response.insertScript = ENABLED;
-	} else if (request.name == 'trapped') {
-		//if (sender.tab && sender.tab.id) {
-		tabData.record(sender.tab.id, request.message);
-		updateBadge(sender.tab.id);
-		//}
-	}
-
-	sendResponse(response);
-});
+chrome.runtime.onMessage.addListener(onMessage);
 
 chrome.tabs.onRemoved.addListener(tabData.clear);
 
