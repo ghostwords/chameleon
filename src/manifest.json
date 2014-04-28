@@ -22,7 +22,7 @@
 	"author": "ghostwords",
 	"background": {
 		"scripts": [
-			"lib/vendor/underscore.js",
+			"lib/vendor/underscore-1.6.0.js",
 			"js/background.js"
 		]
 	},
