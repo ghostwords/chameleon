@@ -1,1 +1,3 @@
 node_modules/
+samples/
+src/lib/vendor/
