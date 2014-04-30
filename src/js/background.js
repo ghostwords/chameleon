@@ -105,12 +105,22 @@ function updateBadge(tab_id) {
 	});
 }
 
-function updateButton() {
-	chrome.browserAction.setIcon({
-		path: {
-			19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
-			38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
-		}
+// TODO
+//function updateButton() {
+//	chrome.browserAction.setIcon({
+//		path: {
+//			19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
+//			38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
+//		}
+//	});
+//}
+
+function getCurrentTab(callback) {
+	chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true
+	}, function (tabs) {
+		callback(tabs[0]);
 	});
 }
 
@@ -119,11 +129,22 @@ function onMessage(request, sender, sendResponse) {
 
 	if (request.name == 'injected') {
 		response.insertScript = ENABLED;
+
 	} else if (request.name == 'trapped') {
 		//if (sender.tab && sender.tab.id) {
 		tabData.record(sender.tab.id, request.message);
 		updateBadge(sender.tab.id);
 		//}
+
+	} else if (request.name == 'panelLoaded') {
+		// TODO fails when inspecting popup: we send inspector tab instead
+		getCurrentTab(function (tab) {
+			response.accesses = tabData.get(tab.id).accesses;
+			sendResponse(response);
+		});
+
+		// we will send the response asynchronously
+		return true;
 	}
 
 	sendResponse(response);
@@ -164,10 +185,11 @@ chrome.tabs.onRemoved.addListener(tabData.clear);
 
 chrome.webNavigation.onCommitted.addListener(onNavigation);
 
-chrome.browserAction.onClicked.addListener(function (/*tab*/) {
-	ENABLED = !ENABLED;
-	updateButton();
-});
+// TODO
+//chrome.browserAction.onClicked.addListener(function (/*tab*/) {
+//	ENABLED = !ENABLED;
+//	updateButton();
+//});
 
 // see if we have any orphan data every five minutes
 // TODO switch to chrome.alarms?

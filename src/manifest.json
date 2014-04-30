@@ -16,7 +16,8 @@
 			"19": "icons/19.png",
 			"38": "icons/38.png"
 		},
-		"default_title": "Chameleon"
+		"default_title": "Chameleon",
+		"default_popup": "html/panel.html"
 	},
 
 	"author": "ghostwords",
