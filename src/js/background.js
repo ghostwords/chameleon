@@ -11,7 +11,7 @@
 
 // globals /////////////////////////////////////////////////////////////////////
 
-/*global _ */
+var _ = require('underscore');
 
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;

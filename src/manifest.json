@@ -23,15 +23,15 @@
 	"author": "ghostwords",
 	"background": {
 		"scripts": [
-			"lib/vendor/underscore-1.6.0.js",
-			"js/background.js"
+			"js/builds/vendor/underscore-1.6.0.js",
+			"js/builds/background.js"
 		]
 	},
 	"content_scripts": [
 		{
 			"all_frames": true,
 			"js": [
-				"js/injected.js"
+				"js/builds/injected.min.js"
 			],
 			"matches": [
 				"http://*/*",

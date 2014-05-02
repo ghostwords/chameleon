@@ -82,5 +82,5 @@
     "white"         : true,     // true: Check against strict whitespace and indentation rules
 
     // Custom Globals
-    "globals"       : { "chrome":true }        // additional predefined global variables
+    "globals"       : { "chrome": true, "require": true }        // additional predefined global variables
 }

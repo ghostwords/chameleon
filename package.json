@@ -3,15 +3,20 @@
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"gulp": "3.6.x",
-		"gulp-clean": "0.2.x",
-		"gulp-shell": "0.2.x",
+		"browserify": "3.44.x",
+		"glob": "3.2.x",
 		"jshint": "2.4.4",
-		"moment": "2.6.x"
+		"jstify": "0.2.x",
+		"moment": "2.6.x",
+		"uglifyify": "2.1.x",
+		"watchify": "0.8.x",
+		"yargs": "1.2.x"
 	},
 	"scripts": {
-		"clean": "gulp clean",
-		"dist": "gulp dist",
-		"lint": "jshint ."
+		"build": "./tools/build.js",
+		"clean": "rm -rf dist/*",
+		"lint": "jshint .",
+		"test": "npm run lint && echo 'One day, this will run tests.'",
+		"watch": "./tools/build.js --watch"
 	}
 }

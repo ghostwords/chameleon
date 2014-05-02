@@ -9,7 +9,7 @@
  *
  */
 
-/*global _ */
+var _ = require('underscore');
 
 // TODO move into own lib module (this also lives in js/injected.js)
 function sendMessage(name, message, callback) {
@@ -37,5 +37,7 @@ sendMessage('panelLoaded', function (response) {
 		return access.obj + '.' + access.prop;
 	});
 	var body = document.getElementsByTagName('body')[0];
-	body.innerHTML += '<pre>' + JSON.stringify(counts, null, "\t") + '</pre>';
+	body.innerHTML += require('../lib/templates/panel.jst')({
+		counts: counts
+	});
 });
