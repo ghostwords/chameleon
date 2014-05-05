@@ -3,15 +3,15 @@
 	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"browserify": "3.44.x",
-		"glob": "3.2.x",
+		"browserify": "~3.44.2",
+		"glob": "~3.2.9",
 		"jshint": "2.4.4",
-		"jstify": "0.2.x",
-		"moment": "2.6.x",
-		"shelljs": "0.2.x",
-		"uglifyify": "2.1.x",
-		"watchify": "0.8.x",
-		"yargs": "1.2.x"
+		"jstify": "~0.2.0",
+		"moment": "~2.6.0",
+		"shelljs": "~0.2.6",
+		"uglifyify": "~2.1.1",
+		"watchify": "~0.8.2",
+		"yargs": "~1.2.1"
 	},
 	"scripts": {
 		"build": "./tools/build.js",
