@@ -8,6 +8,7 @@
 		"jshint": "2.4.4",
 		"jstify": "0.2.x",
 		"moment": "2.6.x",
+		"shelljs": "0.2.x",
 		"uglifyify": "2.1.x",
 		"watchify": "0.8.x",
 		"yargs": "1.2.x"
@@ -15,6 +16,7 @@
 	"scripts": {
 		"build": "./tools/build.js",
 		"clean": "rm -rf dist/*",
+		"dist": "npm run build && npm run test && npm run clean && ./tools/dist.js",
 		"lint": "jshint .",
 		"test": "npm run lint && echo 'One day, this will run tests.'",
 		"watch": "./tools/build.js --watch"
