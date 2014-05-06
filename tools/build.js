@@ -12,7 +12,14 @@ var browserify = require(args.watch ? 'watchify' : 'browserify');
 
 function bundle(b, outpath) {
 	console.log("Writing out %s ...", outpath);
-	return b.bundle().pipe(fs.createWriteStream(outpath));
+
+	var outStream = b.bundle();
+
+	outStream.on('error', function (e) {
+		console.error(String(e));
+	});
+
+	outStream.pipe(fs.createWriteStream(outpath));
 }
 
 var vendor_modules = [];
