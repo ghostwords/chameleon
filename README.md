@@ -2,10 +2,11 @@
 
 Browser fingerprinting protection for everybody.
 
-Currently makes Chrome look like Tor Browser to [Panopticlick](https://panopticlick.eff.org/).
+Chameleon is a Chrome privacy extension that makes Chrome look like Tor Browser to [Panopticlick](https://panopticlick.eff.org/).
 
-The number over the toolbar button counts the number of distinct attempts to collect information about your browser on the current page.
+The number over Chameleon's button counts the number of distinct attempts to collect information about your browser on the current page. Higher numbers suggest fingerprinting is taking place. Chameleon will soon support submitting fingerprinting attempts, to better understand fingerprinting and subsequently improve Chameleon's functionality.
 
+Chameleon for Firefox is in the works.
 
 ### Before:
 
@@ -33,3 +34,8 @@ The number over the toolbar button counts the number of distinct attempts to col
 ## Roadmap
 
 - Add roadmap to GitHub Wiki pages.
+
+
+## Code license
+
+Mozilla Public License Version 2.0
