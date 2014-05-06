@@ -13,6 +13,7 @@ var browserify = require(args.watch ? 'watchify' : 'browserify');
 function bundle(b, outpath) {
 	console.log("Writing out %s ...", outpath);
 
+	// TODO check out source maps with bundle({ debug: true })
 	var outStream = b.bundle();
 
 	outStream.on('error', function (e) {
@@ -46,6 +47,7 @@ glob.sync('./src/js/*.js').forEach(function (inpath) {
 		outpath = './chrome/js/builds/' + infile,
 		b = browserify(inpath)
 			// precompile Underscore templates
+			// TODO add error handling to https://github.com/zertosh/jstify
 			.transform('jstify');
 
 	// don't bundle vendor libs; they get bundled separately
