@@ -4,6 +4,8 @@ Browser fingerprinting protection for everybody.
 
 Currently makes Chrome look like Tor Browser to [Panopticlick](https://panopticlick.eff.org/).
 
+The number over the toolbar button counts the number of distinct attempts to collect information about your browser on the current page.
+
 
 ### Before:
 
