@@ -37,7 +37,7 @@ sendMessage('panelLoaded', function (response) {
 		return access.obj + '.' + access.prop;
 	});
 	var body = document.getElementsByTagName('body')[0];
-	body.innerHTML += require('../lib/templates/panel.jst')({
+	body.innerHTML += require('../templates/panel.jst')({
 		counts: counts
 	});
 });

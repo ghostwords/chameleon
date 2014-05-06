@@ -20,7 +20,7 @@ var vendor_modules = [];
 // vendor JS bundles
 glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
 	var infile = path.basename(inpath),
-		outpath = './src/js/builds/vendor/' + infile,
+		outpath = './chrome/js/builds/vendor/' + infile,
 		// strip filename version info from module name
 		module_name = infile.replace(/-[\d\.]+\.js$/, '');
 
@@ -36,7 +36,7 @@ glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
 // extension JS bundles
 glob.sync('./src/js/*.js').forEach(function (inpath) {
 	var infile = path.basename(inpath),
-		outpath = './src/js/builds/' + infile,
+		outpath = './chrome/js/builds/' + infile,
 		b = browserify(inpath)
 			// precompile Underscore templates
 			.transform('jstify');

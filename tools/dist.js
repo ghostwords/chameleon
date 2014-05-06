@@ -5,12 +5,12 @@ var moment = require('moment'),
 
 var package_name = [
 	'chameleon',
-	require('../src/manifest.json').version,
+	require('../chrome/manifest.json').version,
 	moment().format('YYYY-MM-DD')
 ].join('_');
 
-// copy src/** to dist/
-shell.cp('-R', 'src/**', 'dist/' + package_name);
+// copy chrome/** to dist/
+shell.cp('-R', 'chrome/**', 'dist/' + package_name);
 
 // create the package
 shell.exit(shell.exec(
