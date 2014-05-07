@@ -40,6 +40,7 @@
 			"run_at": "document_start"
 		}
 	],
+	"homepage_url": "https://github.com/ghostwords/chameleon",
 	"minimum_chrome_version": "33",
 	"permissions": [
 		"http://*/*",
