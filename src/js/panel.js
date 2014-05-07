@@ -9,28 +9,8 @@
  *
  */
 
-var _ = require('underscore');
-
-// TODO move into own lib module (this also lives in js/injected.js)
-function sendMessage(name, message, callback) {
-	var args = [{ name: name }];
-
-	if (Object.prototype.toString.call(message) == '[object Function]') {
-		// name, callback
-		args.push(message);
-	} else {
-		if (message) {
-			// name, message, [callback]
-			args[0].message = message;
-		}
-		if (callback) {
-			// name, [message], callback
-			args.push(callback);
-		}
-	}
-
-	chrome.runtime.sendMessage.apply(chrome.runtime, args);
-}
+var _ = require('underscore'),
+	sendMessage = require('../lib/utils').sendMessage;
 
 sendMessage('panelLoaded', function (response) {
 	var counts = _.countBy(response.accesses, function (access) {

@@ -9,30 +9,7 @@
  *
  */
 
-// acceptable signatures:
-// name
-// name, message
-// name, callback
-// name, message, callback
-function sendMessage(name, message, callback) {
-	var args = [{ name: name }];
-
-	if (Object.prototype.toString.call(message) == '[object Function]') {
-		// name, callback
-		args.push(message);
-	} else {
-		if (message) {
-			// name, message, [callback]
-			args[0].message = message;
-		}
-		if (callback) {
-			// name, [message], callback
-			args.push(callback);
-		}
-	}
-
-	chrome.runtime.sendMessage.apply(chrome.runtime, args);
-}
+var sendMessage = require('../lib/utils').sendMessage;
 
 function insertScript(src) {
 	var head = document.getElementsByTagName('head')[0] || document.documentElement,

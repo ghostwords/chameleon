@@ -12,10 +12,41 @@
  *
  */
 
-var _ = require('underscore');
+var _ = require('underscore'),
+	sendMessage = require('../lib/utils').sendMessage;
 
-// TODO move into own lib module (this also lives in js/injected.js)
-function sendMessage(name, message, callback) {
+sendMessage('panelLoaded', function (response) {
+	var counts = _.countBy(response.accesses, function (access) {
+		return access.obj + '.' + access.prop;
+	});
+	var body = document.getElementsByTagName('body')[0];
+	body.innerHTML += require('../templates/panel.jst')({
+		counts: counts
+	});
+});
+
+},{"../lib/utils":3,"../templates/panel.jst":4}],3:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
+/*
+ * This module needs to work both inside content scripts and the browser popup.
+ */
+
+// acceptable signatures:
+// name
+// name, message
+// name, callback
+// name, message, callback
+module.exports.sendMessage = function (name, message, callback) {
 	var args = [{ name: name }];
 
 	if (Object.prototype.toString.call(message) == '[object Function]') {
@@ -33,19 +64,9 @@ function sendMessage(name, message, callback) {
 	}
 
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
-}
+};
 
-sendMessage('panelLoaded', function (response) {
-	var counts = _.countBy(response.accesses, function (access) {
-		return access.obj + '.' + access.prop;
-	});
-	var body = document.getElementsByTagName('body')[0];
-	body.innerHTML += require('../templates/panel.jst')({
-		counts: counts
-	});
-});
-
-},{"../templates/panel.jst":3}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
