@@ -71,9 +71,21 @@ var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='<pre>'+
-((__t=( JSON.stringify(counts, null, "\t") ))==null?'':_.escape(__t))+
-'</pre>';
+__p+='<table>';
+ if (_.size(counts)) { 
+__p+='<tr><th>property</th><th>access count</th></tr>';
+ _.each(Object.keys(counts).sort(), function (name) { 
+__p+='<tr><td>'+
+((__t=( name ))==null?'':_.escape(__t))+
+'</td><td>'+
+((__t=( counts[name] ))==null?'':_.escape(__t))+
+'</td></tr>';
+ }) 
+__p+='';
+ } else { 
+__p+='<tr><td>No property accesses detected.</td></tr>';
+ } 
+__p+='</table>';
 }
 return __p;
 };

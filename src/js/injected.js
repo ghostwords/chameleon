@@ -62,7 +62,7 @@ var script = '(' + function (event_id) {
 					console.log("%s.%s prop access", obj, prop);
 
 					send({
-						obj: obj.toString(),
+						obj: obj.toString().replace(/^\[object ([^\]]+)\]/, '$1'),
 						prop: prop.toString()
 					});
 
@@ -120,7 +120,7 @@ var script = '(' + function (event_id) {
 					console.log("date.getTimezoneOffset prop access");
 
 					send({
-						obj: 'Date instance',
+						obj: 'new Date()',
 						prop: 'getTimezoneOffset'
 					});
 

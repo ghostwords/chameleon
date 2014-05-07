@@ -1,1 +1,20 @@
-<pre><%- JSON.stringify(counts, null, "\t") %></pre>
+<table>
+	<% if (_.size(counts)) { %>
+		<tr>
+			<th>property</th>
+			<th>access count</th>
+		</tr>
+		<% _.each(Object.keys(counts).sort(), function (name) { %>
+		<tr>
+			<td>
+				<%- name %>
+			</td>
+			<td>
+				<%- counts[name] %>
+			</td>
+		</tr>
+		<% }) %>
+	<% } else { %>
+		<tr><td>No property accesses detected.</td></tr>
+	<% } %>
+</table>
