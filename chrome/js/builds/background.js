@@ -52,9 +52,10 @@ var tabData = (function () {
 
 var HEADER_OVERRIDES = {
 	'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
-	'Accept': "text/html, */*",
+	'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 	'Accept-Language': "en-us,en;q=0.5",
-	'Accept-Encoding': "gzip, deflate"
+	'Accept-Encoding': "gzip, deflate",
+	'DNT': null // remove to match Tor Browser
 };
 
 // functions ///////////////////////////////////////////////////////////////////
@@ -79,16 +80,31 @@ function normalizeHeaders(details) {
 		return;
 	}
 
-	var headers = details.requestHeaders;
+	var origHeaders = details.requestHeaders,
+		newHeaders = [];
 
-	for (var i = 0; i < headers.length; ++i) {
-		if (HEADER_OVERRIDES.hasOwnProperty(headers[i].name)) {
-			headers[i].value = HEADER_OVERRIDES[headers[i].name];
+	origHeaders.forEach(function (header) {
+		var name = header.name,
+			value = header.value,
+			newHeader = {
+				name: name,
+				value: value
+			};
+
+		if (HEADER_OVERRIDES.hasOwnProperty(name)) {
+			// modify or remove?
+			if (HEADER_OVERRIDES[name]) {
+				newHeader.value = HEADER_OVERRIDES[name];
+				newHeaders.push(newHeader);
+			}
+		} else {
+			// just copy
+			newHeaders.push(newHeader);
 		}
-	}
+	});
 
 	return {
-		requestHeaders: details.requestHeaders
+		requestHeaders: newHeaders
 	};
 }
 

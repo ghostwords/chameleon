@@ -76,11 +76,17 @@ var script = '(' + function (event_id) {
 		});
 	}
 
+	// define nonexistent-in-Chrome properties (to match Tor Browser)
+	window.navigator.buildID = "20000101000000";
+
 	// JS objects to trap along with properties to override
 	[
 		{
 			obj: window.navigator,
 			overrides: {
+				appVersion: "5.0 (Windows)",
+				doNotTrack: "unspecified",
+				language: "en-US",
 				mimeTypes: {
 					length: 0
 				},
@@ -94,6 +100,8 @@ var script = '(' + function (event_id) {
 		{
 			obj: window.screen,
 			overrides: {
+				availWidth: 1000,
+				availHeight: 700,
 				width: 1000,
 				height: 700,
 				colorDepth: 24
