@@ -47,8 +47,9 @@ glob.sync('./src/js/*.js').forEach(function (inpath) {
 		outpath = './chrome/js/builds/' + infile,
 		b = browserify(inpath)
 			// precompile Underscore templates
+			// do not minify them because html-minifier does not speak JST
 			// TODO add error handling to https://github.com/zertosh/jstify
-			.transform('jstify');
+			.transform({ noMinify: true }, 'jstify');
 
 	// don't bundle vendor libs; they get bundled separately
 	// and included manually via own script tags

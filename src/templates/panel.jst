@@ -1,4 +1,4 @@
-<% if (enabled) { %><p id="header"><% } else { %><p id="header" class="inactive"><% } %>
+<p id="header"<% if (!enabled) { %> class="inactive"<% } %>>
 	Chameleon is <b><% print(enabled ? 'enabled' : '<span class="warning">disabled</span>') %></b>.
 	<a href="#" id="toggle"><% print(enabled ? 'Disable' : 'Enable') %></a>.
 </p>

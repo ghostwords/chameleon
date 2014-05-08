@@ -92,31 +92,29 @@ var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='';
- if (enabled) { 
-__p+='<p id="header">';
- } else { 
-__p+='</p><p id="header" class="inactive">';
+__p+='<p id="header"';
+ if (!enabled) { 
+__p+=' class="inactive"';
  } 
-__p+='Chameleon is <b>';
+__p+='>\n\tChameleon is <b>';
  print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
-__p+='</b>. <a href="#" id="toggle">';
+__p+='</b>.\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 
-__p+='</a>.</p><table>';
+__p+='</a>.\n</p>\n<table>\n\t';
  if (_.size(counts)) { 
-__p+='<tr><th>property</th><th>access count</th></tr>';
+__p+='\n\t\t<tr>\n\t\t\t<th>property</th>\n\t\t\t<th>access count</th>\n\t\t</tr>\n\t\t';
  _.each(Object.keys(counts).sort(), function (name) { 
-__p+='<tr><td>'+
+__p+='\n\t\t<tr>\n\t\t\t<td>\n\t\t\t\t'+
 ((__t=( name ))==null?'':_.escape(__t))+
-'</td><td>'+
+'\n\t\t\t</td>\n\t\t\t<td>\n\t\t\t\t'+
 ((__t=( counts[name] ))==null?'':_.escape(__t))+
-'</td></tr>';
+'\n\t\t\t</td>\n\t\t</tr>\n\t\t';
  }) 
-__p+='';
+__p+='\n\t';
  } else { 
-__p+='<tr><td>No property accesses detected.</td></tr>';
+__p+='\n\t\t<tr><td>No property accesses detected.</td></tr>\n\t';
  } 
-__p+='</table>';
+__p+='\n</table>\n';
 }
 return __p;
 };
