@@ -16,12 +16,6 @@ img {
 	vertical-align: middle;
 }
 
-#header {
-	background: url(/icons/32.png) no-repeat left;
-	line-height: 32px;
-	text-align: center;
-}
-
 table {
 	border: 1px solid #eee;
 	border-collapse: collapse;
@@ -39,4 +33,18 @@ th {
 td {
 	padding: 5px 10px;
 	white-space: nowrap;
+}
+
+#header {
+	background: url(/icons/38.png) no-repeat left;
+	line-height: 38px;
+	text-align: center;
+}
+
+#header.inactive {
+	background: url(/icons/38_off.png) no-repeat left;
+}
+
+.warning {
+	color: red;
 }

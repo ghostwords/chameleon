@@ -13,16 +13,37 @@
  */
 
 var _ = require('underscore'),
-	sendMessage = require('../lib/utils').sendMessage;
+	sendMessage = require('../lib/utils').sendMessage,
+	template = require('../templates/panel.jst'),
+	data;
+
+function addListeners() {
+	// TODO provide feedback
+	document.getElementById('toggle').addEventListener('click', function (e) {
+		e.preventDefault();
+		sendMessage('panelToggle');
+		data.enabled = !data.enabled;
+		render(data);
+	});
+}
+
+function render() {
+	var body = document.getElementsByTagName('body')[0];
+	body.innerHTML = template(data);
+	addListeners();
+}
 
 sendMessage('panelLoaded', function (response) {
 	var counts = _.countBy(response.accesses, function (access) {
 		return access.obj + '.' + access.prop;
 	});
-	var body = document.getElementsByTagName('body')[0];
-	body.innerHTML += require('../templates/panel.jst')({
-		counts: counts
-	});
+
+	data = {
+		counts: counts,
+		enabled: response.enabled
+	};
+
+	render();
 });
 
 },{"../lib/utils":3,"../templates/panel.jst":4}],3:[function(require,module,exports){
@@ -71,7 +92,17 @@ var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='<table>';
+__p+='';
+ if (enabled) { 
+__p+='<p id="header">';
+ } else { 
+__p+='</p><p id="header" class="inactive">';
+ } 
+__p+='Chameleon is <b>';
+ print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
+__p+='</b>. <a href="#" id="toggle">';
+ print(enabled ? 'Disable' : 'Enable') 
+__p+='</a>.</p><table>';
  if (_.size(counts)) { 
 __p+='<tr><th>property</th><th>access count</th></tr>';
  _.each(Object.keys(counts).sort(), function (name) { 

@@ -121,15 +121,14 @@ function updateBadge(tab_id) {
 	});
 }
 
-// TODO
-//function updateButton() {
-//	chrome.browserAction.setIcon({
-//		path: {
-//			19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
-//			38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
-//		}
-//	});
-//}
+function updateButton() {
+	chrome.browserAction.setIcon({
+		path: {
+			19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
+			38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
+		}
+	});
+}
 
 function getCurrentTab(callback) {
 	chrome.tabs.query({
@@ -156,11 +155,16 @@ function onMessage(request, sender, sendResponse) {
 		// TODO fails when inspecting popup: we send inspector tab instead
 		getCurrentTab(function (tab) {
 			response.accesses = tabData.get(tab.id).accesses;
+			response.enabled = ENABLED;
 			sendResponse(response);
 		});
 
 		// we will send the response asynchronously
 		return true;
+
+	} else if (request.name == 'panelToggle') {
+		ENABLED = !ENABLED;
+		updateButton();
 	}
 
 	sendResponse(response);
@@ -200,12 +204,6 @@ chrome.runtime.onMessage.addListener(onMessage);
 chrome.tabs.onRemoved.addListener(tabData.clear);
 
 chrome.webNavigation.onCommitted.addListener(onNavigation);
-
-// TODO
-//chrome.browserAction.onClicked.addListener(function (/*tab*/) {
-//	ENABLED = !ENABLED;
-//	updateButton();
-//});
 
 // see if we have any orphan data every five minutes
 // TODO switch to chrome.alarms?
