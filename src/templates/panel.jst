@@ -1,7 +1,8 @@
-<p id="header"<% if (!enabled) { %> class="inactive"<% } %>>
-	Chameleon is <b><% print(enabled ? 'enabled' : '<span class="warning">disabled</span>') %></b>.
-	<a href="#" id="toggle"><% print(enabled ? 'Disable' : 'Enable') %></a>.
-</p>
+<div id="header"<% if (!enabled) { %> class="inactive"<% } %>>
+	Chameleon is <span id="status-text"><% print(enabled ? 'enabled' : '<span class="warning">disabled</span>') %></span>
+	<br>
+	<a href="#" id="toggle"><% print(enabled ? 'Disable' : 'Enable') %></a>
+</div>
 <table>
 	<% if (_.size(counts)) { %>
 		<tr>

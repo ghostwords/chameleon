@@ -18,12 +18,12 @@ var _ = require('underscore'),
 	data;
 
 function addListeners() {
-	// TODO provide feedback
 	document.getElementById('toggle').addEventListener('click', function (e) {
 		e.preventDefault();
 		sendMessage('panelToggle');
 		data.enabled = !data.enabled;
 		render(data);
+		document.getElementById('status-text').className = 'animated flipInY';
 	});
 }
 
@@ -92,15 +92,15 @@ var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='<p id="header"';
+__p+='<div id="header"';
  if (!enabled) { 
 __p+=' class="inactive"';
  } 
-__p+='>\n\tChameleon is <b>';
+__p+='>\n\tChameleon is <span id="status-text">';
  print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
-__p+='</b>.\n\t<a href="#" id="toggle">';
+__p+='</span>\n\t<br>\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 
-__p+='</a>.\n</p>\n<table>\n\t';
+__p+='</a>\n</div>\n<table>\n\t';
  if (_.size(counts)) { 
 __p+='\n\t\t<tr>\n\t\t\t<th>property</th>\n\t\t\t<th>access count</th>\n\t\t</tr>\n\t\t';
  _.each(Object.keys(counts).sort(), function (name) { 

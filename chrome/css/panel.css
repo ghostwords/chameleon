@@ -19,6 +19,7 @@ img {
 table {
 	border: 1px solid #eee;
 	border-collapse: collapse;
+	margin-top: 5px;
 	width: 100%;
 }
 
@@ -36,13 +37,23 @@ td {
 }
 
 #header {
-	background: url(/icons/38.png) no-repeat left;
-	line-height: 38px;
-	text-align: center;
+	background: url(/icons/38.png) no-repeat left center;
+	font-size: 16px;
+	margin: 0 auto;
+	padding: 10px 70px;
 }
 
 #header.inactive {
 	background: url(/icons/38_off.png) no-repeat left;
+}
+
+#status-text {
+	display: inline-block;
+	font-weight: bold;
+}
+
+#toggle {
+	font-size: 14px;
 }
 
 .warning {

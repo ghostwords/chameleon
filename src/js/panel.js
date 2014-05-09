@@ -15,12 +15,12 @@ var _ = require('underscore'),
 	data;
 
 function addListeners() {
-	// TODO provide feedback
 	document.getElementById('toggle').addEventListener('click', function (e) {
 		e.preventDefault();
 		sendMessage('panelToggle');
 		data.enabled = !data.enabled;
 		render(data);
+		document.getElementById('status-text').className = 'animated flipInY';
 	});
 }
 
