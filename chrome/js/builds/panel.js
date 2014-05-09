@@ -100,7 +100,7 @@ __p+='>\n\tChameleon is <span id="status-text">';
  print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
 __p+='</span>\n\t<br>\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 
-__p+='</a>\n</div>\n';
+__p+='</a>\n</div>\n<hr>\n';
  if (_.size(counts)) { 
 __p+='\n\t<table>\n\t\t<caption><b>'+
 ((__t=( _.size(counts) ))==null?'':_.escape(__t))+

@@ -17,6 +17,14 @@ caption {
 	margin: 10px 0;
 }
 
+hr {
+	background-color: #ddd;
+	border: 0;
+	height: 1px;
+	margin: 5px auto 0;
+	width: 90%;
+}
+
 img {
 	vertical-align: middle;
 }
@@ -26,7 +34,7 @@ p {
 }
 
 table {
-	border: 1px solid #eee;
+	border: 1px solid #ddd;
 	border-collapse: collapse;
 	width: 100%;
 }
@@ -37,7 +45,7 @@ tr:nth-child(even) {
 
 th {
 	font-size: 13px;
-	padding: 5px;
+	padding: 5px 10px;
 	text-align: left;
 }
 
@@ -48,7 +56,6 @@ td {
 
 #header {
 	background: url(/icons/38.png) no-repeat left center;
-	border-bottom: 1px solid #eee;
 	font-size: 16px;
 	margin: 0 auto;
 	padding: 10px 70px;
