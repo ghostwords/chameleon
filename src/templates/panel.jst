@@ -3,11 +3,12 @@
 	<br>
 	<a href="#" id="toggle"><% print(enabled ? 'Disable' : 'Enable') %></a>
 </div>
-<table>
-	<% if (_.size(counts)) { %>
+<% if (_.size(counts)) { %>
+	<table>
+		<caption><b><%- _.size(counts) %></b> property accesses detected</caption>
 		<tr>
 			<th>property</th>
-			<th>access count</th>
+			<th>count</th>
 		</tr>
 		<% _.each(Object.keys(counts).sort(), function (name) { %>
 		<tr>
@@ -19,7 +20,9 @@
 			</td>
 		</tr>
 		<% }) %>
-	<% } else { %>
-		<tr><td>No property accesses detected.</td></tr>
-	<% } %>
-</table>
+	</table>
+<% } else { %>
+	<p>
+	No property accesses detected.
+	</p>
+<% } %>

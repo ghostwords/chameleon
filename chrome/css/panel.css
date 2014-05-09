@@ -12,14 +12,22 @@ body {
 	width: 310px;
 }
 
+caption {
+	font-size: 14px;
+	margin: 10px 0;
+}
+
 img {
 	vertical-align: middle;
+}
+
+p {
+	text-align: center;
 }
 
 table {
 	border: 1px solid #eee;
 	border-collapse: collapse;
-	margin-top: 5px;
 	width: 100%;
 }
 
@@ -28,7 +36,9 @@ tr:nth-child(even) {
 }
 
 th {
+	font-size: 13px;
 	padding: 5px;
+	text-align: left;
 }
 
 td {
@@ -38,6 +48,7 @@ td {
 
 #header {
 	background: url(/icons/38.png) no-repeat left center;
+	border-bottom: 1px solid #eee;
 	font-size: 16px;
 	margin: 0 auto;
 	padding: 10px 70px;

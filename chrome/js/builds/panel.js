@@ -100,9 +100,11 @@ __p+='>\n\tChameleon is <span id="status-text">';
  print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
 __p+='</span>\n\t<br>\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 
-__p+='</a>\n</div>\n<table>\n\t';
+__p+='</a>\n</div>\n';
  if (_.size(counts)) { 
-__p+='\n\t\t<tr>\n\t\t\t<th>property</th>\n\t\t\t<th>access count</th>\n\t\t</tr>\n\t\t';
+__p+='\n\t<table>\n\t\t<caption><b>'+
+((__t=( _.size(counts) ))==null?'':_.escape(__t))+
+'</b> property accesses detected</caption>\n\t\t<tr>\n\t\t\t<th>property</th>\n\t\t\t<th>count</th>\n\t\t</tr>\n\t\t';
  _.each(Object.keys(counts).sort(), function (name) { 
 __p+='\n\t\t<tr>\n\t\t\t<td>\n\t\t\t\t'+
 ((__t=( name ))==null?'':_.escape(__t))+
@@ -110,11 +112,11 @@ __p+='\n\t\t<tr>\n\t\t\t<td>\n\t\t\t\t'+
 ((__t=( counts[name] ))==null?'':_.escape(__t))+
 '\n\t\t\t</td>\n\t\t</tr>\n\t\t';
  }) 
-__p+='\n\t';
+__p+='\n\t</table>\n';
  } else { 
-__p+='\n\t\t<tr><td>No property accesses detected.</td></tr>\n\t';
+__p+='\n\t<p>\n\tNo property accesses detected.\n\t</p>\n';
  } 
-__p+='\n</table>\n';
+__p+='\n';
 }
 return __p;
 };
