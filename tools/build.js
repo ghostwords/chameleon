@@ -2,7 +2,8 @@
 
 var fs = require('fs'),
 	glob = require('glob'),
-	path = require('path');
+	path = require('path'),
+	spriter = require('spriter');
 
 var args = require('yargs').default({
 	watch: false
@@ -11,7 +12,7 @@ var args = require('yargs').default({
 var browserify = require(args.watch ? 'watchify' : 'browserify');
 
 function bundle(b, outpath) {
-	console.log("Writing out %s ...", outpath);
+	console.log("Writing out JS: %s ...", outpath);
 
 	// TODO check out source maps with bundle({ debug: true })
 	var outStream = b.bundle();
@@ -70,4 +71,26 @@ glob.sync('./src/js/*.js').forEach(function (inpath) {
 			bundle(b, outpath);
 		});
 	}
+});
+
+// image sprites and sprited CSS
+// TODO need to watch CSS files for changes
+glob.sync('./chrome/css/*.css').forEach(function (inpath) {
+	console.log("Regenerating %s sprites ...", inpath);
+
+	var infile = path.basename(inpath);
+	var sprited_css = spriter(
+		// input css
+		fs.readFileSync(inpath, 'utf8'),
+		// base path
+		'./chrome',
+		// sprite output path
+		'/images/sprites/' + infile.replace(/\.css$/, '.png')
+	);
+
+	// save output css
+	var outpath_css = './chrome/css/builds/' +
+		infile.replace(/\.css$/, '.sprited.css');
+	console.log("Writing out CSS: %s ...", outpath_css);
+	fs.writeFileSync(outpath_css, sprited_css);
 });

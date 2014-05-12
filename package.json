@@ -9,6 +9,7 @@
 		"jstify": "~0.2.0",
 		"moment": "~2.6.0",
 		"shelljs": "~0.2.6",
+		"spriter": "~0.2.4",
 		"uglifyify": "~2.1.1",
 		"watchify": "~0.8.2",
 		"yargs": "~1.2.1"
