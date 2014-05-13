@@ -92,11 +92,9 @@ var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='<div id="header"';
- if (!enabled) { 
-__p+=' class="inactive"';
- } 
-__p+='>\n\tChameleon is <span id="status-text">';
+__p+='<span class="sprites toplogo logo-';
+ if (!enabled) print('in') 
+__p+='active"></span>\n<div id="header">\n\tChameleon is <span id="status-text">';
  print(enabled ? 'enabled' : '<span class="warning">disabled</span>') 
 __p+='</span>\n\t<br>\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 

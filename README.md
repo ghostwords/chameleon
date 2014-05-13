@@ -30,6 +30,8 @@ Chameleon for Firefox is in the works.
 5. Load the unpacked extension in Chrome from the [chrome](chrome/) folder.
 6. `npm run dist` to generate an installable CRX package. This requires having the signing key in `~/.ssh/chameleon.pem`. To get a key, visit `chrome://extensions/` in Chrome and click on the "Pack extension..." button to generate a CRX manually.
 
+CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
+
 
 ## Roadmap
 
