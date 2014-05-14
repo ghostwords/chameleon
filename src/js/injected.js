@@ -31,12 +31,61 @@ var script = '(' + function (event_id) {
 
 // start of page JS ////////////////////////////////////////////////////////////
 
-	// message the injected script
-	function send(msg) {
-		document.dispatchEvent(new CustomEvent(event_id, {
-			detail: msg
-		}));
+	// from underscore-1.6.0.js
+	function debounce(func, wait, immediate) {
+		var timeout, args, context, timestamp, result;
+
+		var later = function () {
+			var last = Date.now() - timestamp;
+			if (last < wait) {
+				timeout = setTimeout(later, wait - last);
+			} else {
+				timeout = null;
+				if (!immediate) {
+					result = func.apply(context, args);
+					context = args = null;
+				}
+			}
+		};
+
+		return function () {
+			context = this;
+			args = arguments;
+			timestamp = Date.now();
+			var callNow = immediate && !timeout;
+			if (!timeout) {
+				timeout = setTimeout(later, wait);
+			}
+			if (callNow) {
+				result = func.apply(context, args);
+				context = args = null;
+			}
+
+			return result;
+		};
 	}
+
+	// messages the injected script
+	var send = (function () {
+		var messages = [];
+
+		// debounce sending queued messages
+		var _send = debounce(function () {
+			document.dispatchEvent(new CustomEvent(event_id, {
+				detail: messages
+			}));
+
+			// clear the queue
+			messages = [];
+		}, 100);
+
+		return function (msg) {
+			// queue the message
+			messages.push(msg);
+
+			_send();
+		};
+	}());
 
 	function trap(obj, overrides) {
 		overrides = overrides || {};

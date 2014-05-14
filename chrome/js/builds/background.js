@@ -150,7 +150,13 @@ function onMessage(request, sender, sendResponse) {
 
 	} else if (request.name == 'trapped') {
 		//if (sender.tab && sender.tab.id) {
-		tabData.record(sender.tab.id, request.message);
+		if (_.isArray(request.message)) {
+			request.message.forEach(function (msg) {
+				tabData.record(sender.tab.id, msg);
+			});
+		} else {
+			tabData.record(sender.tab.id, request.message);
+		}
 		updateBadge(sender.tab.id);
 		//}
 
