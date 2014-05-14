@@ -5,6 +5,11 @@
 	<a href="#" id="toggle"><% print(enabled ? 'Disable' : 'Enable') %></a>
 </div>
 <hr>
+<% if (fontEnumeration) { %>
+	<p>
+	Font enumeration detected.
+	</p>
+<% } %>
 <% if (_.size(counts)) { %>
 	<table>
 		<caption><b><%- _.size(counts) %></b> property accesses detected</caption>

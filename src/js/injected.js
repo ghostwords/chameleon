@@ -87,6 +87,10 @@ var script = '(' + function (event_id) {
 		};
 	}());
 
+	function getName(o) {
+		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
+	}
+
 	function trap(obj, overrides) {
 		overrides = overrides || {};
 
@@ -111,7 +115,7 @@ var script = '(' + function (event_id) {
 					console.log("%s.%s prop access", obj, prop);
 
 					send({
-						obj: obj.toString().replace(/^\[object ([^\]]+)\]/, '$1'),
+						obj: getName(obj),
 						prop: prop.toString()
 					});
 
@@ -202,6 +206,60 @@ var script = '(' + function (event_id) {
 		return NewDate;
 
 	}(window.Date));
+
+	// detect font enumeration
+	var observer = new MutationObserver(function (mutations) {
+		for (var i = 0; i < mutations.length; i++) {
+			var mutation = mutations[i];
+
+			if (!mutation.oldValue || mutation.oldValue.indexOf('font-family: ') == -1) {
+				continue;
+			}
+
+			var target = mutation.target,
+				old_font = mutation.oldValue.match(/font-family: ([^;]+);/)[1],
+				fonts = [];
+
+			// TODO switch to WeakMaps
+			// TODO https://github.com/Benvie/WeakMap
+			// TODO https://gist.github.com/Gozala/1269991
+			if (!(event_id in target.dataset)) {
+				target.dataset[event_id] = '';
+			} else {
+				fonts = target.dataset[event_id].split(';');
+			}
+
+			if (fonts.indexOf(old_font) == -1) {
+				fonts.push(old_font);
+			}
+
+			console.log(fonts); // TODO
+
+			if (fonts.length > 2) {
+				console.log(mutation); // TODO
+
+				send({
+					obj: getName(target),
+					prop: 'style.fontFamily',
+				});
+
+				// no need to keep listening
+				observer.disconnect();
+
+				break;
+			}
+
+			target.dataset[event_id] = fonts.join(';');
+		}
+	});
+	observer.observe(document, {
+		attribute: true,
+		// TODO more precise filtering?
+		attributeFilter: ['style'],
+		attributeOldValue: true,
+		childList: false,
+		subtree: true
+	});
 
 // end of page JS //////////////////////////////////////////////////////////////
 

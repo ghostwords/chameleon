@@ -34,13 +34,14 @@ function render() {
 }
 
 sendMessage('panelLoaded', function (response) {
-	var counts = _.countBy(response.accesses, function (access) {
-		return access.obj + '.' + access.prop;
+	var counts = _.countBy(response.accesses, function (data) {
+		return data.obj + '.' + data.prop;
 	});
 
 	data = {
 		counts: counts,
-		enabled: response.enabled
+		enabled: response.enabled,
+		fontEnumeration: response.fontEnumeration
 	};
 
 	render();
@@ -99,6 +100,10 @@ __p+='active"></span>\n<div id="header">\n\tChameleon is <span id="status-text">
 __p+='</span>\n\t<br>\n\t<a href="#" id="toggle">';
  print(enabled ? 'Disable' : 'Enable') 
 __p+='</a>\n</div>\n<hr>\n';
+ if (fontEnumeration) { 
+__p+='\n\t<p>\n\tFont enumeration detected.\n\t</p>\n';
+ } 
+__p+='\n';
  if (_.size(counts)) { 
 __p+='\n\t<table>\n\t\t<caption><b>'+
 ((__t=( _.size(counts) ))==null?'':_.escape(__t))+

@@ -26,7 +26,11 @@ var tabData = (function () {
 					accesses: []
 				};
 			}
-			data[tab_id].accesses.push(access);
+			if (access.prop == 'style.fontFamily') {
+				data[tab_id].fontEnumeration = true;
+			} else {
+				data[tab_id].accesses.push(access);
+			}
 		},
 		get: function (tab_id) {
 			return data.hasOwnProperty(tab_id) && data[tab_id];
@@ -112,7 +116,13 @@ function updateBadge(tab_id) {
 	if (data) {
 		text = _.size(_.countBy(data.accesses, function (access) {
 			return access.obj + '.' + access.prop;
-		})).toString();
+		}));
+
+		if (data.fontEnumeration) {
+			text++;
+		}
+
+		text = text.toString();
 	}
 
 	chrome.browserAction.setBadgeText({
@@ -160,8 +170,12 @@ function onMessage(request, sender, sendResponse) {
 	} else if (request.name == 'panelLoaded') {
 		// TODO fails when inspecting popup: we send inspector tab instead
 		getCurrentTab(function (tab) {
-			response.accesses = tabData.get(tab.id).accesses;
+			var data = tabData.get(tab.id);
+
+			response.accesses = data.accesses;
 			response.enabled = ENABLED;
+			response.fontEnumeration = !!data.fontEnumeration;
+
 			sendResponse(response);
 		});
 

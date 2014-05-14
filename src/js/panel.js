@@ -31,13 +31,14 @@ function render() {
 }
 
 sendMessage('panelLoaded', function (response) {
-	var counts = _.countBy(response.accesses, function (access) {
-		return access.obj + '.' + access.prop;
+	var counts = _.countBy(response.accesses, function (data) {
+		return data.obj + '.' + data.prop;
 	});
 
 	data = {
 		counts: counts,
-		enabled: response.enabled
+		enabled: response.enabled,
+		fontEnumeration: response.fontEnumeration
 	};
 
 	render();
