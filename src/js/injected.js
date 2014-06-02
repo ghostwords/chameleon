@@ -130,6 +130,7 @@ var script = '(' + function (event_id) {
 	}
 
 	// define nonexistent-in-Chrome properties (to match Tor Browser)
+	// TODO merge into trap()
 	window.navigator.buildID = "20000101000000";
 
 	// JS objects to trap along with properties to override
@@ -166,6 +167,7 @@ var script = '(' + function (event_id) {
 
 	// override instance methods
 	// override Date
+	// TODO merge into trap()
 	window.Date.prototype.getTimezoneOffset = function () {
 		console.log("Date.prototype.getTimezoneOffset prop access");
 
