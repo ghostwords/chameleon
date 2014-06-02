@@ -164,6 +164,79 @@ var script = '(' + function (event_id) {
 		trap(item.obj, item.overrides);
 	});
 
+	// protect against font enumeration
+	// TODO https://gitweb.torproject.org/torbrowser.git/blob_plain/HEAD:/src/current-patches/firefox/0010-Limit-the-number-of-fonts-per-document.patch
+	//
+	// TODO current implementation doesn't cover all the ways elements can get
+	// TODO created like innerHTML
+	// TODO http://www.lalit.org/lab/javascript-css-font-detect/ -- uses createElement directly
+	// TODO http://flippingtypical.com/ -- uses jQuery, which doesn't use createElement ...
+	//
+	// TODO the proper way (overriding fontFamily getters/setters on the
+	// TODO CSSStyleDeclaration prototype) doesn't work, at least in Chrome
+	//
+	// TODO http://stackoverflow.com/questions/19775573/override-element-stylesheet-csstext
+	// TODO https://code.google.com/p/chromium/issues/detail?id=90335
+	// TODO https://www.google.com/search?q=cssstyledeclaration+prototype+defineProperty
+	//
+	// TODO ??? breaks icons above submit form on stackoverflow pages, makes google search visually funky, ...
+	/*
+	document.createElement = (function (orig) {
+		return function () {
+			var el = orig.apply(document, arguments),
+				origStyle = el.style,
+				style = Object.create(window.CSSStyleDeclaration.prototype);
+
+			// wrap CSSStyleDeclaration
+			['cssText', 'fontFamily'].forEach(function (prop) {
+				Object.defineProperty(style, prop, {
+					set: function (val) {
+						console.log("setting %s to %s", prop, val);
+						origStyle[prop] = val;
+					},
+					get: function () {
+						return origStyle[prop];
+					}
+				});
+			});
+
+			// replace native style prop with our wrapped CSSStyleDeclaration
+			Object.defineProperty(el, 'style', {
+				get: function () {
+					return style;
+				}
+			});
+
+			return el;
+		};
+	}(document.createElement));
+	*/
+	/*
+	window.HTMLElement.prototype.setAttribute = (function (orig) {
+		return function () {
+			console.log("setAttribute called: %o", arguments);
+			return orig.apply(this, arguments);
+		};
+	}(window.HTMLElement.prototype.setAttribute));
+	*/
+	/*
+	window.CSSStyleDeclaration.prototype.setProperty = (function (orig) {
+		//return function (name, value, priority) {
+		return function (name) {
+			if (name == 'font-family') {
+				send({
+					obj: 'CSSStyleDeclaration.prototype',
+					prop: 'setProperty(\'fontFamily\', ...)'
+				});
+			}
+
+			console.log("CSSStyleDeclaration.prototype.setProperty called: %o", arguments);
+
+			return orig.apply(this, arguments);
+		};
+	}(window.CSSStyleDeclaration.prototype.setProperty));
+	*/
+
 	// override Date
 	window.Date = (function (OrigDate) {
 		function NewDate() {
