@@ -164,49 +164,18 @@ var script = '(' + function (event_id) {
 		trap(item.obj, item.overrides);
 	});
 
+	// override instance methods
 	// override Date
-	window.Date = (function (OrigDate) {
-		function NewDate() {
-			// convert arguments to array
-			var args = [].slice.call(arguments, 0);
+	window.Date.prototype.getTimezoneOffset = function () {
+		console.log("Date.prototype.getTimezoneOffset prop access");
 
-			// Date was called as a constructor
-			if (this instanceof NewDate) {
-				// TODO explain
-				var DateFactory = OrigDate.bind.apply(OrigDate, [ OrigDate ].concat(args)),
-					date = new DateFactory();
-
-				// TODO make trap work with (standard class) instance function
-				date.getTimezoneOffset = function () {
-					console.log("date.getTimezoneOffset prop access");
-
-					send({
-						obj: 'new Date()',
-						prop: 'getTimezoneOffset'
-					});
-
-					return 0;
-				};
-				// TODO take care of toString, etc.
-
-				return date;
-
-			// Date was called as a function
-			} else {
-				// TODO should be .apply(this, args)
-				return OrigDate.apply(args);
-			}
-		}
-
-		// provide class/static methods
-		// TODO overriding length doesn't work ... (not writable/configurable?)
-		['length', 'now', 'parse', 'UTC'].forEach(function (prop) {
-			NewDate[prop] = OrigDate[prop];
+		send({
+			obj: 'Date.prototype',
+			prop: 'getTimezoneOffset'
 		});
 
-		return NewDate;
-
-	}(window.Date));
+		return 0;
+	};
 
 	// detect font enumeration
 	var observer = new MutationObserver(function (mutations) {
