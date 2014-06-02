@@ -19,7 +19,7 @@ function addListeners() {
 		e.preventDefault();
 		sendMessage('panelToggle');
 		data.enabled = !data.enabled;
-		render(data);
+		render();
 		document.getElementById('status-text').className = 'animated flipInY';
 	});
 }
