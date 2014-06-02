@@ -95,7 +95,7 @@ var script = '(' + function (event_id) {
 		overrides = overrides || {};
 
 		Object.keys(obj).forEach(function (prop) {
-			var desc = Object.getOwnPropertyDescriptor(window, prop);
+			var desc = Object.getOwnPropertyDescriptor(obj, prop);
 
 			if (desc && !desc.configurable) {
 				console.log("%s.%s is not configurable", obj, prop);
