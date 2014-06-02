@@ -193,6 +193,7 @@ var script = '(' + function (event_id) {
 
 			// Date was called as a function
 			} else {
+				// TODO should be .apply(this, args)
 				return OrigDate.apply(args);
 			}
 		}
