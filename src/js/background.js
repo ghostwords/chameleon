@@ -16,40 +16,7 @@ var _ = require('underscore');
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
-var tabData = (function () {
-	var data = {};
-
-	return {
-		record: function (tab_id, access) {
-			if (!data.hasOwnProperty(tab_id)) {
-				data[tab_id] = {
-					accesses: []
-				};
-			}
-			if (access.prop == 'style.fontFamily') {
-				data[tab_id].fontEnumeration = true;
-			} else {
-				data[tab_id].accesses.push(access);
-			}
-		},
-		get: function (tab_id) {
-			return data.hasOwnProperty(tab_id) && data[tab_id];
-		},
-		clear: function (tab_id) {
-			delete data[tab_id];
-		},
-		clean: function () {
-			chrome.tabs.query({}, function (tabs) {
-				// get tab IDs that are in "data" but no longer a known tab
-				// and clean up orphan data
-				_.difference(
-					Object.keys(data).map(Number),
-					_.pluck(tabs, 'id')
-				).forEach(tabData.clear);
-			});
-		}
-	};
-}());
+var tabData = require('../lib/tabdata');
 
 var HEADER_OVERRIDES = {
 	'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
