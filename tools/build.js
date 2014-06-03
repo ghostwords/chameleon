@@ -53,6 +53,8 @@ glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
 });
 
 // extension JS bundles
+// TODO allow requiring all modules used by background/panel pages in browser
+// TODO dev tools: https://github.com/substack/node-browserify/issues/533
 glob.sync('./src/js/*.js').forEach(function (inpath) {
 	var infile = path.basename(inpath),
 		outpath = './chrome/js/builds/' + infile,
