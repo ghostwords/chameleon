@@ -17,6 +17,7 @@
 var _ = require('underscore');
 
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
+	CSP_REPORT_URL = 'http://localhost/report', // TODO better URL?
 	ENABLED = true;
 
 var tabData = require('../lib/tabdata');
@@ -78,6 +79,36 @@ function normalizeHeaders(details) {
 
 	return {
 		requestHeaders: newHeaders
+	};
+}
+
+function addCSPHeader(details) {
+	var headers = details.responseHeaders;
+
+	headers.push({
+		name: 'Content-Security-Policy-Report-Only',
+		value: 'default-src "none"; report-uri ' + CSP_REPORT_URL
+	});
+
+	return {
+		responseHeaders: headers
+	};
+}
+
+// http://stackoverflow.com/questions/6965107/converting-between-strings-and-arraybuffers
+// TODO review
+function ab2str(buf) {
+	return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+function getCSPReports(details) {
+	var report_str = ab2str(details.requestBody.raw[0].bytes),
+		report = JSON.parse(report_str)['csp-report'];
+
+	console.log(report);
+
+	return {
+		cancel: true
 	};
 }
 
@@ -186,7 +217,24 @@ function onNavigation(details) {
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	normalizeHeaders,
 	ALL_URLS,
-	[ "blocking", "requestHeaders" ]
+	['blocking', 'requestHeaders']
+);
+
+// produce Content Security Policy (CSP) reports
+chrome.webRequest.onHeadersReceived.addListener(
+	addCSPHeader,
+	// filter to top-level documents and frames only
+	_.extend(ALL_URLS, {
+		types: ['main_frame', 'sub_frame']
+	}),
+	['blocking', 'responseHeaders']
+);
+
+// listen to CSP reports
+chrome.webRequest.onBeforeRequest.addListener(
+	getCSPReports,
+	{ urls: [CSP_REPORT_URL] },
+	['blocking', 'requestBody']
 );
 
 // TODO set plugins to "ask by default"
