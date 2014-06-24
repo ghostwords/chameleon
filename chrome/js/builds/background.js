@@ -224,7 +224,11 @@ var tabData = {
 				accesses: []
 			};
 		}
-		data[tab_id].accesses.push(access);
+		if (access.prop == 'style.fontFamily') {
+			data[tab_id].fontEnumeration = true;
+		} else {
+			data[tab_id].accesses.push(access);
+		}
 	},
 	get: function (tab_id) {
 		return data.hasOwnProperty(tab_id) && data[tab_id];
