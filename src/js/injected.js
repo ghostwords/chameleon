@@ -179,6 +179,26 @@ var script = '(' + function (event_id) {
 		return 0;
 	};
 
+	// handle canvas-based fingerprinting
+	HTMLCanvasElement.prototype.toDataURL = (function (orig) {
+		return function () {
+			// TODO merge into trap()
+			console.log("HTMLCanvasElement.prototype.toDataURL prop access");
+			send({
+				obj: 'HTMLCanvasElement.prototype',
+				prop: 'toDataURL'
+			});
+
+			// TODO detection only for now ... to protect, need to generate an
+			// TODO empty canvas with matching dimensions, but Chrome and
+			// TODO Firefox produce different PNGs from same inputs somehow
+			//c.setAttribute('width', this.width);
+			//c.setAttribute('height', this.height);
+
+			return orig.apply(this, arguments);
+		};
+	}(HTMLCanvasElement.prototype.toDataURL));
+
 	// detect font enumeration
 	var observer = new MutationObserver(function (mutations) {
 		for (var i = 0; i < mutations.length; i++) {
