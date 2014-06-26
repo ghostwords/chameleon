@@ -109,9 +109,11 @@ __p+='\n\t<table>\n\t\t<caption><b>'+
 ((__t=( _.size(counts) ))==null?'':_.escape(__t))+
 '</b> property accesses detected</caption>\n\t\t<tr>\n\t\t\t<th>property</th>\n\t\t\t<th>count</th>\n\t\t</tr>\n\t\t';
  _.each(Object.keys(counts).sort(), function (name) { 
-__p+='\n\t\t<tr>\n\t\t\t<td>\n\t\t\t\t'+
+__p+='\n\t\t<tr>\n\t\t\t<td>\n\t\t\t\t<div title="'+
 ((__t=( name ))==null?'':_.escape(__t))+
-'\n\t\t\t</td>\n\t\t\t<td>\n\t\t\t\t'+
+'">\n\t\t\t\t\t'+
+((__t=( name ))==null?'':_.escape(__t))+
+'\n\t\t\t\t</div>\n\t\t\t</td>\n\t\t\t<td>\n\t\t\t\t'+
 ((__t=( counts[name] ))==null?'':_.escape(__t))+
 '\n\t\t\t</td>\n\t\t</tr>\n\t\t';
  }) 
