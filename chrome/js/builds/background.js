@@ -21,6 +21,22 @@ var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 
 var tabData = require('../lib/tabdata');
 
+// TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
+// The following headers are currently not provided to the onBeforeSendHeaders event.
+// This list is not guaranteed to be complete nor stable.
+// Authorization
+// Cache-Control
+// Connection
+// Content-Length
+// Host
+// If-Modified-Since
+// If-None-Match
+// If-Range
+// Partial-Data
+// Pragma
+// Proxy-Authorization
+// Proxy-Connection
+// Transfer-Encoding
 var HEADER_OVERRIDES = {
 	'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
 	// TODO this matches Tor Browser on http://fingerprint.pet-portal.eu/?lang=en but not on Panopticlick ...
