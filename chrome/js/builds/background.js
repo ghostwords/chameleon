@@ -19,7 +19,8 @@ var _ = require('underscore');
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
-var tabData = require('../lib/tabdata');
+var tabData = require('../lib/tabdata'),
+	sendMessage = require('../lib/utils').sendMessage;
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 // The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -137,6 +138,20 @@ function getCurrentTab(callback) {
 	});
 }
 
+function getPanelData(callback) {
+	getCurrentTab(function (tab) {
+		var data = tabData.get(tab.id),
+			// TODO do we need the extra obj?
+			response = {};
+
+		response.accesses = data.accesses;
+		response.enabled = ENABLED;
+		response.fontEnumeration = !!data.fontEnumeration;
+
+		callback(response);
+	});
+}
+
 function onMessage(request, sender, sendResponse) {
 	var response = {};
 
@@ -144,7 +159,6 @@ function onMessage(request, sender, sendResponse) {
 		response.insertScript = ENABLED;
 
 	} else if (request.name == 'trapped') {
-		//if (sender.tab && sender.tab.id) {
 		if (_.isArray(request.message)) {
 			request.message.forEach(function (msg) {
 				tabData.record(sender.tab.id, msg);
@@ -152,20 +166,17 @@ function onMessage(request, sender, sendResponse) {
 		} else {
 			tabData.record(sender.tab.id, request.message);
 		}
+
 		updateBadge(sender.tab.id);
-		//}
+
+		// message the popup to rerender with latest data
+		getPanelData(function (data) {
+			sendMessage('panelData', data);
+		});
 
 	} else if (request.name == 'panelLoaded') {
 		// TODO fails when inspecting popup: we send inspector tab instead
-		getCurrentTab(function (tab) {
-			var data = tabData.get(tab.id);
-
-			response.accesses = data.accesses;
-			response.enabled = ENABLED;
-			response.fontEnumeration = !!data.fontEnumeration;
-
-			sendResponse(response);
-		});
+		getPanelData(sendResponse);
 
 		// we will send the response asynchronously
 		return true;
@@ -217,7 +228,7 @@ chrome.webNavigation.onCommitted.addListener(onNavigation);
 // TODO switch to chrome.alarms?
 setInterval(tabData.clean, 300000);
 
-},{"../lib/tabdata":3}],3:[function(require,module,exports){
+},{"../lib/tabdata":3,"../lib/utils":4}],3:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -265,5 +276,46 @@ var tabData = {
 };
 
 module.exports = tabData;
+
+},{}],4:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
+/*
+ * This module needs to work both inside content scripts and the browser popup.
+ */
+
+// acceptable signatures:
+// name
+// name, message
+// name, callback
+// name, message, callback
+module.exports.sendMessage = function (name, message, callback) {
+	var args = [{ name: name }];
+
+	if (Object.prototype.toString.call(message) == '[object Function]') {
+		// name, callback
+		args.push(message);
+	} else {
+		if (message) {
+			// name, message, [callback]
+			args[0].message = message;
+		}
+		if (callback) {
+			// name, [message], callback
+			args.push(callback);
+		}
+	}
+
+	chrome.runtime.sendMessage.apply(chrome.runtime, args);
+};
 
 },{}]},{},[2])

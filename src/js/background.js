@@ -16,7 +16,8 @@ var _ = require('underscore');
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
-var tabData = require('../lib/tabdata');
+var tabData = require('../lib/tabdata'),
+	sendMessage = require('../lib/utils').sendMessage;
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 // The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -134,6 +135,20 @@ function getCurrentTab(callback) {
 	});
 }
 
+function getPanelData(callback) {
+	getCurrentTab(function (tab) {
+		var data = tabData.get(tab.id),
+			// TODO do we need the extra obj?
+			response = {};
+
+		response.accesses = data.accesses;
+		response.enabled = ENABLED;
+		response.fontEnumeration = !!data.fontEnumeration;
+
+		callback(response);
+	});
+}
+
 function onMessage(request, sender, sendResponse) {
 	var response = {};
 
@@ -141,7 +156,6 @@ function onMessage(request, sender, sendResponse) {
 		response.insertScript = ENABLED;
 
 	} else if (request.name == 'trapped') {
-		//if (sender.tab && sender.tab.id) {
 		if (_.isArray(request.message)) {
 			request.message.forEach(function (msg) {
 				tabData.record(sender.tab.id, msg);
@@ -149,20 +163,17 @@ function onMessage(request, sender, sendResponse) {
 		} else {
 			tabData.record(sender.tab.id, request.message);
 		}
+
 		updateBadge(sender.tab.id);
-		//}
+
+		// message the popup to rerender with latest data
+		getPanelData(function (data) {
+			sendMessage('panelData', data);
+		});
 
 	} else if (request.name == 'panelLoaded') {
 		// TODO fails when inspecting popup: we send inspector tab instead
-		getCurrentTab(function (tab) {
-			var data = tabData.get(tab.id);
-
-			response.accesses = data.accesses;
-			response.enabled = ENABLED;
-			response.fontEnumeration = !!data.fontEnumeration;
-
-			sendResponse(response);
-		});
+		getPanelData(sendResponse);
 
 		// we will send the response asynchronously
 		return true;

@@ -33,18 +33,30 @@ function render() {
 	addListeners();
 }
 
-sendMessage('panelLoaded', function (response) {
-	var counts = _.countBy(response.accesses, function (data) {
+function updatePanel(message) {
+	var counts = _.countBy(message.accesses, function (data) {
 		return data.obj + '.' + data.prop;
 	});
 
 	data = {
 		counts: counts,
-		enabled: response.enabled,
-		fontEnumeration: response.fontEnumeration
+		enabled: message.enabled,
+		fontEnumeration: message.fontEnumeration
 	};
 
 	render();
+}
+
+sendMessage('panelLoaded', updatePanel);
+
+chrome.runtime.onMessage.addListener(function (request, sender) {
+	if (sender.id != chrome.runtime.id) {
+		return;
+	}
+
+	if (request.name == 'panelData') {
+		updatePanel(request.message);
+	}
 });
 
 },{"../lib/utils":3,"../templates/panel.jst":4}],3:[function(require,module,exports){
