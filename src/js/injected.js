@@ -164,6 +164,8 @@ var script = '(' + function (event_id) {
 			trap(item.obj, prop, item.overrides[prop]);
 		});
 	});
+	trap(window, 'innerWidth', 1000);
+	trap(window, 'innerHeight', 700);
 
 	// override instance methods
 	// override Date
