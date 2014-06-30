@@ -138,6 +138,10 @@ var script = '(' + function (event_id) {
 			overrides: {
 				appVersion: "5.0 (Windows)",
 				doNotTrack: "unspecified",
+				// TODO not overridable?
+				//javaEnabled: function () {
+				//	return false;
+				//},
 				language: "en-US",
 				mimeTypes: {
 					length: 0
@@ -180,6 +184,7 @@ var script = '(' + function (event_id) {
 
 		return 0;
 	};
+	// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
 
 	// handle canvas-based fingerprinting
 	HTMLCanvasElement.prototype.toDataURL = (function (orig) {

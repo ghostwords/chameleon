@@ -58,14 +58,15 @@ Some sites use Flash detection before loading Flash content. Since Chameleon ove
 Fingerprinting technique | Detection | Protection | Notes
 ------------------------ |:---------:|:----------:| -----
 Request header values | ✗ | ✔ | detection of passive fingerprinting requires an indirect approach
-window.navigator values | ✔ | ✔ |
+window.navigator values | ✔ | ✔ | partial protection (navigator.javaEnabled not yet overriden, ...)
 window.screen values | ✔ | ✔
-Date.prototype.getTimezoneOffset | ✔ | ✔
+Date/time queries | ✔ | ✔ | partial protection (need to adjust the entire timezone, not just getTimezoneOffset)
 Font enumeration | ✔ | ✗ | unable to override fontFamily getters/setters on the CSSStyleDeclaration prototype in Chrome; needs more investigation
 CSS media queries | ✗ | ✗ | needs investigation
 Canvas image data extraction | ✔ | ✗ | protection impeded by image rendering differences between Chrome and Firefox
 Request header ordering/checksum, window.navigator checksum, checksumming in general | ? | ? | needs investigation
 Flash/Java-driven queries | ✗ | ✗ | plugins need to be switched to click-to-play by default
+Third-party cookies | ✗ | ✗ | need to disable by default
 JS/rendering engine differences | ✗ | ✗ | needs investigation
 Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extension
 
