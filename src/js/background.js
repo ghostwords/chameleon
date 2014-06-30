@@ -100,13 +100,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = _.size(data.counts);
-
-		if (data.fontEnumeration) {
-			text++;
-		}
-
-		text = text.toString();
+		text = _.size(data.counts).toString();
 	}
 
 	chrome.browserAction.setBadgeText({
@@ -135,15 +129,15 @@ function getCurrentTab(callback) {
 
 function getPanelData(callback) {
 	getCurrentTab(function (tab) {
-		var data = tabData.get(tab.id),
-			// TODO do we need the extra obj?
-			response = {};
-
-		response.counts = data.counts;
-		response.enabled = ENABLED;
-		response.fontEnumeration = !!data.fontEnumeration;
-
-		callback(response);
+		var data = _.extend(
+			{
+				counts: {},
+				enabled: ENABLED,
+				fontEnumeration: false
+			},
+			tabData.get(tab.id)
+		);
+		callback(data);
 	});
 }
 

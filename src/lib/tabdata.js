@@ -15,27 +15,34 @@ var data = {};
 
 var tabData = {
 	record: function (tab_id, access) {
+		var key = access.obj + '.' + access.prop;
+
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
-				counts: {}
+				counts: {},
+				fontEnumeration: false
 			};
 		}
+
 		if (access.prop == 'style.fontFamily') {
 			data[tab_id].fontEnumeration = true;
-		} else {
-			var key = access.obj + '.' + access.prop;
-			if (!data[tab_id].counts.hasOwnProperty(key)) {
-				data[tab_id].counts[key] = 0;
-			}
-			data[tab_id].counts[key]++;
 		}
+
+		if (!data[tab_id].counts.hasOwnProperty(key)) {
+			data[tab_id].counts[key] = 0;
+		}
+
+		data[tab_id].counts[key]++;
 	},
+
 	get: function (tab_id) {
 		return data.hasOwnProperty(tab_id) && data[tab_id];
 	},
+
 	clear: function (tab_id) {
 		delete data[tab_id];
 	},
+
 	clean: function () {
 		chrome.tabs.query({}, function (tabs) {
 			// get tab IDs that are in "data" but no longer a known tab
