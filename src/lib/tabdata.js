@@ -17,13 +17,17 @@ var tabData = {
 	record: function (tab_id, access) {
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
-				accesses: []
+				counts: {}
 			};
 		}
 		if (access.prop == 'style.fontFamily') {
 			data[tab_id].fontEnumeration = true;
 		} else {
-			data[tab_id].accesses.push(access);
+			var key = access.obj + '.' + access.prop;
+			if (!data[tab_id].counts.hasOwnProperty(key)) {
+				data[tab_id].counts[key] = 0;
+			}
+			data[tab_id].counts[key]++;
 		}
 	},
 	get: function (tab_id) {

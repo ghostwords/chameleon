@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -12,8 +10,7 @@
  *
  */
 
-var _ = require('underscore'),
-	sendMessage = require('../lib/utils').sendMessage,
+var sendMessage = require('../lib/utils').sendMessage,
 	template = require('../templates/panel.jst'),
 	data;
 
@@ -34,16 +31,7 @@ function render() {
 }
 
 function updatePanel(message) {
-	var counts = _.countBy(message.accesses, function (data) {
-		return data.obj + '.' + data.prop;
-	});
-
-	data = {
-		counts: counts,
-		enabled: message.enabled,
-		fontEnumeration: message.fontEnumeration
-	};
-
+	data = message;
 	render();
 }
 
@@ -59,7 +47,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 	}
 });
 
-},{"../lib/utils":3,"../templates/panel.jst":4}],3:[function(require,module,exports){
+},{"../lib/utils":2,"../templates/panel.jst":3}],2:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -100,7 +88,7 @@ module.exports.sendMessage = function (name, message, callback) {
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
 };
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var _ = require('underscore');
 module.exports = function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
@@ -137,4 +125,4 @@ __p+='\n';
 }
 return __p;
 };
-},{}]},{},[2])
+},{}]},{},[1])

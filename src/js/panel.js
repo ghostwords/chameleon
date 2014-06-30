@@ -9,8 +9,7 @@
  *
  */
 
-var _ = require('underscore'),
-	sendMessage = require('../lib/utils').sendMessage,
+var sendMessage = require('../lib/utils').sendMessage,
 	template = require('../templates/panel.jst'),
 	data;
 
@@ -31,16 +30,7 @@ function render() {
 }
 
 function updatePanel(message) {
-	var counts = _.countBy(message.accesses, function (data) {
-		return data.obj + '.' + data.prop;
-	});
-
-	data = {
-		counts: counts,
-		enabled: message.enabled,
-		fontEnumeration: message.fontEnumeration
-	};
-
+	data = message;
 	render();
 }
 

@@ -103,9 +103,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = _.size(_.countBy(data.accesses, function (access) {
-			return access.obj + '.' + access.prop;
-		}));
+		text = _.size(data.counts);
 
 		if (data.fontEnumeration) {
 			text++;
@@ -144,7 +142,7 @@ function getPanelData(callback) {
 			// TODO do we need the extra obj?
 			response = {};
 
-		response.accesses = data.accesses;
+		response.counts = data.counts;
 		response.enabled = ENABLED;
 		response.fontEnumeration = !!data.fontEnumeration;
 
@@ -248,13 +246,17 @@ var tabData = {
 	record: function (tab_id, access) {
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
-				accesses: []
+				counts: {}
 			};
 		}
 		if (access.prop == 'style.fontFamily') {
 			data[tab_id].fontEnumeration = true;
 		} else {
-			data[tab_id].accesses.push(access);
+			var key = access.obj + '.' + access.prop;
+			if (!data[tab_id].counts.hasOwnProperty(key)) {
+				data[tab_id].counts[key] = 0;
+			}
+			data[tab_id].counts[key]++;
 		}
 	},
 	get: function (tab_id) {

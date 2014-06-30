@@ -100,9 +100,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = _.size(_.countBy(data.accesses, function (access) {
-			return access.obj + '.' + access.prop;
-		}));
+		text = _.size(data.counts);
 
 		if (data.fontEnumeration) {
 			text++;
@@ -141,7 +139,7 @@ function getPanelData(callback) {
 			// TODO do we need the extra obj?
 			response = {};
 
-		response.accesses = data.accesses;
+		response.counts = data.counts;
 		response.enabled = ENABLED;
 		response.fontEnumeration = !!data.fontEnumeration;
 
