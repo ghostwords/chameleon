@@ -91,41 +91,39 @@ var script = '(' + function (event_id) {
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
 
-	function trap(obj, overrides) {
-		overrides = overrides || {};
+	function trap(obj, prop, override) {
+		override = override || false;
 
-		Object.keys(obj).forEach(function (prop) {
-			var desc = Object.getOwnPropertyDescriptor(obj, prop);
+		var desc = Object.getOwnPropertyDescriptor(obj, prop);
 
-			if (desc && !desc.configurable) {
-				console.log("%s.%s is not configurable", obj, prop);
-				return;
-			}
+		if (desc && !desc.configurable) {
+			console.log("%s.%s is not configurable", obj, prop);
+			return;
+		}
 
-			var orig_val = obj[prop];
+		var orig_val = obj[prop];
 
-			//if (orig_val == console || orig_val == console.log) {
-			//	return;
-			//}
+		//if (orig_val == console || orig_val == console.log) {
+		//	return;
+		//}
 
-			//console.log("trapping %s.%s ...", obj, prop);
+		//console.log("trapping %s.%s ...", obj, prop);
 
-			Object.defineProperty(obj, prop, {
-				get: function () {
-					console.log("%s.%s prop access", obj, prop);
+		Object.defineProperty(obj, prop, {
+			get: function () {
+				console.log("%s.%s prop access", obj, prop);
 
-					send({
-						obj: getName(obj),
-						prop: prop.toString()
-					});
+				send({
+					obj: getName(obj),
+					prop: prop.toString()
+				});
 
-					if (overrides.hasOwnProperty(prop)) {
-						return overrides[prop];
-					}
-
-					return orig_val;
+				if (override) {
+					return override;
 				}
-			});
+
+				return orig_val;
+			}
 		});
 	}
 
@@ -162,7 +160,9 @@ var script = '(' + function (event_id) {
 			}
 		}
 	].forEach(function (item) {
-		trap(item.obj, item.overrides);
+		Object.keys(item.obj).forEach(function (prop) {
+			trap(item.obj, prop, item.overrides[prop]);
+		});
 	});
 
 	// override instance methods
