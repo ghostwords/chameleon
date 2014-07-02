@@ -55,14 +55,12 @@ glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
 // extension JS bundles
 // TODO allow requiring all modules used by background/panel pages in browser
 // TODO dev tools: https://github.com/substack/node-browserify/issues/533
-glob.sync('./src/js/*.js').forEach(function (inpath) {
+glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 	var infile = path.basename(inpath),
-		outpath = './chrome/js/builds/' + infile,
+		outpath = './chrome/js/builds/' + infile.replace(/\.jsx$/, '.js'),
 		b = browserify(inpath)
-			// precompile Underscore templates
-			// do not minify them because html-minifier does not speak JST
-			// TODO add error handling to https://github.com/zertosh/jstify
-			.transform({ noMinify: true }, 'jstify');
+			// compile JSX
+			.transform('reactify');
 
 	// don't bundle vendor libs; they get bundled separately
 	// and included manually via own script tags
