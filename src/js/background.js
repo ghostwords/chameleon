@@ -127,18 +127,15 @@ function getCurrentTab(callback) {
 	});
 }
 
-function getPanelData(callback) {
-	getCurrentTab(function (tab) {
-		var data = _.extend(
-			{
-				counts: {},
-				enabled: ENABLED,
-				fontEnumeration: false
-			},
-			tabData.get(tab.id)
-		);
-		callback(data);
-	});
+function getPanelData(tab_id) {
+	return _.extend(
+		{
+			counts: {},
+			enabled: ENABLED,
+			fontEnumeration: false
+		},
+		tabData.get(tab_id)
+	);
 }
 
 function onMessage(request, sender, sendResponse) {
@@ -159,13 +156,18 @@ function onMessage(request, sender, sendResponse) {
 		updateBadge(sender.tab.id);
 
 		// message the popup to rerender with latest data
-		getPanelData(function (data) {
-			sendMessage('panelData', data);
+		getCurrentTab(function (tab) {
+			// but only if this message is for the current tab
+			if (tab.id == sender.tab.id) {
+				sendMessage('panelData', getPanelData(tab.id));
+			}
 		});
 
 	} else if (request.name == 'panelLoaded') {
 		// TODO fails when inspecting popup: we send inspector tab instead
-		getPanelData(sendResponse);
+		getCurrentTab(function (tab) {
+			sendResponse(getPanelData(tab.id));
+		});
 
 		// we will send the response asynchronously
 		return true;
