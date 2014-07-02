@@ -50,10 +50,11 @@ var PanelApp = React.createClass({
 	},
 
 	toggle: function () {
-		sendMessage('panelToggle');
-		this.setState({
-			enabled: !this.state.enabled
-		});
+		sendMessage('panelToggle', function () {
+			this.setState({
+				enabled: !this.state.enabled
+			});
+		}.bind(this));
 		document.getElementById('status-text').className = 'animated flipInY';
 	},
 
