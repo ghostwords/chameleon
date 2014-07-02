@@ -75,15 +75,17 @@ var Header = React.createClass({
 	toggle: function () {
 		this.props.toggle();
 	},
+
 	render: function () {
-		var classes = [
+		var logoClasses = [
 			'sprites',
 			'toplogo',
 			'logo-' + (this.props.enabled ? '' : 'in') + 'active'
 		];
+
 		return (
 			<div>
-				<span className={classes.join(' ')}></span>
+				<span className={logoClasses.join(' ')}></span>
 				<div id="header-contents">
 					Chameleon is <span id="status-text">
 						{this.props.enabled ?

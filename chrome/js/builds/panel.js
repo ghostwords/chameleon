@@ -78,15 +78,17 @@ var Header = React.createClass({displayName: 'Header',
 	toggle: function () {
 		this.props.toggle();
 	},
+
 	render: function () {
-		var classes = [
+		var logoClasses = [
 			'sprites',
 			'toplogo',
 			'logo-' + (this.props.enabled ? '' : 'in') + 'active'
 		];
+
 		return (
 			React.DOM.div(null, 
-				React.DOM.span( {className:classes.join(' ')}),
+				React.DOM.span( {className:logoClasses.join(' ')}),
 				React.DOM.div( {id:"header-contents"}, 
 					"Chameleon is ", React.DOM.span( {id:"status-text"}, 
 						this.props.enabled ?
