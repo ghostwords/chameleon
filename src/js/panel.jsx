@@ -53,15 +53,19 @@ var PanelApp = React.createClass({
 		sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
+			}, function () {
+				this.refs.header.animate();
 			});
 		}.bind(this));
-		document.getElementById('status-text').className = 'animated flipInY';
 	},
 
 	render: function () {
 		return (
 			<div>
-				<Header enabled={this.state.enabled} toggle={this.toggle} />
+				<Header
+					enabled={this.state.enabled}
+					ref="header"
+					toggle={this.toggle} />
 				<hr />
 				<Report
 					fontEnumeration={this.state.fontEnumeration}
@@ -76,6 +80,17 @@ var Header = React.createClass({
 		this.props.toggle();
 	},
 
+	animate: function () {
+		var el = this.refs.statusText.getDOMNode();
+
+		el.className = '';
+
+		// hack to force repaint
+		var redraw = el.offsetHeight;
+
+		el.className = 'animated flipInY';
+	},
+
 	render: function () {
 		var logoClasses = [
 			'sprites',
@@ -87,7 +102,7 @@ var Header = React.createClass({
 			<div>
 				<span className={logoClasses.join(' ')}></span>
 				<div id="header-contents">
-					Chameleon is <span id="status-text">
+					Chameleon is <span id="status-text" ref="statusText">
 						{this.props.enabled ?
 							'enabled' :
 							<span className="warning">disabled</span>}

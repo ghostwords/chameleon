@@ -56,15 +56,19 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 		sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
+			}, function () {
+				this.refs.header.animate();
 			});
 		}.bind(this));
-		document.getElementById('status-text').className = 'animated flipInY';
 	},
 
 	render: function () {
 		return (
 			React.DOM.div(null, 
-				Header( {enabled:this.state.enabled, toggle:this.toggle} ),
+				Header(
+					{enabled:this.state.enabled,
+					ref:"header",
+					toggle:this.toggle} ),
 				React.DOM.hr(null ),
 				Report(
 					{fontEnumeration:this.state.fontEnumeration,
@@ -79,6 +83,17 @@ var Header = React.createClass({displayName: 'Header',
 		this.props.toggle();
 	},
 
+	animate: function () {
+		var el = this.refs.statusText.getDOMNode();
+
+		el.className = '';
+
+		// hack to force repaint
+		var redraw = el.offsetHeight;
+
+		el.className = 'animated flipInY';
+	},
+
 	render: function () {
 		var logoClasses = [
 			'sprites',
@@ -90,7 +105,7 @@ var Header = React.createClass({displayName: 'Header',
 			React.DOM.div(null, 
 				React.DOM.span( {className:logoClasses.join(' ')}),
 				React.DOM.div( {id:"header-contents"}, 
-					"Chameleon is ", React.DOM.span( {id:"status-text"}, 
+					"Chameleon is ", React.DOM.span( {id:"status-text", ref:"statusText"}, 
 						this.props.enabled ?
 							'enabled' :
 							React.DOM.span( {className:"warning"}, "disabled")
