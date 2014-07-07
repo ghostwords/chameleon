@@ -11,6 +11,8 @@
  *
  */
 
+/*jshint newcap:false */
+
 var React = require('react'),
 	sendMessage = require('../lib/utils').sendMessage;
 
@@ -86,7 +88,7 @@ var Header = React.createClass({
 		el.className = '';
 
 		// hack to force repaint
-		var redraw = el.offsetHeight;
+		var redraw = el.offsetHeight; // jshint ignore:line
 
 		el.className = 'animated flipInY';
 	},
@@ -100,7 +102,7 @@ var Header = React.createClass({
 
 		var text = this.props.enabled ?
 			'enabled' :
-			<span className="warning">disabled</span>
+			<span className="warning">disabled</span>;
 
 		return (
 			<div>

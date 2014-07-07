@@ -14,6 +14,8 @@
  *
  */
 
+/*jshint newcap:false */
+
 var React = require('react'),
 	sendMessage = require('../lib/utils').sendMessage;
 
@@ -89,7 +91,7 @@ var Header = React.createClass({displayName: 'Header',
 		el.className = '';
 
 		// hack to force repaint
-		var redraw = el.offsetHeight;
+		var redraw = el.offsetHeight; // jshint ignore:line
 
 		el.className = 'animated flipInY';
 	},
@@ -103,7 +105,7 @@ var Header = React.createClass({displayName: 'Header',
 
 		var text = this.props.enabled ?
 			'enabled' :
-			React.DOM.span( {className:"warning"}, "disabled")
+			React.DOM.span( {className:"warning"}, "disabled");
 
 		return (
 			React.DOM.div(null, 

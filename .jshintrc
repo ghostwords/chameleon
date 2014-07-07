@@ -9,13 +9,13 @@
     "camelcase"     : false,    // true: Identifiers must be in camelCase
     "curly"         : true,     // true: Require {} for every new block or scope
     "eqeqeq"        : false,    // true: Require triple equals (===) for comparison
-    "forin"         : false,    // true: Require filtering for..in loops with obj.hasOwnProperty()
-    "immed"         : true,     // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`
+    "forin"         : true,     // true: Require filtering for..in loops with obj.hasOwnProperty()
+    "immed"         : false,    // true: Require immediate invocations to be wrapped in parens e.g. `(function () { } ());`
     "indent"        : 4,        // {int} Number of spaces to use for indentation
     "latedef"       : false,    // true: Require variables/functions to be defined before being used
     "newcap"        : true,     // true: Require capitalization of all constructor functions e.g. `new F()`
     "noarg"         : true,     // true: Prohibit use of `arguments.caller` and `arguments.callee`
-    "noempty"       : false,    // true: Prohibit use of empty blocks
+    "noempty"       : true,     // true: Prohibit use of empty blocks
     "nonew"         : false,    // true: Prohibit use of constructors for side-effects (without assignment)
     "plusplus"      : false,    // true: Prohibit use of `++` & `--`
     "quotmark"      : false,    // Quotation mark consistency:
@@ -26,7 +26,6 @@
     "undef"         : true,     // true: Require all non-global variables to be declared (prevents global leaks)
     "unused"        : true,     // true: Require all defined variables be used
     "strict"        : false,    // true: Requires all functions run in ES5 Strict Mode
-    "trailing"      : true,     // true: Prohibit trailing whitespaces
     "maxparams"     : false,    // {int} Max number of formal params allowed per function
     "maxdepth"      : false,    // {int} Max depth of nested blocks (within functions)
     "maxstatements" : false,    // {int} Max number statements per function
@@ -54,7 +53,6 @@
     "multistr"      : false,     // true: Tolerate multi-line strings
     "proto"         : false,     // true: Tolerate using the `__proto__` property
     "scripturl"     : false,     // true: Tolerate script-targeted URLs
-    "smarttabs"     : false,     // true: Tolerate mixed tabs/spaces when used for alignment
     "shadow"        : false,     // true: Allows re-define variables later in code e.g. `var x=1; x=2;`
     "sub"           : false,     // true: Tolerate using `[]` notation when it can still be expressed in dot notation
     "supernew"      : false,     // true: Tolerate `new function () { ... };` and `new Object;`
@@ -74,12 +72,6 @@
     "worker"        : false,    // Web Workers
     "wsh"           : false,    // Windows Scripting Host
     "yui"           : false,    // Yahoo User Interface
-
-    // Legacy
-    "nomen"         : false,    // true: Prohibit dangling `_` in variables
-    "onevar"        : false,    // true: Allow only one `var` statement per function
-    "passfail"      : false,    // true: Stop on first error
-    "white"         : true,     // true: Check against strict whitespace and indentation rules
 
     // Custom Globals
     "globals"       : { "chrome": true }        // additional predefined global variables
