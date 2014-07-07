@@ -98,14 +98,16 @@ var Header = React.createClass({
 			'logo-' + (this.props.enabled ? '' : 'in') + 'active'
 		];
 
+		var text = this.props.enabled ?
+			'enabled' :
+			<span className="warning">disabled</span>
+
 		return (
 			<div>
 				<span className={logoClasses.join(' ')}></span>
 				<div id="header-contents">
 					Chameleon is <span id="status-text" ref="statusText">
-						{this.props.enabled ?
-							'enabled' :
-							<span className="warning">disabled</span>}
+						{text}
 					</span>
 					<br />
 					<a href="#" id="toggle" onClick={this.toggle}>

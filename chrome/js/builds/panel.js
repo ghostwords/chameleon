@@ -101,14 +101,16 @@ var Header = React.createClass({displayName: 'Header',
 			'logo-' + (this.props.enabled ? '' : 'in') + 'active'
 		];
 
+		var text = this.props.enabled ?
+			'enabled' :
+			React.DOM.span( {className:"warning"}, "disabled")
+
 		return (
 			React.DOM.div(null, 
 				React.DOM.span( {className:logoClasses.join(' ')}),
 				React.DOM.div( {id:"header-contents"}, 
 					"Chameleon is ", React.DOM.span( {id:"status-text", ref:"statusText"}, 
-						this.props.enabled ?
-							'enabled' :
-							React.DOM.span( {className:"warning"}, "disabled")
+						text
 					),
 					React.DOM.br(null ),
 					React.DOM.a( {href:"#", id:"toggle", onClick:this.toggle}, 
