@@ -69,7 +69,11 @@ glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 	});
 
 	// minify some files
-	if (['./src/js/injected.js'].indexOf(inpath) != -1) {
+	var minify = [
+		'./src/js/inject.js',
+		'./src/js/injected.js'
+	];
+	if (minify.indexOf(inpath) != -1) {
 		b = b.transform('uglifyify');
 		outpath = outpath.replace(/\.js$/, '.min.js');
 	}

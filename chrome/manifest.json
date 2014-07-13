@@ -31,7 +31,7 @@
 		{
 			"all_frames": true,
 			"js": [
-				"js/builds/injected.min.js"
+				"js/builds/inject.min.js"
 			],
 			"matches": [
 				"http://*/*",
@@ -48,5 +48,8 @@
 		"webNavigation",
 		"webRequest",
 		"webRequestBlocking"
+	],
+	"web_accessible_resources": [
+		"js/builds/injected.min.js"
 	]
 }

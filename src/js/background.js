@@ -141,10 +141,7 @@ function getPanelData(tab_id) {
 function onMessage(request, sender, sendResponse) {
 	var response = {};
 
-	if (request.name == 'injected') {
-		response.insertScript = ENABLED;
-
-	} else if (request.name == 'trapped') {
+	if (request.name == 'trapped') {
 		if (_.isArray(request.message)) {
 			request.message.forEach(function (msg) {
 				tabData.record(sender.tab.id, msg);
@@ -198,13 +195,20 @@ function onNavigation(details) {
 //chrome.webRequest.onBeforeRequest.addListener(
 //	filterRequests,
 //	ALL_URLS,
-//	[ "blocking" ]
+//	["blocking"]
 //);
+
+// abort injecting the content script when Chameleon is disabled
+chrome.webRequest.onBeforeRequest.addListener(
+	function () { return { cancel: !ENABLED }; },
+	{ urls: ['chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'] },
+	["blocking"]
+);
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	normalizeHeaders,
 	ALL_URLS,
-	[ "blocking", "requestHeaders" ]
+	["blocking", "requestHeaders"]
 );
 
 // TODO set plugins to "ask by default"

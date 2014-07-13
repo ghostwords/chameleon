@@ -9,27 +9,25 @@
  *
  */
 
-var sendMessage = require('../lib/utils').sendMessage;
+/*
+ * Injected via inject.js. Not a content script, no chrome.* API access.
+ */
 
-function insertScript(src) {
-	var head = document.getElementsByTagName('head')[0] || document.documentElement,
-		script = document.createElement('script');
+(function () {
 
-	script.textContent = src;
+	var event_id = (function () {
+		var scripts = document.getElementsByTagName('script');
+		for (var i = 0; i < scripts.length; i++) {
+			var script = scripts[i],
+				event_id = script.getAttribute('data-event-id'),
+				// TODO should actually insert our own ID here via a macro
+				src_regex = /chrome-extension:\/\/[^\/]+\/js\/builds\/injected\.min\.js/;
 
-	// TODO onload?
-	script.onload = function () {
-		head.removeChild(script);
-	};
-
-	head.insertBefore(script, head.firstChild);
-}
-
-var event_id = Math.random();
-// http://stackoverflow.com/questions/9515704/building-a-chrome-extension-inject-code-in-a-page-using-a-content-script
-var script = '(' + function (event_id) {
-
-// start of page JS ////////////////////////////////////////////////////////////
+			if (event_id && src_regex.test(script.src)) {
+				return event_id;
+			}
+		}
+	}());
 
 	// from underscore-1.6.0.js
 	function debounce(func, wait, immediate) {
@@ -260,19 +258,4 @@ var script = '(' + function (event_id) {
 		subtree: true
 	});
 
-// end of page JS //////////////////////////////////////////////////////////////
-
-} + '(' + event_id + '));';
-
-// TODO async messaging introduces race condition (page JS could execute before our script)
-sendMessage('injected', function (response) {
-	if (response.insertScript) {
-		// listen for messages from the script we are about to insert
-		document.addEventListener(event_id, function (e) {
-			// pass these on to the background page
-			sendMessage('trapped', e.detail);
-		});
-
-		insertScript(script);
-	}
-});
+}());
