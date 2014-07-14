@@ -145,11 +145,15 @@ var Report = React.createClass({
 					<caption>
 						<b>{rows.length}</b> property accesses detected
 					</caption>
-					<tr>
-						<th>property</th>
-						<th>count</th>
-					</tr>
-					{rows}
+					<thead>
+						<tr>
+							<th>property</th>
+							<th>count</th>
+						</tr>
+					</thead>
+					<tbody>
+						{rows}
+					</tbody>
 				</table>
 			);
 		}
