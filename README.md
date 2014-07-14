@@ -52,7 +52,7 @@ CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
 
 Some sites use Flash detection before loading Flash content. Since Chameleon overloads `window.navigator.plugins`, these sites end up showing error messages about needing to install or upgrade Flash.
 
-Should be fixed: Race condition with async injected script messaging. For example, the script on http://browserspy.dk/plugins.php sometimes loads before Chameleon's script does its overwriting.
+Should be fixed (see [d17cd29](https://github.com/ghostwords/chameleon/commit/d17cd29f6126dee478c49a1102e766734023ef9a)): Race condition with async injected script messaging. For example, the script on http://browserspy.dk/plugins.php sometimes loads before Chameleon's script does its overwriting.
 
 Still have a race condition on pages like http://ded.increpare.com/~locus/Promises/ however. Seems to do with caching -- when the resources are cached, our injected script isn't fast enough?
 
