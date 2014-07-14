@@ -24,6 +24,7 @@
 			script = document.createElement('script');
 
 		script.src = url;
+		script.async = false;
 
 		// TODO onload?
 		script.onload = function () {
