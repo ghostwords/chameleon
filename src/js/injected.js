@@ -90,8 +90,6 @@
 	}
 
 	function trap(obj, prop, override) {
-		override = override || false;
-
 		var desc = Object.getOwnPropertyDescriptor(obj, prop);
 
 		if (desc && !desc.configurable) {
@@ -116,7 +114,7 @@
 					prop: prop.toString()
 				});
 
-				if (override) {
+				if (override !== undefined) {
 					return override;
 				}
 
