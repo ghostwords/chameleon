@@ -126,12 +126,15 @@
 	// define nonexistent-in-Chrome properties (to match Tor Browser)
 	// TODO merge into trap()
 	window.navigator.buildID = "20000101000000";
+	window.navigator.oscpu = "Windows NT 6.1";
 
 	// JS objects to trap along with properties to override
 	[
 		{
 			obj: window.navigator,
 			overrides: {
+				appCodeName: "Mozilla",
+				appName: "Netscape",
 				appVersion: "5.0 (Windows)",
 				doNotTrack: "unspecified",
 				// TODO not overridable?
@@ -142,11 +145,13 @@
 				mimeTypes: {
 					length: 0
 				},
+				platform: "Win32",
 				plugins: {
 					length: 0,
 					refresh: function () {}
 				},
-				userAgent: "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0"
+				userAgent: "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
+				vendor: ""
 			}
 		},
 		{
