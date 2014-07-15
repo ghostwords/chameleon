@@ -15,6 +15,8 @@
 
 (function () {
 
+	Error.stackTraceLimit = Infinity; // collect all frames
+
 	var event_id = (function () {
 		var scripts = document.getElementsByTagName('script');
 		for (var i = 0; i < scripts.length; i++) {
@@ -85,6 +87,41 @@
 		};
 	}());
 
+	// http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+	function getStackTrace(structured) {
+		var err = {}, // TODO should this be new Error() instead?
+			origFormatter,
+			stack;
+
+		if (structured) {
+			origFormatter = Error.prepareStackTrace;
+			Error.prepareStackTrace = function (err, structuredStackTrace) {
+				return structuredStackTrace;
+			};
+		}
+
+		Error.captureStackTrace(err, getStackTrace);
+		stack = err.stack;
+
+		if (structured) {
+			Error.prepareStackTrace = origFormatter;
+		}
+
+		return stack;
+	}
+
+	function getScriptFileName() {
+		// this script is at 0 and 1
+		var callSite = getStackTrace(true)[2];
+
+		if (callSite.isEval()) {
+			// argh, getEvalOrigin returns a string ...
+			return callSite.getEvalOrigin().match(/\((http.*)\)$/)[1];
+		} else {
+			return callSite.getFileName() + ':' + callSite.getLineNumber() + ':' + callSite.getColumnNumber();
+		}
+	}
+
 	function getName(o) {
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
@@ -107,11 +144,14 @@
 
 		Object.defineProperty(obj, prop, {
 			get: function () {
-				console.log("%s.%s prop access", obj, prop);
+				var scriptName = getScriptFileName();
+
+				console.log("%s.%s prop access: %s", obj, prop, scriptName);
 
 				send({
 					obj: getName(obj),
-					prop: prop.toString()
+					prop: prop.toString(),
+					scriptName: scriptName
 				});
 
 				if (override !== undefined) {
@@ -176,11 +216,14 @@
 	// override Date
 	// TODO merge into trap()
 	window.Date.prototype.getTimezoneOffset = function () {
-		console.log("Date.prototype.getTimezoneOffset prop access");
+		var scriptName = getScriptFileName();
+
+		console.log("Date.prototype.getTimezoneOffset prop access: %s", scriptName);
 
 		send({
 			obj: 'Date.prototype',
-			prop: 'getTimezoneOffset'
+			prop: 'getTimezoneOffset',
+			scriptName: scriptName
 		});
 
 		return 0;
@@ -189,12 +232,16 @@
 
 	// handle canvas-based fingerprinting
 	HTMLCanvasElement.prototype.toDataURL = (function (orig) {
+		// TODO merge into trap()
 		return function () {
-			// TODO merge into trap()
-			console.log("HTMLCanvasElement.prototype.toDataURL prop access");
+			var scriptName = getScriptFileName();
+
+			console.log("HTMLCanvasElement.prototype.toDataURL prop access: %s", scriptName);
+
 			send({
 				obj: 'HTMLCanvasElement.prototype',
-				prop: 'toDataURL'
+				prop: 'toDataURL',
+				scriptName: scriptName
 			});
 
 			// TODO detection only for now ... to protect, need to generate an
@@ -238,9 +285,11 @@
 			if (fonts.length > 2) {
 				console.log(mutation); // TODO
 
+				// TODO since MutationObserver is async, a stack trace now
+				// TODO won't get us the script that originated the scanning
 				send({
 					obj: getName(target),
-					prop: 'style.fontFamily',
+					prop: 'style.fontFamily'
 				});
 
 				// no need to keep listening
