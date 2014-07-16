@@ -73,8 +73,8 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 					toggle:this.toggle} ),
 				React.DOM.hr(null ),
 				Report(
-					{fontEnumeration:this.state.fontEnumeration,
-					counts:this.state.counts} )
+					{counts:this.state.counts,
+					fontEnumeration:this.state.fontEnumeration} )
 			)
 		);
 	}
@@ -125,10 +125,26 @@ var Header = React.createClass({displayName: 'Header',
 });
 
 var Report = React.createClass({displayName: 'Report',
+	getAccessCount: function () {
+		var counts = this.props.counts;
+
+		// TODO refactor together with sister code in background.js
+
+		var props = {};
+
+		// no need for hasOwnProperty loop checks in this context
+		for (var url in counts) { // jshint ignore:line
+			for (var prop in counts[url]) { // jshint ignore:line
+				props[prop] = true;
+			}
+		}
+
+		return Object.keys(props).length;
+	},
+
 	render: function () {
-		var rows = [],
-			fontEnumeration,
-			table;
+		var fontEnumeration,
+			reports = [];
 
 		if (this.props.fontEnumeration) {
 			fontEnumeration = (
@@ -136,18 +152,53 @@ var Report = React.createClass({displayName: 'Report',
 			);
 		}
 
+		Object.keys(this.props.counts).sort().forEach(function (url) {
+			reports.push(
+				ScriptReport(
+					{key:url,
+					url:url,
+					counts:this.props.counts[url]} )
+			);
+		}, this);
+
+		var status = reports.length ?
+			React.DOM.p(null, 
+				React.DOM.b(null, this.getAccessCount()), " property accesses detected"+' '+
+				"across ", React.DOM.b(null, reports.length), " scripts."
+			) :
+			React.DOM.p(null, "No property accesses detected.");
+
+		return (
+			React.DOM.div(null, 
+				fontEnumeration,
+				status,
+				reports
+			)
+		);
+	}
+});
+
+var ScriptReport = React.createClass({displayName: 'ScriptReport',
+	render: function () {
+		var rows = [];
+
 		Object.keys(this.props.counts).sort().forEach(function (name) {
 			rows.push(
 				ReportRow( {key:name, name:name, count:this.props.counts[name]} )
 			);
 		}, this);
 
-		if (rows.length) {
-			table = (
+		return (
+			React.DOM.div(null, 
+				React.DOM.p( {title:this.props.url, style:{
+					margin: '20px 0 5px',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+					whiteSpace: 'nowrap'
+				}}, 
+					this.props.url
+				),
 				React.DOM.table(null, 
-					React.DOM.caption(null, 
-						React.DOM.b(null, rows.length), " property accesses detected"
-					),
 					React.DOM.thead(null, 
 						React.DOM.tr(null, 
 							React.DOM.th(null, "property"),
@@ -158,13 +209,6 @@ var Report = React.createClass({displayName: 'Report',
 						rows
 					)
 				)
-			);
-		}
-
-		return (
-			React.DOM.div(null, 
-				fontEnumeration,
-				table ? table : React.DOM.p(null, "No property accesses detected.")
 			)
 		);
 	}

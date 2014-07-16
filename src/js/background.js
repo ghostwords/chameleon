@@ -100,7 +100,17 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = _.size(data.counts).toString();
+		// count unique keys across all counts objects
+		var props = {};
+
+		// no need for hasOwnProperty loop checks in this context
+		for (var url in data.counts) { // jshint ignore:line
+			for (var prop in data.counts[url]) { // jshint ignore:line
+				props[prop] = true;
+			}
+		}
+
+		text = Object.keys(props).length.toString();
 	}
 
 	chrome.browserAction.setBadgeText({

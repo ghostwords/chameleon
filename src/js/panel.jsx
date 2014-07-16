@@ -70,8 +70,8 @@ var PanelApp = React.createClass({
 					toggle={this.toggle} />
 				<hr />
 				<Report
-					fontEnumeration={this.state.fontEnumeration}
-					counts={this.state.counts} />
+					counts={this.state.counts}
+					fontEnumeration={this.state.fontEnumeration} />
 			</div>
 		);
 	}
@@ -122,10 +122,26 @@ var Header = React.createClass({
 });
 
 var Report = React.createClass({
+	getAccessCount: function () {
+		var counts = this.props.counts;
+
+		// TODO refactor together with sister code in background.js
+
+		var props = {};
+
+		// no need for hasOwnProperty loop checks in this context
+		for (var url in counts) { // jshint ignore:line
+			for (var prop in counts[url]) { // jshint ignore:line
+				props[prop] = true;
+			}
+		}
+
+		return Object.keys(props).length;
+	},
+
 	render: function () {
-		var rows = [],
-			fontEnumeration,
-			table;
+		var fontEnumeration,
+			reports = [];
 
 		if (this.props.fontEnumeration) {
 			fontEnumeration = (
@@ -133,18 +149,53 @@ var Report = React.createClass({
 			);
 		}
 
+		Object.keys(this.props.counts).sort().forEach(function (url) {
+			reports.push(
+				<ScriptReport
+					key={url}
+					url={url}
+					counts={this.props.counts[url]} />
+			);
+		}, this);
+
+		var status = reports.length ?
+			<p>
+				<b>{this.getAccessCount()}</b> property accesses detected
+				across <b>{reports.length}</b> scripts.
+			</p> :
+			<p>No property accesses detected.</p>;
+
+		return (
+			<div>
+				{fontEnumeration}
+				{status}
+				{reports}
+			</div>
+		);
+	}
+});
+
+var ScriptReport = React.createClass({
+	render: function () {
+		var rows = [];
+
 		Object.keys(this.props.counts).sort().forEach(function (name) {
 			rows.push(
 				<ReportRow key={name} name={name} count={this.props.counts[name]} />
 			);
 		}, this);
 
-		if (rows.length) {
-			table = (
+		return (
+			<div>
+				<p title={this.props.url} style={{
+					margin: '20px 0 5px',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+					whiteSpace: 'nowrap'
+				}}>
+					{this.props.url}
+				</p>
 				<table>
-					<caption>
-						<b>{rows.length}</b> property accesses detected
-					</caption>
 					<thead>
 						<tr>
 							<th>property</th>
@@ -155,13 +206,6 @@ var Report = React.createClass({
 						{rows}
 					</tbody>
 				</table>
-			);
-		}
-
-		return (
-			<div>
-				{fontEnumeration}
-				{table ? table : <p>No property accesses detected.</p>}
 			</div>
 		);
 	}
