@@ -122,6 +122,10 @@
 		}
 	}
 
+	function stripLineAndColumnNumbers(script_url) {
+		return script_url.replace(/:\d+:\d+$/, '');
+	}
+
 	function getObjectName(o) {
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
@@ -151,7 +155,7 @@
 				send({
 					obj: getObjectName(obj),
 					prop: prop.toString(),
-					scriptUrl: script_url
+					scriptUrl: stripLineAndColumnNumbers(script_url)
 				});
 
 				if (override !== undefined) {
@@ -223,7 +227,7 @@
 		send({
 			obj: 'Date.prototype',
 			prop: 'getTimezoneOffset',
-			scriptUrl: script_url
+			scriptUrl: stripLineAndColumnNumbers(script_url)
 		});
 
 		return 0;
@@ -241,7 +245,7 @@
 			send({
 				obj: 'HTMLCanvasElement.prototype',
 				prop: 'toDataURL',
-				scriptUrl: script_url
+				scriptUrl: stripLineAndColumnNumbers(script_url)
 			});
 
 			// TODO detection only for now ... to protect, need to generate an
