@@ -110,7 +110,7 @@
 		return stack;
 	}
 
-	function getScriptFileName() {
+	function getOriginatingScriptUrl() {
 		// this script is at 0 and 1
 		var callSite = getStackTrace(true)[2];
 
@@ -122,7 +122,7 @@
 		}
 	}
 
-	function getName(o) {
+	function getObjectName(o) {
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
 
@@ -144,14 +144,14 @@
 
 		Object.defineProperty(obj, prop, {
 			get: function () {
-				var scriptName = getScriptFileName();
+				var script_url = getOriginatingScriptUrl();
 
-				console.log("%s.%s prop access: %s", obj, prop, scriptName);
+				console.log("%s.%s prop access: %s", obj, prop, script_url);
 
 				send({
-					obj: getName(obj),
+					obj: getObjectName(obj),
 					prop: prop.toString(),
-					scriptName: scriptName
+					scriptUrl: script_url
 				});
 
 				if (override !== undefined) {
@@ -216,14 +216,14 @@
 	// override Date
 	// TODO merge into trap()
 	window.Date.prototype.getTimezoneOffset = function () {
-		var scriptName = getScriptFileName();
+		var script_url = getOriginatingScriptUrl();
 
-		console.log("Date.prototype.getTimezoneOffset prop access: %s", scriptName);
+		console.log("Date.prototype.getTimezoneOffset prop access: %s", script_url);
 
 		send({
 			obj: 'Date.prototype',
 			prop: 'getTimezoneOffset',
-			scriptName: scriptName
+			scriptUrl: script_url
 		});
 
 		return 0;
@@ -234,14 +234,14 @@
 	HTMLCanvasElement.prototype.toDataURL = (function (orig) {
 		// TODO merge into trap()
 		return function () {
-			var scriptName = getScriptFileName();
+			var script_url = getOriginatingScriptUrl();
 
-			console.log("HTMLCanvasElement.prototype.toDataURL prop access: %s", scriptName);
+			console.log("HTMLCanvasElement.prototype.toDataURL prop access: %s", script_url);
 
 			send({
 				obj: 'HTMLCanvasElement.prototype',
 				prop: 'toDataURL',
-				scriptName: scriptName
+				scriptUrl: script_url
 			});
 
 			// TODO detection only for now ... to protect, need to generate an
@@ -288,7 +288,7 @@
 				// TODO since MutationObserver is async, a stack trace now
 				// TODO won't get us the script that originated the scanning
 				send({
-					obj: getName(target),
+					obj: getObjectName(target),
 					prop: 'style.fontFamily'
 				});
 
