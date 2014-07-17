@@ -28,9 +28,7 @@ var PanelApp = React.createClass({
 
 	componentDidMount: function () {
 		// get panel data on load
-		sendMessage('panelLoaded', function (response) {
-			this.setState(response);
-		}.bind(this));
+		sendMessage('panelLoaded', this.setState.bind(this));
 
 		// get live updates to panel data
 		chrome.runtime.onMessage.addListener(this.onMessage);
