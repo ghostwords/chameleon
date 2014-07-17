@@ -200,6 +200,8 @@ function onNavigation(details) {
 
 // abort injecting the content script when Chameleon is disabled
 chrome.webRequest.onBeforeRequest.addListener(
+	// we redirect to a blank script instead of simply cancelling the request
+	// because cancelling makes pages spin forever for some reason
 	function () { if (!ENABLED) { return { redirectUrl: 'data:text/javascript,' }; } },
 	{ urls: ['chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'] },
 	["blocking"]
