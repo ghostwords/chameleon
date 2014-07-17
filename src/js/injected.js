@@ -110,6 +110,15 @@
 		return stack;
 	}
 
+	/* TODO doesn't work when the stack trace contains <anonymous> fileNames
+	for example: http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
+		at Navigator.Object.defineProperty.get [as userAgent] (chrome-extension://.../js/builds/injected.min.js:2:1027)
+		at Object.self.doTag (<anonymous>:33:1230)
+		at bk_doSendData (<anonymous>:33:2259)
+		at Object.blueKai.blueKai.sendBlueKai (<anonymous>:55:3)
+		at Object.blueKai.blueKai.getAdsData (<anonymous>:147:8)
+		at <anonymous>:1:17
+	seems related to setTimeout use */
 	function getOriginatingScriptUrl() {
 		// this script is at 0 and 1
 		var callSite = getStackTrace(true)[2];
