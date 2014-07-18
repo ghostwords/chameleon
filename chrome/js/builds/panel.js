@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 
 /*!
@@ -17,6 +15,7 @@
 /*jshint newcap:false */
 
 var React = require('react'),
+	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({displayName: 'PanelApp',
@@ -31,7 +30,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 
 	componentDidMount: function () {
 		// get panel data on load
-		utils.sendMessage('panelLoaded', this.setState.bind(this));
+		sendMessage('panelLoaded', this.setState.bind(this));
 
 		// get live updates to panel data
 		chrome.runtime.onMessage.addListener(this.onMessage);
@@ -53,7 +52,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 	},
 
 	toggle: function () {
-		utils.sendMessage('panelToggle', function () {
+		sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
 			}, function () {
@@ -212,7 +211,7 @@ var ReportRow = React.createClass({displayName: 'ReportRow',
 
 React.renderComponent(PanelApp(null ), document.body);
 
-},{"../lib/utils":3}],3:[function(require,module,exports){
+},{"../lib/content_script_utils":2,"../lib/utils":3}],2:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -225,7 +224,11 @@ React.renderComponent(PanelApp(null ), document.body);
  */
 
 /*
- * This module needs to work both inside content scripts and the browser popup.
+ * This module needs to work both inside content scripts and the rest of the
+ * extension, like the browser popup.
+ *
+ * Content scripts have certain limitations in Chrome:
+ * https://developer.chrome.com/extensions/content_scripts
  */
 
 // acceptable signatures:
@@ -253,22 +256,31 @@ module.exports.sendMessage = function (name, message, callback) {
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
 };
 
+},{}],3:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
 // used by the badge and the popup
 module.exports.getAccessCount = function (counts) {
 	// count unique keys across all counts objects
 	var props = {};
 
-	for (var url in counts) {
-		if (counts.hasOwnProperty(url)) {
-			for (var prop in counts[url]) {
-				if (counts[url].hasOwnProperty(prop)) {
-					props[prop] = true;
-				}
-			}
+	// no need for hasOwnProperty loop checks in this context
+	for (var url in counts) { // jshint ignore:line
+		for (var prop in counts[url]) { // jshint ignore:line
+			props[prop] = true;
 		}
 	}
 
 	return Object.keys(props).length;
 };
 
-},{}]},{},[2])
+},{}]},{},[1])

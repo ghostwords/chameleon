@@ -17,6 +17,7 @@ var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
 var tabData = require('../lib/tabdata'),
+	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
@@ -156,7 +157,7 @@ function onMessage(request, sender, sendResponse) {
 		getCurrentTab(function (tab) {
 			// but only if this message is for the current tab
 			if (tab.id == sender.tab.id) {
-				utils.sendMessage('panelData', getPanelData(tab.id));
+				sendMessage('panelData', getPanelData(tab.id));
 			}
 		});
 

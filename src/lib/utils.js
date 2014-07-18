@@ -9,47 +9,15 @@
  *
  */
 
-/*
- * This module needs to work both inside content scripts and the browser popup.
- */
-
-// acceptable signatures:
-// name
-// name, message
-// name, callback
-// name, message, callback
-module.exports.sendMessage = function (name, message, callback) {
-	var args = [{ name: name }];
-
-	if (Object.prototype.toString.call(message) == '[object Function]') {
-		// name, callback
-		args.push(message);
-	} else {
-		if (message) {
-			// name, message, [callback]
-			args[0].message = message;
-		}
-		if (callback) {
-			// name, [message], callback
-			args.push(callback);
-		}
-	}
-
-	chrome.runtime.sendMessage.apply(chrome.runtime, args);
-};
-
 // used by the badge and the popup
 module.exports.getAccessCount = function (counts) {
 	// count unique keys across all counts objects
 	var props = {};
 
-	for (var url in counts) {
-		if (counts.hasOwnProperty(url)) {
-			for (var prop in counts[url]) {
-				if (counts[url].hasOwnProperty(prop)) {
-					props[prop] = true;
-				}
-			}
+	// no need for hasOwnProperty loop checks in this context
+	for (var url in counts) { // jshint ignore:line
+		for (var prop in counts[url]) { // jshint ignore:line
+			props[prop] = true;
 		}
 	}
 

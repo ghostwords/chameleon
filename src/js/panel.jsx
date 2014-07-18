@@ -14,6 +14,7 @@
 /*jshint newcap:false */
 
 var React = require('react'),
+	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({
@@ -28,7 +29,7 @@ var PanelApp = React.createClass({
 
 	componentDidMount: function () {
 		// get panel data on load
-		utils.sendMessage('panelLoaded', this.setState.bind(this));
+		sendMessage('panelLoaded', this.setState.bind(this));
 
 		// get live updates to panel data
 		chrome.runtime.onMessage.addListener(this.onMessage);
@@ -50,7 +51,7 @@ var PanelApp = React.createClass({
 	},
 
 	toggle: function () {
-		utils.sendMessage('panelToggle', function () {
+		sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
 			}, function () {

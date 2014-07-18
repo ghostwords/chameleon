@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -20,6 +18,7 @@ var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
 var tabData = require('../lib/tabdata'),
+	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
@@ -159,7 +158,7 @@ function onMessage(request, sender, sendResponse) {
 		getCurrentTab(function (tab) {
 			// but only if this message is for the current tab
 			if (tab.id == sender.tab.id) {
-				utils.sendMessage('panelData', getPanelData(tab.id));
+				sendMessage('panelData', getPanelData(tab.id));
 			}
 		});
 
@@ -226,7 +225,52 @@ chrome.webNavigation.onCommitted.addListener(onNavigation);
 // TODO switch to chrome.alarms?
 setInterval(tabData.clean, 300000);
 
-},{"../lib/tabdata":3,"../lib/utils":4}],3:[function(require,module,exports){
+},{"../lib/content_script_utils":2,"../lib/tabdata":3,"../lib/utils":4}],2:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
+/*
+ * This module needs to work both inside content scripts and the rest of the
+ * extension, like the browser popup.
+ *
+ * Content scripts have certain limitations in Chrome:
+ * https://developer.chrome.com/extensions/content_scripts
+ */
+
+// acceptable signatures:
+// name
+// name, message
+// name, callback
+// name, message, callback
+module.exports.sendMessage = function (name, message, callback) {
+	var args = [{ name: name }];
+
+	if (Object.prototype.toString.call(message) == '[object Function]') {
+		// name, callback
+		args.push(message);
+	} else {
+		if (message) {
+			// name, message, [callback]
+			args[0].message = message;
+		}
+		if (callback) {
+			// name, [message], callback
+			args.push(callback);
+		}
+	}
+
+	chrome.runtime.sendMessage.apply(chrome.runtime, args);
+};
+
+},{}],3:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -306,51 +350,19 @@ module.exports = tabData;
  *
  */
 
-/*
- * This module needs to work both inside content scripts and the browser popup.
- */
-
-// acceptable signatures:
-// name
-// name, message
-// name, callback
-// name, message, callback
-module.exports.sendMessage = function (name, message, callback) {
-	var args = [{ name: name }];
-
-	if (Object.prototype.toString.call(message) == '[object Function]') {
-		// name, callback
-		args.push(message);
-	} else {
-		if (message) {
-			// name, message, [callback]
-			args[0].message = message;
-		}
-		if (callback) {
-			// name, [message], callback
-			args.push(callback);
-		}
-	}
-
-	chrome.runtime.sendMessage.apply(chrome.runtime, args);
-};
-
 // used by the badge and the popup
 module.exports.getAccessCount = function (counts) {
 	// count unique keys across all counts objects
 	var props = {};
 
-	for (var url in counts) {
-		if (counts.hasOwnProperty(url)) {
-			for (var prop in counts[url]) {
-				if (counts[url].hasOwnProperty(prop)) {
-					props[prop] = true;
-				}
-			}
+	// no need for hasOwnProperty loop checks in this context
+	for (var url in counts) { // jshint ignore:line
+		for (var prop in counts[url]) { // jshint ignore:line
+			props[prop] = true;
 		}
 	}
 
 	return Object.keys(props).length;
 };
 
-},{}]},{},[2])
+},{}]},{},[1])
