@@ -1,4 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+},{}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 
 /*!
@@ -211,7 +213,7 @@ var ReportRow = React.createClass({displayName: 'ReportRow',
 
 React.renderComponent(PanelApp(null ), document.body);
 
-},{"../lib/content_script_utils":2,"../lib/utils":3}],2:[function(require,module,exports){
+},{"../lib/content_script_utils":3,"../lib/utils":4}],3:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -256,7 +258,7 @@ module.exports.sendMessage = function (name, message, callback) {
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -283,4 +285,4 @@ module.exports.getAccessCount = function (counts) {
 	return Object.keys(props).length;
 };
 
-},{}]},{},[1])
+},{}]},{},[2])
