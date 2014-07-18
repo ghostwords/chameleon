@@ -20,7 +20,7 @@ var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
 var tabData = require('../lib/tabdata'),
-	sendMessage = require('../lib/utils').sendMessage;
+	utils = require('../lib/utils');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 // The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -103,17 +103,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		// count unique keys across all counts objects
-		var props = {};
-
-		// no need for hasOwnProperty loop checks in this context
-		for (var url in data.counts) { // jshint ignore:line
-			for (var prop in data.counts[url]) { // jshint ignore:line
-				props[prop] = true;
-			}
-		}
-
-		text = Object.keys(props).length.toString();
+		text = utils.getAccessCount(data.counts).toString();
 	}
 
 	chrome.browserAction.setBadgeText({
@@ -169,7 +159,7 @@ function onMessage(request, sender, sendResponse) {
 		getCurrentTab(function (tab) {
 			// but only if this message is for the current tab
 			if (tab.id == sender.tab.id) {
-				sendMessage('panelData', getPanelData(tab.id));
+				utils.sendMessage('panelData', getPanelData(tab.id));
 			}
 		});
 
@@ -343,6 +333,24 @@ module.exports.sendMessage = function (name, message, callback) {
 	}
 
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
+};
+
+// used by the badge and the popup
+module.exports.getAccessCount = function (counts) {
+	// count unique keys across all counts objects
+	var props = {};
+
+	for (var url in counts) {
+		if (counts.hasOwnProperty(url)) {
+			for (var prop in counts[url]) {
+				if (counts[url].hasOwnProperty(prop)) {
+					props[prop] = true;
+				}
+			}
+		}
+	}
+
+	return Object.keys(props).length;
 };
 
 },{}]},{},[2])

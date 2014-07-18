@@ -14,7 +14,7 @@
 /*jshint newcap:false */
 
 var React = require('react'),
-	sendMessage = require('../lib/utils').sendMessage;
+	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({
 	getInitialState: function () {
@@ -28,7 +28,7 @@ var PanelApp = React.createClass({
 
 	componentDidMount: function () {
 		// get panel data on load
-		sendMessage('panelLoaded', this.setState.bind(this));
+		utils.sendMessage('panelLoaded', this.setState.bind(this));
 
 		// get live updates to panel data
 		chrome.runtime.onMessage.addListener(this.onMessage);
@@ -50,7 +50,7 @@ var PanelApp = React.createClass({
 	},
 
 	toggle: function () {
-		sendMessage('panelToggle', function () {
+		utils.sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
 			}, function () {
@@ -120,23 +120,6 @@ var Header = React.createClass({
 });
 
 var Report = React.createClass({
-	getAccessCount: function () {
-		var counts = this.props.counts;
-
-		// TODO refactor together with sister code in background.js
-
-		var props = {};
-
-		// no need for hasOwnProperty loop checks in this context
-		for (var url in counts) { // jshint ignore:line
-			for (var prop in counts[url]) { // jshint ignore:line
-				props[prop] = true;
-			}
-		}
-
-		return Object.keys(props).length;
-	},
-
 	render: function () {
 		var fontEnumeration,
 			reports = [];
@@ -158,8 +141,8 @@ var Report = React.createClass({
 
 		var status = reports.length ?
 			<p>
-				<b>{this.getAccessCount()}</b> property accesses detected
-				across <b>{reports.length}</b> scripts.
+				<b>{utils.getAccessCount(this.props.counts)}</b> property
+				accesses detected across <b>{reports.length}</b> scripts.
 			</p> :
 			<p>No property accesses detected.</p>;
 

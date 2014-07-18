@@ -37,3 +37,21 @@ module.exports.sendMessage = function (name, message, callback) {
 
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
 };
+
+// used by the badge and the popup
+module.exports.getAccessCount = function (counts) {
+	// count unique keys across all counts objects
+	var props = {};
+
+	for (var url in counts) {
+		if (counts.hasOwnProperty(url)) {
+			for (var prop in counts[url]) {
+				if (counts[url].hasOwnProperty(prop)) {
+					props[prop] = true;
+				}
+			}
+		}
+	}
+
+	return Object.keys(props).length;
+};

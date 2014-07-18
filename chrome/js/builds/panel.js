@@ -17,7 +17,7 @@
 /*jshint newcap:false */
 
 var React = require('react'),
-	sendMessage = require('../lib/utils').sendMessage;
+	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({displayName: 'PanelApp',
 	getInitialState: function () {
@@ -31,7 +31,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 
 	componentDidMount: function () {
 		// get panel data on load
-		sendMessage('panelLoaded', this.setState.bind(this));
+		utils.sendMessage('panelLoaded', this.setState.bind(this));
 
 		// get live updates to panel data
 		chrome.runtime.onMessage.addListener(this.onMessage);
@@ -53,7 +53,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 	},
 
 	toggle: function () {
-		sendMessage('panelToggle', function () {
+		utils.sendMessage('panelToggle', function () {
 			this.setState({
 				enabled: !this.state.enabled
 			}, function () {
@@ -123,23 +123,6 @@ var Header = React.createClass({displayName: 'Header',
 });
 
 var Report = React.createClass({displayName: 'Report',
-	getAccessCount: function () {
-		var counts = this.props.counts;
-
-		// TODO refactor together with sister code in background.js
-
-		var props = {};
-
-		// no need for hasOwnProperty loop checks in this context
-		for (var url in counts) { // jshint ignore:line
-			for (var prop in counts[url]) { // jshint ignore:line
-				props[prop] = true;
-			}
-		}
-
-		return Object.keys(props).length;
-	},
-
 	render: function () {
 		var fontEnumeration,
 			reports = [];
@@ -161,8 +144,8 @@ var Report = React.createClass({displayName: 'Report',
 
 		var status = reports.length ?
 			React.DOM.p(null, 
-				React.DOM.b(null, this.getAccessCount()), " property accesses detected"+' '+
-				"across ", React.DOM.b(null, reports.length), " scripts."
+				React.DOM.b(null, utils.getAccessCount(this.props.counts)), " property"+' '+
+				"accesses detected across ", React.DOM.b(null, reports.length), " scripts."
 			) :
 			React.DOM.p(null, "No property accesses detected.");
 
@@ -268,6 +251,24 @@ module.exports.sendMessage = function (name, message, callback) {
 	}
 
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
+};
+
+// used by the badge and the popup
+module.exports.getAccessCount = function (counts) {
+	// count unique keys across all counts objects
+	var props = {};
+
+	for (var url in counts) {
+		if (counts.hasOwnProperty(url)) {
+			for (var prop in counts[url]) {
+				if (counts[url].hasOwnProperty(prop)) {
+					props[prop] = true;
+				}
+			}
+		}
+	}
+
+	return Object.keys(props).length;
 };
 
 },{}]},{},[2])
