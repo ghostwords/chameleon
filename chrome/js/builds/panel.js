@@ -1,6 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
 /** @jsx React.DOM */
 
 /*!
@@ -17,7 +15,8 @@
 /*jshint newcap:false */
 
 var React = require('react'),
-	sendMessage = require('../lib/utils').sendMessage;
+	sendMessage = require('../lib/content_script_utils').sendMessage,
+	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({displayName: 'PanelApp',
 	getInitialState: function () {
@@ -71,8 +70,8 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 					toggle:this.toggle} ),
 				React.DOM.hr(null ),
 				Report(
-					{fontEnumeration:this.state.fontEnumeration,
-					counts:this.state.counts} )
+					{counts:this.state.counts,
+					fontEnumeration:this.state.fontEnumeration} )
 			)
 		);
 	}
@@ -124,9 +123,8 @@ var Header = React.createClass({displayName: 'Header',
 
 var Report = React.createClass({displayName: 'Report',
 	render: function () {
-		var rows = [],
-			fontEnumeration,
-			table;
+		var fontEnumeration,
+			reports = [];
 
 		if (this.props.fontEnumeration) {
 			fontEnumeration = (
@@ -134,18 +132,53 @@ var Report = React.createClass({displayName: 'Report',
 			);
 		}
 
+		Object.keys(this.props.counts).sort().forEach(function (url) {
+			reports.push(
+				ScriptReport(
+					{key:url,
+					url:url,
+					counts:this.props.counts[url]} )
+			);
+		}, this);
+
+		var status = reports.length ?
+			React.DOM.p(null, 
+				React.DOM.b(null, utils.getAccessCount(this.props.counts)), " property"+' '+
+				"accesses detected across ", React.DOM.b(null, reports.length), " scripts."
+			) :
+			React.DOM.p(null, "No property accesses detected.");
+
+		return (
+			React.DOM.div(null, 
+				fontEnumeration,
+				status,
+				reports
+			)
+		);
+	}
+});
+
+var ScriptReport = React.createClass({displayName: 'ScriptReport',
+	render: function () {
+		var rows = [];
+
 		Object.keys(this.props.counts).sort().forEach(function (name) {
 			rows.push(
 				ReportRow( {key:name, name:name, count:this.props.counts[name]} )
 			);
 		}, this);
 
-		if (rows.length) {
-			table = (
+		return (
+			React.DOM.div(null, 
+				React.DOM.p( {title:this.props.url, style:{
+					margin: '20px 0 5px',
+					overflow: 'hidden',
+					textOverflow: 'ellipsis',
+					whiteSpace: 'nowrap'
+				}}, 
+					this.props.url
+				),
 				React.DOM.table(null, 
-					React.DOM.caption(null, 
-						React.DOM.b(null, rows.length), " property accesses detected"
-					),
 					React.DOM.thead(null, 
 						React.DOM.tr(null, 
 							React.DOM.th(null, "property"),
@@ -156,13 +189,6 @@ var Report = React.createClass({displayName: 'Report',
 						rows
 					)
 				)
-			);
-		}
-
-		return (
-			React.DOM.div(null, 
-				fontEnumeration,
-				table ? table : React.DOM.p(null, "No property accesses detected.")
 			)
 		);
 	}
@@ -185,7 +211,7 @@ var ReportRow = React.createClass({displayName: 'ReportRow',
 
 React.renderComponent(PanelApp(null ), document.body);
 
-},{"../lib/utils":3}],3:[function(require,module,exports){
+},{"../lib/content_script_utils":2,"../lib/utils":3}],2:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -198,7 +224,11 @@ React.renderComponent(PanelApp(null ), document.body);
  */
 
 /*
- * This module needs to work both inside content scripts and the browser popup.
+ * This module needs to work both inside content scripts and the rest of the
+ * extension, like the browser popup.
+ *
+ * Content scripts have certain limitations in Chrome:
+ * https://developer.chrome.com/extensions/content_scripts
  */
 
 // acceptable signatures:
@@ -226,4 +256,31 @@ module.exports.sendMessage = function (name, message, callback) {
 	chrome.runtime.sendMessage.apply(chrome.runtime, args);
 };
 
-},{}]},{},[2])
+},{}],3:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
+// used by the badge and the popup
+module.exports.getAccessCount = function (counts) {
+	// count unique keys across all counts objects
+	var props = {};
+
+	// no need for hasOwnProperty loop checks in this context
+	for (var url in counts) { // jshint ignore:line
+		for (var prop in counts[url]) { // jshint ignore:line
+			props[prop] = true;
+		}
+	}
+
+	return Object.keys(props).length;
+};
+
+},{}]},{},[1])

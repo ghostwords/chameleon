@@ -15,6 +15,8 @@
 
 (function () {
 
+	Error.stackTraceLimit = Infinity; // collect all frames
+
 	var event_id = (function () {
 		var scripts = document.getElementsByTagName('script');
 		for (var i = 0; i < scripts.length; i++) {
@@ -85,7 +87,55 @@
 		};
 	}());
 
-	function getName(o) {
+	// http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+	function getStackTrace(structured) {
+		var err = {}, // TODO should this be new Error() instead?
+			origFormatter,
+			stack;
+
+		if (structured) {
+			origFormatter = Error.prepareStackTrace;
+			Error.prepareStackTrace = function (err, structuredStackTrace) {
+				return structuredStackTrace;
+			};
+		}
+
+		Error.captureStackTrace(err, getStackTrace);
+		stack = err.stack;
+
+		if (structured) {
+			Error.prepareStackTrace = origFormatter;
+		}
+
+		return stack;
+	}
+
+	/* TODO doesn't work when the stack trace contains <anonymous> fileNames
+	for example: http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
+		at Navigator.Object.defineProperty.get [as userAgent] (chrome-extension://.../js/builds/injected.min.js:2:1027)
+		at Object.self.doTag (<anonymous>:33:1230)
+		at bk_doSendData (<anonymous>:33:2259)
+		at Object.blueKai.blueKai.sendBlueKai (<anonymous>:55:3)
+		at Object.blueKai.blueKai.getAdsData (<anonymous>:147:8)
+		at <anonymous>:1:17
+	seems related to setTimeout use */
+	function getOriginatingScriptUrl() {
+		// this script is at 0 and 1
+		var callSite = getStackTrace(true)[2];
+
+		if (callSite.isEval()) {
+			// argh, getEvalOrigin returns a string ...
+			return callSite.getEvalOrigin().match(/\((http.*)\)$/)[1];
+		} else {
+			return callSite.getFileName() + ':' + callSite.getLineNumber() + ':' + callSite.getColumnNumber();
+		}
+	}
+
+	function stripLineAndColumnNumbers(script_url) {
+		return script_url.replace(/:\d+:\d+$/, '');
+	}
+
+	function getObjectName(o) {
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
 
@@ -107,11 +157,14 @@
 
 		Object.defineProperty(obj, prop, {
 			get: function () {
-				console.log("%s.%s prop access", obj, prop);
+				var script_url = getOriginatingScriptUrl();
+
+				console.log("%s.%s prop access: %s", obj, prop, script_url);
 
 				send({
-					obj: getName(obj),
-					prop: prop.toString()
+					obj: getObjectName(obj),
+					prop: prop.toString(),
+					scriptUrl: stripLineAndColumnNumbers(script_url)
 				});
 
 				if (override !== undefined) {
@@ -176,11 +229,14 @@
 	// override Date
 	// TODO merge into trap()
 	window.Date.prototype.getTimezoneOffset = function () {
-		console.log("Date.prototype.getTimezoneOffset prop access");
+		var script_url = getOriginatingScriptUrl();
+
+		console.log("Date.prototype.getTimezoneOffset prop access: %s", script_url);
 
 		send({
 			obj: 'Date.prototype',
-			prop: 'getTimezoneOffset'
+			prop: 'getTimezoneOffset',
+			scriptUrl: stripLineAndColumnNumbers(script_url)
 		});
 
 		return 0;
@@ -189,12 +245,16 @@
 
 	// handle canvas-based fingerprinting
 	HTMLCanvasElement.prototype.toDataURL = (function (orig) {
+		// TODO merge into trap()
 		return function () {
-			// TODO merge into trap()
-			console.log("HTMLCanvasElement.prototype.toDataURL prop access");
+			var script_url = getOriginatingScriptUrl();
+
+			console.log("HTMLCanvasElement.prototype.toDataURL prop access: %s", script_url);
+
 			send({
 				obj: 'HTMLCanvasElement.prototype',
-				prop: 'toDataURL'
+				prop: 'toDataURL',
+				scriptUrl: stripLineAndColumnNumbers(script_url)
 			});
 
 			// TODO detection only for now ... to protect, need to generate an
@@ -238,9 +298,11 @@
 			if (fonts.length > 2) {
 				console.log(mutation); // TODO
 
+				// TODO since MutationObserver is async, a stack trace now
+				// TODO won't get us the script that originated the scanning
 				send({
-					obj: getName(target),
-					prop: 'style.fontFamily',
+					obj: getObjectName(target),
+					prop: 'style.fontFamily'
 				});
 
 				// no need to keep listening

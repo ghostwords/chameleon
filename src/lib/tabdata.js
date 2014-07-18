@@ -15,7 +15,8 @@ var data = {};
 
 var tabData = {
 	record: function (tab_id, access) {
-		var key = access.obj + '.' + access.prop;
+		var key = access.obj + '.' + access.prop,
+			script_url = access.scriptUrl || '<unknown>';
 
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
@@ -24,15 +25,22 @@ var tabData = {
 			};
 		}
 
+		var datum = data[tab_id];
+
+		// font enumeration
 		if (access.prop == 'style.fontFamily') {
-			data[tab_id].fontEnumeration = true;
+			datum.fontEnumeration = true;
 		}
 
-		if (!data[tab_id].counts.hasOwnProperty(key)) {
-			data[tab_id].counts[key] = 0;
+		// javascript property access counts indexed by script URL
+		if (!datum.counts.hasOwnProperty(script_url)) {
+			datum.counts[script_url] = {};
 		}
-
-		data[tab_id].counts[key]++;
+		var counts = datum.counts[script_url];
+		if (!counts.hasOwnProperty(key)) {
+			counts[key] = 0;
+		}
+		counts[key]++;
 	},
 
 	get: function (tab_id) {

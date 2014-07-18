@@ -17,7 +17,8 @@ var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 	ENABLED = true;
 
 var tabData = require('../lib/tabdata'),
-	sendMessage = require('../lib/utils').sendMessage;
+	sendMessage = require('../lib/content_script_utils').sendMessage,
+	utils = require('../lib/utils');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 // The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -100,7 +101,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = _.size(data.counts).toString();
+		text = utils.getAccessCount(data.counts).toString();
 	}
 
 	chrome.browserAction.setBadgeText({
