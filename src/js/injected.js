@@ -17,19 +17,7 @@
 
 	Error.stackTraceLimit = Infinity; // collect all frames
 
-	var event_id = (function () {
-		var scripts = document.getElementsByTagName('script');
-		for (var i = 0; i < scripts.length; i++) {
-			var script = scripts[i],
-				event_id = script.getAttribute('data-event-id'),
-				// TODO should actually insert our own ID here via a macro
-				src_regex = /chrome-extension:\/\/[^\/]+\/js\/builds\/injected\.min\.js/;
-
-			if (event_id && src_regex.test(script.src)) {
-				return event_id;
-			}
-		}
-	}());
+	var event_id = document.currentScript.getAttribute('data-event-id');
 
 	// from underscore-1.6.0.js
 	function debounce(func, wait, immediate) {
