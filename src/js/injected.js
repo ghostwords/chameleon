@@ -98,15 +98,29 @@
 		return stack;
 	}
 
-	/* TODO doesn't work when the stack trace contains <anonymous> fileNames
-	for example: http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
+	/*
+	TODO Doesn't work when the stack trace contains <anonymous> fileNames.
+	For example: http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
 		at Navigator.Object.defineProperty.get [as userAgent] (chrome-extension://.../js/builds/injected.min.js:2:1027)
 		at Object.self.doTag (<anonymous>:33:1230)
 		at bk_doSendData (<anonymous>:33:2259)
 		at Object.blueKai.blueKai.sendBlueKai (<anonymous>:55:3)
 		at Object.blueKai.blueKai.getAdsData (<anonymous>:147:8)
 		at <anonymous>:1:17
-	seems related to setTimeout use */
+	Seems related to setTimeout use.
+
+	TODO Doesn't work when the script gets loaded via eval.
+	For example, see globalEval in http://code.jquery.com/jquery-1.6.4.js,
+	used on http://fingerprint.pet-portal.eu/, apparently here:
+		$.get("?controller=fingerprint&t="+(new Date().getTime()), function(data) {
+			$('body').append(data);
+		});
+	The stack trace:
+		at Navigator.Object.defineProperty.get [as language] (chrome-extension://.../js/builds/injected.min.js:2:1020)
+		at start_test (eval at <anonymous> (eval at <anonymous> (http://fingerprint.pet-portal.eu/javascript/jquery.min.js:2:12388)), <anonymous>:1:1079)
+	Appears to be double eval'd: once by jQuery and again by Dean Edwards' Packer.
+	Another eval'd script example here: http://lomavistarecordings.com/
+	*/
 	function getOriginatingScriptUrl() {
 		// this script is at 0 and 1
 		var callSite = getStackTrace(true)[2];
