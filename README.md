@@ -4,7 +4,13 @@
 
 Chameleon is a Chrome privacy extension that :star2: detects fingerprinting-like activity, and :sparkles: protects against fingerprinting, currently by making Chrome look like Tor Browser.
 
-Please note that while Chameleon detects the use of [canvas fingerprinting](http://www.propublica.org/article/meet-the-online-tracking-device-that-is-virtually-impossible-to-block), Chameleon currently does not protect against this particular fingerprinting technique. See the [coverage table](#coverage) below for more on Chameleon's current status. However, the next step for Chameleon is to block scripts from loading based on their use of fingerprinting techniques, of which canvas fingerprinting is one. This work is in progress now (enabled by tying code execution to originating scripts in [25d7a5](https://github.com/ghostwords/chameleon/commit/25d7a5971347902bac594d669de388416b1f21ca)).
+## :warning: WARNING :warning:
+
+Chameleon is pre-alpha, developer-only software.
+
+Please note that while Chameleon detects the use of [canvas fingerprinting](http://www.propublica.org/article/meet-the-online-tracking-device-that-is-virtually-impossible-to-block), Chameleon currently does not protect against it. See the [coverage table](#coverage) below for more on Chameleon's current status.
+
+The next step for Chameleon is to block scripts from loading based on their use of fingerprinting techniques, of which canvas fingerprinting is one. This work is in progress now (enabled by tying code execution to originating scripts in [25d7a5](https://github.com/ghostwords/chameleon/commit/25d7a5971347902bac594d669de388416b1f21ca)).
 
 ### Detection
 
