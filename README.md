@@ -8,7 +8,7 @@ Chameleon is a Chrome privacy extension that :star2: detects fingerprinting-like
 
 Chameleon is pre-alpha, developer-only software.
 
-Please note that while Chameleon detects the use of [canvas fingerprinting](http://www.propublica.org/article/meet-the-online-tracking-device-that-is-virtually-impossible-to-block), Chameleon currently does not protect against it. See the [coverage table](#coverage) below for more on Chameleon's current status.
+Please note that while Chameleon detects the use of [canvas fingerprinting](http://www.propublica.org/article/meet-the-online-tracking-device-that-is-virtually-impossible-to-block), Chameleon does not yet protect against it. See the [coverage table](#coverage) below for more on Chameleon's current status.
 
 The next step for Chameleon is to block scripts from loading based on their use of fingerprinting techniques, of which canvas fingerprinting is one. This work is in progress now (enabled by tying code execution to originating scripts in [25d7a5](https://github.com/ghostwords/chameleon/commit/25d7a5971347902bac594d669de388416b1f21ca)).
 
@@ -60,7 +60,7 @@ CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
 
 Some sites use Flash detection before loading Flash content. Since Chameleon overloads `window.navigator.plugins`, these sites end up showing error messages about needing to install or upgrade Flash.
 
-Should be fixed (see [d17cd29](https://github.com/ghostwords/chameleon/commit/d17cd29f6126dee478c49a1102e766734023ef9a)): Race condition with async injected script messaging. For example, the script on http://browserspy.dk/plugins.php sometimes loads before Chameleon's script does its overwriting.
+Should be fixed (see [d17cd2](https://github.com/ghostwords/chameleon/commit/d17cd29f6126dee478c49a1102e766734023ef9a)): Race condition with async injected script messaging. For example, the script on http://browserspy.dk/plugins.php sometimes loads before Chameleon's script does its overwriting.
 
 Still have a race condition on pages like http://ded.increpare.com/~locus/Promises/ however. Seems to do with caching -- when the resources are cached, our injected script isn't fast enough?
 
