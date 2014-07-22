@@ -1,3 +1,15 @@
+Thank you for your interest in contributing to Chameleon!
+
+Before working on anything sizeable, please post your plans on the issue tracker. This might move to a mailing list in the future.
+
+
+## Before submitting a pull request
+
+- Review the Contributor License Agreement (CLA) below.
+- Add yourself to the end of the AUTHORS file if you are not already there. By adding yourself, you sign the CLA below.
+- Run `npm run lint` and fix errors/warnings if any.
+
+
 ## Contributor License Agreement
 
 By contributing your code to Chameleon you grant ghostwords a non-exclusive, irrevocable, worldwide, royalty-free, sublicenseable, transferable license under all of your relevant intellectual property rights (including copyright, patent, and any other rights), to use, copy, prepare derivative works of, distribute and publicly perform and display the contributions on any licensing terms, including without limitation: (a) open source licenses like Mozilla Public License Version 2.0; and (b) binary, proprietary, or commercial licenses. Except for the licenses granted herein, you reserve all right, title, and interest in and to the contribution.
