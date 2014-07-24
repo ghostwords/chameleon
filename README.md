@@ -74,6 +74,25 @@ JS/rendering engine differences | ✗ | ✗ | needs investigation
 Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extension
 
 
+## Roadmap
+
+- Fix getOriginatingScriptUrl for eval'd code.
+
+- Add heuristic for what constitutes fingerprinting and mark scripts accordingly.
+
+- Simplify the UI (fingerprinting detected vs. not; expand to see more info).
+
+- Block fingerprinting scripts.
+
+- Add user-initiated blocking/unblocking.
+
+- Add site whitelisting.
+
+- Reevaluate Tor masquerading vs. randomizing (see issue #1).
+
+- Add help/about link; explain what the UI shows.
+
+
 ## Code license
 
 Mozilla Public License Version 2.0
