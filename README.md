@@ -80,10 +80,12 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 
 - Fix getOriginatingScriptUrl for eval'd code:
 	- The [V8 stack trace API](http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi) fails to deliver file URLs brought in via eval'd code. For example, see all the misattributed (to jQuery) accesses on http://fingerprint.pet-portal.eu/ during a fingerprint test.
+	- The problem is probably not just with `eval`, but with any dynamic code evaluation, meaning `setTimeout('...')` and `new Function('...')`.
 	- [Overriding eval doesn't work](http://stackoverflow.com/a/2567001).
+	- Can (probably) get CSP violation reports for just eval with something like `script-src * 'unsafe-inline'; style-src * 'unsafe-inline'; report-uri chrome-extension://...`, but they do not appear to provide file names for eval'd script files either.
 	- We can get the function that triggered our property getters via `arguments.callee.caller.caller`, but we still need the URL it came from.
 	- Is there anything around the function we have at this point that we can use to figure out where the function came from, besides trying to match the function to page script sources?
-	- We can try matching the function to page script sources. The function we have doesn't have to look anything like the originating scripts ... because `eval`. Can try unpacking packed scripts. What if multiple eval's? Not clear how far this will get us.
+	- We can try matching the function to page script sources. The function we have doesn't have to look anything like the originating scripts ... because `eval`. Can try unpacking packed scripts. What if multiple eval's? What if data/javascript URIs? Not clear how far this will get us.
 
 - Simplify the UI (fingerprinting detected vs. not; expand to see more info).
 
