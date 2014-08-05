@@ -122,8 +122,15 @@
 	Another eval'd script example here: http://lomavistarecordings.com/
 	*/
 	function getOriginatingScriptUrl() {
+		var trace = getStackTrace(true);
+
+		// TODO investigate
+		if (trace.length < 2) {
+			return '';
+		}
+
 		// this script is at 0 and 1
-		var callSite = getStackTrace(true)[2];
+		var callSite = trace[2];
 
 		if (callSite.isEval()) {
 			// argh, getEvalOrigin returns a string ...
