@@ -66,14 +66,14 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 	render: function () {
 		return (
 			React.DOM.div(null, 
-				Header(
-					{enabled:this.state.enabled,
-					ref:"header",
-					toggle:this.toggle} ),
-				React.DOM.hr(null ),
-				Report(
-					{counts:this.state.counts,
-					fontEnumeration:this.state.fontEnumeration} )
+				Header({
+					enabled: this.state.enabled, 
+					ref: "header", 
+					toggle: this.toggle}), 
+				React.DOM.hr(null), 
+				Report({
+					counts: this.state.counts, 
+					fontEnumeration: this.state.fontEnumeration})
 			)
 		);
 	}
@@ -104,17 +104,17 @@ var Header = React.createClass({displayName: 'Header',
 
 		var text = this.props.enabled ?
 			'enabled' :
-			React.DOM.span( {className:"warning"}, "disabled");
+			React.DOM.span({className: "warning"}, "disabled");
 
 		return (
 			React.DOM.div(null, 
-				React.DOM.span( {className:logoClasses.join(' ')}),
-				React.DOM.div( {id:"header-contents"}, 
-					"Chameleon is ", React.DOM.span( {id:"status-text", ref:"statusText"}, 
+				React.DOM.span({className: logoClasses.join(' ')}), 
+				React.DOM.div({id: "header-contents"}, 
+					"Chameleon is ", React.DOM.span({id: "status-text", ref: "statusText"}, 
 						text
-					),
-					React.DOM.br(null ),
-					React.DOM.a( {href:"#", id:"toggle", onClick:this.toggle}, 
+					), 
+					React.DOM.br(null), 
+					React.DOM.a({href: "#", id: "toggle", onClick: this.toggle}, 
 						this.props.enabled ? 'Disable' : 'Enable'
 					)
 				)
@@ -136,24 +136,24 @@ var Report = React.createClass({displayName: 'Report',
 
 		Object.keys(this.props.counts).sort().forEach(function (url) {
 			reports.push(
-				ScriptReport(
-					{key:url,
-					url:url,
-					counts:this.props.counts[url]} )
+				ScriptReport({
+					key: url, 
+					url: url, 
+					counts: this.props.counts[url]})
 			);
 		}, this);
 
 		var status = reports.length ?
 			React.DOM.p(null, 
-				React.DOM.b(null, utils.getAccessCount(this.props.counts)), " property"+' '+
+				React.DOM.b(null, utils.getAccessCount(this.props.counts)), " property" + ' ' +
 				"accesses detected across ", React.DOM.b(null, reports.length), " scripts."
 			) :
 			React.DOM.p(null, "No property accesses detected.");
 
 		return (
 			React.DOM.div(null, 
-				fontEnumeration,
-				status,
+				fontEnumeration, 
+				status, 
 				reports
 			)
 		);
@@ -166,27 +166,27 @@ var ScriptReport = React.createClass({displayName: 'ScriptReport',
 
 		Object.keys(this.props.counts).sort().forEach(function (name) {
 			rows.push(
-				ReportRow( {key:name, name:name, count:this.props.counts[name]} )
+				ReportRow({key: name, name: name, count: this.props.counts[name]})
 			);
 		}, this);
 
 		return (
 			React.DOM.div(null, 
-				React.DOM.p( {title:this.props.url, style:{
+				React.DOM.p({title: this.props.url, style: {
 					margin: '20px 0 5px',
 					overflow: 'hidden',
 					textOverflow: 'ellipsis',
 					whiteSpace: 'nowrap'
 				}}, 
 					this.props.url
-				),
+				), 
 				React.DOM.table(null, 
 					React.DOM.thead(null, 
 						React.DOM.tr(null, 
-							React.DOM.th(null, "property"),
+							React.DOM.th(null, "property"), 
 							React.DOM.th(null, "count")
 						)
-					),
+					), 
 					React.DOM.tbody(null, 
 						rows
 					)
@@ -201,8 +201,8 @@ var ReportRow = React.createClass({displayName: 'ReportRow',
 		return (
 			React.DOM.tr(null, 
 				React.DOM.td(null, 
-					React.DOM.div( {title:this.props.name}, this.props.name)
-				),
+					React.DOM.div({title: this.props.name}, this.props.name)
+				), 
 				React.DOM.td(null, 
 					this.props.count
 				)
@@ -211,7 +211,7 @@ var ReportRow = React.createClass({displayName: 'ReportRow',
 	}
 });
 
-React.renderComponent(PanelApp(null ), document.body);
+React.renderComponent(PanelApp(null), document.body);
 
 },{"../lib/content_script_utils":3,"../lib/utils":4}],3:[function(require,module,exports){
 /*!
