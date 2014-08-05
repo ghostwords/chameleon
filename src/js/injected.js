@@ -125,7 +125,10 @@
 
 		if (callSite.isEval()) {
 			// argh, getEvalOrigin returns a string ...
-			return callSite.getEvalOrigin().match(/\((http.*)\)$/)[1];
+			var eval_origin = callSite.getEvalOrigin(),
+				script_url_matches = eval_origin.match(/\((http.*)\)$/);
+
+			return script_url_matches && script_url_matches[1] || eval_origin;
 		} else {
 			return callSite.getFileName() + ':' + callSite.getLineNumber() + ':' + callSite.getColumnNumber();
 		}
