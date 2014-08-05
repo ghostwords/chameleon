@@ -23,16 +23,23 @@ var package_name = [
 // copy chrome/** to dist/
 shell.cp('-R', 'chrome/**', 'dist/' + package_name);
 
-// create the drag-and-drop installable CRX package
-shell.exit(shell.exec(
-	'cd dist && ../tools/crxmake.sh ' + package_name + ' ~/.ssh/chameleon.pem'
-).code);
+// create the builds
+var result = shell.exec([
+	// the drag-and-drop installable CRX package
+	'cd dist',
+	'../tools/crxmake.sh ' + package_name + ' ~/.ssh/chameleon.pem',
+	// the zip file for Web Store (only good for updates, see note below)
+	'cd ../chrome',
+	'zip -qr -9 -X ../dist/' + package_name + '.zip .'
+].join(' && ')).code;
 
-// TODO create the zip for uploading to Chrome Web Store
-// TODO make this is the "release" task (also tags, ...)
-// https://developer.chrome.com/extensions/packaging
-// 1. Rename the private key that was generated when you created the .crx file to key.pem.
-// 2. Put key.pem in the top directory of your extension.
-// 3. Compress that directory into a ZIP file.
-// 4. Upload the ZIP file using the Chrome Developer Dashboard.
-// TODO No need to do the key.pem thing for updates, right?
+shell.exit(result);
+
+/*
+ * for new Web Store uploads (not updates), see https://developer.chrome.com/extensions/packaging
+ *
+ * 1. Rename the private key that was generated when you created the .crx file to key.pem.
+ * 2. Put key.pem in the top directory of your extension.
+ * 3. Compress that directory into a ZIP file.
+ * 4. Upload the ZIP file using the Chrome Developer Dashboard.
+ */
