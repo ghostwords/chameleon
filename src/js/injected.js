@@ -128,7 +128,7 @@
 		if (callSite.isEval()) {
 			// argh, getEvalOrigin returns a string ...
 			var eval_origin = callSite.getEvalOrigin(),
-				script_url_matches = eval_origin.match(/\((http.*)\)$/);
+				script_url_matches = eval_origin.match(/\((http.*:\d+:\d+)/);
 
 			return script_url_matches && script_url_matches[1] || eval_origin;
 		} else {
