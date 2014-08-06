@@ -234,8 +234,20 @@
 			trap(item.obj, prop, item.overrides[prop]);
 		});
 	});
+
+	trap(window, 'devicePixelRatio');
 	trap(window, 'innerWidth', 1000);
 	trap(window, 'innerHeight', 700);
+
+	// TODO breaks setting document.cookie since there is a getter but no setter
+	//trap(document, 'cookie');
+
+	// TODO document.body might not yet be available at this point
+	//trap(document.body, 'clientWidth');
+	//trap(document.body, 'clientHeight');
+
+	trap(document.documentElement, 'clientWidth');
+	trap(document.documentElement, 'clientHeight');
 
 	// override instance methods
 	// override Date
