@@ -15,6 +15,7 @@
 
 (function () {
 
+	// TODO unnecessary?
 	Error.stackTraceLimit = Infinity; // collect all frames
 
 	var event_id = document.currentScript.getAttribute('data-event-id');
@@ -133,6 +134,16 @@
 		var callSite = trace[2];
 
 		if (callSite.isEval()) {
+			// TODO
+			/*
+			 * CAUTION hangs http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
+			var f = arguments.callee.caller.caller; // jshint ignore:line
+			while (f) {
+				console.log('XXX', f);
+				f = f.caller;
+			}
+			*/
+
 			// argh, getEvalOrigin returns a string ...
 			var eval_origin = callSite.getEvalOrigin(),
 				script_url_matches = eval_origin.match(/\((http.*:\d+:\d+)/);
@@ -172,6 +183,7 @@
 				var script_url = getOriginatingScriptUrl();
 
 				console.log("%s.%s prop access: %s", obj, prop, script_url);
+				console.log(getStackTrace()); // TODO
 
 				send({
 					obj: getObjectName(obj),
