@@ -202,10 +202,9 @@
 				appName: "Netscape",
 				appVersion: "5.0 (Windows)",
 				doNotTrack: "unspecified",
-				// TODO not overridable?
-				//javaEnabled: function () {
-				//	return false;
-				//},
+				javaEnabled: function () {
+					return false;
+				},
 				language: "en-US",
 				mimeTypes: {
 					length: 0
@@ -230,9 +229,10 @@
 			}
 		}
 	].forEach(function (item) {
-		Object.keys(item.obj).forEach(function (prop) {
+		// trap all enumerable keys on the object and its prototype chain
+		for (var prop in item.obj) { // jshint ignore:line
 			trap(item.obj, prop, item.overrides[prop]);
-		});
+		}
 	});
 
 	trap(window, 'devicePixelRatio');
