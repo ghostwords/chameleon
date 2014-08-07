@@ -20,6 +20,10 @@
 
 	var event_id = document.currentScript.getAttribute('data-event-id');
 
+	function log() {
+		console.log.apply(console, arguments);
+	}
+
 	// from underscore-1.6.0.js
 	function debounce(func, wait, immediate) {
 		var timeout, args, context, timestamp, result;
@@ -139,7 +143,7 @@
 			 * CAUTION hangs http://blogs.wsj.com/digits/2014/07/16/newest-hit-game-maker-machine-zone-nears-3-billion-valuation/
 			var f = arguments.callee.caller.caller; // jshint ignore:line
 			while (f) {
-				console.log('XXX', f);
+				log('XXX', f);
 				f = f.caller;
 			}
 			*/
@@ -166,7 +170,7 @@
 		var desc = Object.getOwnPropertyDescriptor(obj, prop);
 
 		if (desc && !desc.configurable) {
-			console.log("%s.%s is not configurable", obj, prop);
+			log("%s.%s is not configurable", obj, prop);
 			return;
 		}
 
@@ -176,14 +180,14 @@
 		//	return;
 		//}
 
-		//console.log("trapping %s.%s ...", obj, prop);
+		//log("trapping %s.%s ...", obj, prop);
 
 		Object.defineProperty(obj, prop, {
 			get: function () {
 				var script_url = getOriginatingScriptUrl();
 
-				console.log("%s.%s prop access: %s", obj, prop, script_url);
-				console.log(getStackTrace()); // TODO
+				log("%s.%s prop access: %s", obj, prop, script_url);
+				log(getStackTrace()); // TODO
 
 				send({
 					obj: getObjectName(obj),
@@ -267,7 +271,7 @@
 	window.Date.prototype.getTimezoneOffset = function () {
 		var script_url = getOriginatingScriptUrl();
 
-		console.log("Date.prototype.getTimezoneOffset prop access: %s", script_url);
+		log("Date.prototype.getTimezoneOffset prop access: %s", script_url);
 
 		send({
 			obj: 'Date.prototype',
@@ -285,7 +289,7 @@
 		return function () {
 			var script_url = getOriginatingScriptUrl();
 
-			console.log("HTMLCanvasElement.prototype.toDataURL prop access: %s", script_url);
+			log("HTMLCanvasElement.prototype.toDataURL prop access: %s", script_url);
 
 			send({
 				obj: 'HTMLCanvasElement.prototype',
@@ -329,10 +333,10 @@
 				fonts.push(old_font);
 			}
 
-			console.log(fonts); // TODO
+			log(fonts); // TODO
 
 			if (fonts.length > 2) {
-				console.log(mutation); // TODO
+				log(mutation); // TODO
 
 				// TODO since MutationObserver is async, a stack trace now
 				// TODO won't get us the script that originated the scanning
