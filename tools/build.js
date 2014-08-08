@@ -37,6 +37,7 @@ function bundle(b, outpath) {
 var vendor_modules = [];
 
 // vendor JS bundles
+// TODO look into https://github.com/substack/factor-bundle
 glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
 	var infile = path.basename(inpath),
 		outpath = './chrome/js/builds/vendor/' + infile,
