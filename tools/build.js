@@ -21,6 +21,11 @@ var args = require('yargs').default({
 
 var browserify = require(args.watch ? 'watchify' : 'browserify');
 
+// default to development
+if (!process.env.hasOwnProperty('NODE_ENV')) {
+	process.env.NODE_ENV = 'development';
+}
+
 function bundle(b, outpath) {
 	console.log("Writing out %s ...", outpath);
 
@@ -75,7 +80,7 @@ glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 		'./src/js/injected.js'
 	];
 	if (minify.indexOf(inpath) != -1) {
-		b = b.transform('uglifyify');
+		b = b.transform('envify').transform('uglifyify');
 		outpath = outpath.replace(/\.js$/, '.min.js');
 	}
 

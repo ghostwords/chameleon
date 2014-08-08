@@ -21,7 +21,9 @@
 	var event_id = document.currentScript.getAttribute('data-event-id');
 
 	function log() {
-		console.log.apply(console, arguments);
+		if (process.env.NODE_ENV != 'production') {
+			console.log.apply(console, arguments);
+		}
 	}
 
 	// from underscore-1.6.0.js

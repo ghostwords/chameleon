@@ -4,6 +4,7 @@
 	"private": true,
 	"dependencies": {
 		"browserify": "~3.44.2",
+		"envify": "~2.0.1",
 		"glob": "~3.2.9",
 		"jsxhint": "0.4.14",
 		"moment": "~2.6.0",
@@ -16,7 +17,7 @@
 	"scripts": {
 		"build": "./tools/build.js",
 		"clean": "rm -rf dist/*",
-		"dist": "npm run build && npm run test && npm run clean && ./tools/dist.js",
+		"dist": "NODE_ENV=production npm run build && npm run test && npm run clean && ./tools/dist.js",
 		"lint": "jsxhint .",
 		"test": "npm run lint && echo 'One day, this will run tests.'",
 		"watch": "./tools/build.js --watch"
