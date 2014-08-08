@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "./tools/build.js",
 		"clean": "rm -rf dist/*",
-		"dist": "NODE_ENV=production npm run build && npm run test && npm run clean && ./tools/dist.js",
+		"dist": "NODE_ENV=production npm run build && npm run test && npm run clean && ./tools/dist.js && npm run build",
 		"lint": "jsxhint .",
 		"test": "npm run lint && echo 'One day, this will run tests.'",
 		"watch": "./tools/build.js --watch"
