@@ -20,6 +20,10 @@ var React = require('react'),
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
+function scale_int(num, old_min, old_max, new_min, new_max) {
+	return Math.round((num - old_min) * (new_max - new_min) / (old_max - old_min) + new_min);
+}
+
 var PanelApp = React.createClass({displayName: 'PanelApp',
 	getInitialState: function () {
 		return {
@@ -170,6 +174,26 @@ var ScriptReport = React.createClass({displayName: 'ScriptReport',
 			);
 		}, this);
 
+		// 1 to 100
+		var score = 0;
+		for (var i = 0; i < rows.length; i++) {
+			score += 15;
+			if (score > 100) {
+				score = 100;
+				break;
+			}
+		}
+
+		var table_style = {};
+		if (score > 50) {
+			table_style.border =
+				// 1 or 2
+				scale_int(score, 51, 100, 1, 2) +
+					'px solid hsl(360, ' +
+					// 30 to 100
+					scale_int(score, 51, 100, 30, 100) + '%, 50%)';
+		}
+
 		return (
 			React.DOM.div(null, 
 				React.DOM.p({title: this.props.url, style: {
@@ -180,7 +204,7 @@ var ScriptReport = React.createClass({displayName: 'ScriptReport',
 				}}, 
 					this.props.url
 				), 
-				React.DOM.table(null, 
+				React.DOM.table({style: table_style}, 
 					React.DOM.thead(null, 
 						React.DOM.tr(null, 
 							React.DOM.th(null, "property"), 
