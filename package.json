@@ -1,6 +1,6 @@
 {
-	"name": "chameleon-browser-extension",
-	"version": "0.5.0",
+	"name": "chameleon-browser-extension-tools",
+	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
 		"browserify": "~3.44.2",
