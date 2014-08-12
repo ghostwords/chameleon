@@ -17,6 +17,28 @@ var React = require('react'),
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
+// TODO move scoring to lib/tabdata?
+function get_fingerprinting_score(scriptData) {
+	// 1 to 100
+	var score = 0;
+
+	// 95 points for font enumeration
+	if (scriptData.fontEnumeration) {
+		score += 95;
+	}
+
+	// 15 points for each property access
+	for (var i = 0; i < Object.keys(scriptData.counts).length; i++) {
+		score += 15;
+		if (score > 100) {
+			score = 100;
+			break;
+		}
+	}
+
+	return score;
+}
+
 function scale_int(num, old_min, old_max, new_min, new_max) {
 	return Math.round((num - old_min) * (new_max - new_min) / (old_max - old_min) + new_min);
 }
@@ -26,8 +48,7 @@ var PanelApp = React.createClass({
 		return {
 			// TODO do we need a "loading" prop?
 			enabled: false,
-			fontEnumeration: false,
-			counts: {}
+			scripts: {}
 		};
 	},
 
@@ -72,9 +93,7 @@ var PanelApp = React.createClass({
 					ref="header"
 					toggle={this.toggle} />
 				<hr />
-				<Report
-					counts={this.state.counts}
-					fontEnumeration={this.state.fontEnumeration} />
+				<Report scripts={this.state.scripts} />
 			</div>
 		);
 	}
@@ -126,34 +145,27 @@ var Header = React.createClass({
 
 var Report = React.createClass({
 	render: function () {
-		var fontEnumeration,
-			reports = [];
+		var reports = [];
 
-		if (this.props.fontEnumeration) {
-			fontEnumeration = (
-				<p>Font enumeration detected.</p>
-			);
-		}
-
-		Object.keys(this.props.counts).sort().forEach(function (url) {
+		Object.keys(this.props.scripts).sort().forEach(function (url) {
 			reports.push(
 				<ScriptReport
 					key={url}
-					url={url}
-					counts={this.props.counts[url]} />
+					counts={this.props.scripts[url].counts}
+					fontEnumeration={this.props.scripts[url].fontEnumeration}
+					url={url} />
 			);
 		}, this);
 
 		var status = reports.length ?
 			<p>
-				<b>{utils.getAccessCount(this.props.counts)}</b> property
+				<b>{utils.getAccessCount(this.props.scripts)}</b> property
 				accesses detected across <b>{reports.length}</b> scripts.
 			</p> :
 			<p>No property accesses detected.</p>;
 
 		return (
 			<div>
-				{fontEnumeration}
 				{status}
 				{reports}
 			</div>
@@ -163,27 +175,14 @@ var Report = React.createClass({
 
 var ScriptReport = React.createClass({
 	render: function () {
-		var rows = [];
+		var font_enumeration,
+			property_accesses_table,
+			rows = [],
+			score = get_fingerprinting_score(this.props),
+			score_style = {};
 
-		Object.keys(this.props.counts).sort().forEach(function (name) {
-			rows.push(
-				<ReportRow key={name} name={name} count={this.props.counts[name]} />
-			);
-		}, this);
-
-		// 1 to 100
-		var score = 0;
-		for (var i = 0; i < rows.length; i++) {
-			score += 15;
-			if (score > 100) {
-				score = 100;
-				break;
-			}
-		}
-
-		var table_style = {};
 		if (score > 50) {
-			table_style.border =
+			score_style.border =
 				// 1 or 2
 				scale_int(score, 51, 100, 1, 2) +
 					'px solid hsl(360, ' +
@@ -191,17 +190,23 @@ var ScriptReport = React.createClass({
 					scale_int(score, 51, 100, 30, 100) + '%, 50%)';
 		}
 
-		return (
-			<div>
-				<p title={this.props.url} style={{
-					margin: '20px 0 5px',
-					overflow: 'hidden',
-					textOverflow: 'ellipsis',
-					whiteSpace: 'nowrap'
-				}}>
-					{this.props.url}
-				</p>
-				<table style={table_style}>
+		if (this.props.fontEnumeration) {
+			font_enumeration = (
+				<div className="font-enumeration" style={score_style}>
+					Font enumeration detected.
+				</div>
+			);
+		}
+
+		Object.keys(this.props.counts).sort().forEach(function (name) {
+			rows.push(
+				<ReportRow key={name} name={name} count={this.props.counts[name]} />
+			);
+		}, this);
+
+		if (rows.length) {
+			property_accesses_table = (
+				<table style={score_style}>
 					<thead>
 						<tr>
 							<th>property</th>
@@ -212,6 +217,18 @@ var ScriptReport = React.createClass({
 						{rows}
 					</tbody>
 				</table>
+			);
+		}
+
+		return (
+			<div>
+				<p title={this.props.url} className="script-url">
+					{this.props.url}
+				</p>
+
+				{font_enumeration}
+
+				{property_accesses_table}
 			</div>
 		);
 	}

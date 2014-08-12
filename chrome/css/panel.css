@@ -35,6 +35,10 @@ table {
 	width: 100%;
 }
 
+.font-enumeration + table {
+	border-top: none !important;
+}
+
 tbody tr:nth-child(odd) {
 	background-color: #eee;
 }
@@ -72,14 +76,11 @@ td:first-child div {
 	font-size: 14px;
 }
 
+/* sprites start */
+
 .sprites {
 	background: url(/images/panel_sprites.png) no-repeat left center;
 	display: inline-block;
-}
-
-.toplogo {
-	float: left;
-	margin-top: 10px;
 }
 
 .logo-active {
@@ -92,6 +93,25 @@ td:first-child div {
 	width: 38px;
 	height: 38px;
 	background-position: 0 -38px;
+}
+
+/* sprites end */
+
+.font-enumeration {
+	padding: 5px 10px;
+	text-align: center;
+}
+
+.script-url {
+	margin: 20px 0 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.toplogo {
+	float: left;
+	margin-top: 10px;
 }
 
 .warning {

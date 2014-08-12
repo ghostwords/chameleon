@@ -101,7 +101,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = utils.getAccessCount(data.counts).toString();
+		text = utils.getAccessCount(data.scripts).toString();
 	}
 
 	chrome.browserAction.setBadgeText({
@@ -131,9 +131,8 @@ function getCurrentTab(callback) {
 function getPanelData(tab_id) {
 	return _.extend(
 		{
-			counts: {},
-			enabled: ENABLED,
-			fontEnumeration: false
+			scripts: {},
+			enabled: ENABLED
 		},
 		tabData.get(tab_id)
 	);

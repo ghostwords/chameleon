@@ -104,7 +104,7 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = utils.getAccessCount(data.counts).toString();
+		text = utils.getAccessCount(data.scripts).toString();
 	}
 
 	chrome.browserAction.setBadgeText({
@@ -134,9 +134,8 @@ function getCurrentTab(callback) {
 function getPanelData(tab_id) {
 	return _.extend(
 		{
-			counts: {},
-			enabled: ENABLED,
-			fontEnumeration: false
+			scripts: {},
+			enabled: ENABLED
 		},
 		tabData.get(tab_id)
 	);
@@ -297,27 +296,36 @@ var tabData = {
 
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
+				scripts: {}
+			};
+		}
+
+		var datum = data[tab_id],
+			font_enumeration_prop = (access.prop == 'style.fontFamily');
+
+		// initialize script-level data (indexed by script URL)
+		if (!datum.scripts.hasOwnProperty(script_url)) {
+			datum.scripts[script_url] = {
 				counts: {},
 				fontEnumeration: false
 			};
 		}
 
-		var datum = data[tab_id];
-
-		// font enumeration
-		if (access.prop == 'style.fontFamily') {
-			datum.fontEnumeration = true;
+		// JavaScript property access counts.
+		// Do not store style.fontFamily since it is already represented
+		// as fontEnumeration, plus its count is meaningless.
+		if (!font_enumeration_prop) {
+			var counts = datum.scripts[script_url].counts;
+			if (!counts.hasOwnProperty(key)) {
+				counts[key] = 0;
+			}
+			counts[key]++;
 		}
 
-		// javascript property access counts indexed by script URL
-		if (!datum.counts.hasOwnProperty(script_url)) {
-			datum.counts[script_url] = {};
+		// font enumeration (script-level)
+		if (font_enumeration_prop) {
+			datum.scripts[script_url].fontEnumeration = true;
 		}
-		var counts = datum.counts[script_url];
-		if (!counts.hasOwnProperty(key)) {
-			counts[key] = 0;
-		}
-		counts[key]++;
 	},
 
 	get: function (tab_id) {
@@ -355,13 +363,13 @@ module.exports = tabData;
  */
 
 // used by the badge and the popup
-module.exports.getAccessCount = function (counts) {
+module.exports.getAccessCount = function (scripts) {
 	// count unique keys across all counts objects
 	var props = {};
 
 	// no need for hasOwnProperty loop checks in this context
-	for (var url in counts) { // jshint ignore:line
-		for (var prop in counts[url]) { // jshint ignore:line
+	for (var url in scripts) { // jshint ignore:line
+		for (var prop in scripts[url].counts) { // jshint ignore:line
 			props[prop] = true;
 		}
 	}

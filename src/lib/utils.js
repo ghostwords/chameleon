@@ -10,13 +10,13 @@
  */
 
 // used by the badge and the popup
-module.exports.getAccessCount = function (counts) {
+module.exports.getAccessCount = function (scripts) {
 	// count unique keys across all counts objects
 	var props = {};
 
 	// no need for hasOwnProperty loop checks in this context
-	for (var url in counts) { // jshint ignore:line
-		for (var prop in counts[url]) { // jshint ignore:line
+	for (var url in scripts) { // jshint ignore:line
+		for (var prop in scripts[url].counts) { // jshint ignore:line
 			props[prop] = true;
 		}
 	}
