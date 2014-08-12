@@ -31,6 +31,10 @@ function get_fingerprinting_score(scriptData) {
 	}
 
 	// 15 points for each property access
+	// TODO language/userAgent/common properties should count less, others should count more?
+	// TODO use non-linear scale?
+	// TODO third-party scripts should count more?
+	// TODO count across domains instead of individual scripts?
 	for (var i = 0; i < Object.keys(scriptData.counts).length; i++) {
 		score += 15;
 		if (score > 100) {
