@@ -101,7 +101,14 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = utils.getAccessCount(data.scripts).toString();
+		text = utils.getAccessCount(data.scripts);
+
+		// count font enumeration once
+		if (_.some(data.scripts, function (s) { return s.fontEnumeration; })) {
+			text++;
+		}
+
+		text = text.toString();
 	}
 
 	chrome.browserAction.setBadgeText({
