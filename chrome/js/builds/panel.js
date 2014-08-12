@@ -148,9 +148,13 @@ var Header = React.createClass({displayName: 'Header',
 
 var Report = React.createClass({displayName: 'Report',
 	render: function () {
-		var reports = [];
+		var font_enumeration = '',
+			reports = [];
 
 		Object.keys(this.props.scripts).sort().forEach(function (url) {
+			if (this.props.scripts[url].fontEnumeration) {
+				font_enumeration = React.DOM.span(null, React.DOM.b(null, "Font enumeration "), "and ");
+			}
 			reports.push(
 				ScriptReport({
 					key: url, 
@@ -162,6 +166,7 @@ var Report = React.createClass({displayName: 'Report',
 
 		var status = reports.length ?
 			React.DOM.p(null, 
+				font_enumeration, 
 				React.DOM.b(null, utils.getAccessCount(this.props.scripts)), " property" + ' ' +
 				"accesses detected across ", React.DOM.b(null, reports.length), " scripts."
 			) :

@@ -145,9 +145,13 @@ var Header = React.createClass({
 
 var Report = React.createClass({
 	render: function () {
-		var reports = [];
+		var font_enumeration = '',
+			reports = [];
 
 		Object.keys(this.props.scripts).sort().forEach(function (url) {
+			if (this.props.scripts[url].fontEnumeration) {
+				font_enumeration = <span><b>Font enumeration </b>and </span>;
+			}
 			reports.push(
 				<ScriptReport
 					key={url}
@@ -159,6 +163,7 @@ var Report = React.createClass({
 
 		var status = reports.length ?
 			<p>
+				{font_enumeration}
 				<b>{utils.getAccessCount(this.props.scripts)}</b> property
 				accesses detected across <b>{reports.length}</b> scripts.
 			</p> :
