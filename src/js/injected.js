@@ -268,33 +268,35 @@
 	trap(document.documentElement, 'clientHeight');
 
 	// override instance methods
-	// override Date
-	// TODO merge into trap()
-	window.Date.prototype.getTimezoneOffset = function () {
-		var script_url = getOriginatingScriptUrl();
+	[
+		// override Date
+		// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
+		{
+			objName: 'Date.prototype',
+			propName: 'getTimezoneOffset',
+			obj: Date.prototype,
+			override: 0
+		},
 
-		log("Date.prototype.getTimezoneOffset prop access: %s", script_url);
+		// canvas fingerprinting (1/2)
+		// TODO detection only for now ... to protect, need to generate an
+		// TODO empty canvas with matching dimensions, but Chrome and
+		// TODO Firefox produce different PNGs from same inputs somehow
+		//c.setAttribute('width', this.width);
+		//c.setAttribute('height', this.height);
+		{
+			objName: 'HTMLCanvasElement.prototype',
+			propName: 'toDataURL',
+			obj: HTMLCanvasElement.prototype
+		},
 
-		send({
-			obj: 'Date.prototype',
-			prop: 'getTimezoneOffset',
-			scriptUrl: stripLineAndColumnNumbers(script_url)
-		});
-
-		return 0;
-	};
-	// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
-
-	// handle canvas-based fingerprinting
-	[{
-		objName: 'HTMLCanvasElement.prototype',
-		propName: 'toDataURL',
-		obj: HTMLCanvasElement.prototype
-	}, {
-		objName: 'CanvasRenderingContext2D.prototype',
-		propName: 'getImageData',
-		obj: CanvasRenderingContext2D.prototype
-	}].forEach(function (item) {
+		// canvas fingerprinting (2/2)
+		{
+			objName: 'CanvasRenderingContext2D.prototype',
+			propName: 'getImageData',
+			obj: CanvasRenderingContext2D.prototype
+		}
+	].forEach(function (item) {
 		item.obj[item.propName] = (function (orig) {
 			// TODO merge into trap()
 			return function () {
@@ -308,11 +310,9 @@
 					scriptUrl: stripLineAndColumnNumbers(script_url)
 				});
 
-				// TODO detection only for now ... to protect, need to generate an
-				// TODO empty canvas with matching dimensions, but Chrome and
-				// TODO Firefox produce different PNGs from same inputs somehow
-				//c.setAttribute('width', this.width);
-				//c.setAttribute('height', this.height);
+				if (item.hasOwnProperty('override')) {
+					return item.override;
+				}
 
 				return orig.apply(this, arguments);
 			};
