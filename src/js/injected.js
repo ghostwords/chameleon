@@ -286,28 +286,38 @@
 	// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
 
 	// handle canvas-based fingerprinting
-	HTMLCanvasElement.prototype.toDataURL = (function (orig) {
-		// TODO merge into trap()
-		return function () {
-			var script_url = getOriginatingScriptUrl();
+	[{
+		objName: 'HTMLCanvasElement.prototype',
+		propName: 'toDataURL',
+		obj: HTMLCanvasElement.prototype
+	}, {
+		objName: 'CanvasRenderingContext2D.prototype',
+		propName: 'getImageData',
+		obj: CanvasRenderingContext2D.prototype
+	}].forEach(function (item) {
+		item.obj[item.propName] = (function (orig) {
+			// TODO merge into trap()
+			return function () {
+				var script_url = getOriginatingScriptUrl();
 
-			log("HTMLCanvasElement.prototype.toDataURL prop access: %s", script_url);
+				log("%s.%s prop access: %s", item.objName, item.propName, script_url);
 
-			send({
-				obj: 'HTMLCanvasElement.prototype',
-				prop: 'toDataURL',
-				scriptUrl: stripLineAndColumnNumbers(script_url)
-			});
+				send({
+					obj: item.objName,
+					prop: item.propName,
+					scriptUrl: stripLineAndColumnNumbers(script_url)
+				});
 
-			// TODO detection only for now ... to protect, need to generate an
-			// TODO empty canvas with matching dimensions, but Chrome and
-			// TODO Firefox produce different PNGs from same inputs somehow
-			//c.setAttribute('width', this.width);
-			//c.setAttribute('height', this.height);
+				// TODO detection only for now ... to protect, need to generate an
+				// TODO empty canvas with matching dimensions, but Chrome and
+				// TODO Firefox produce different PNGs from same inputs somehow
+				//c.setAttribute('width', this.width);
+				//c.setAttribute('height', this.height);
 
-			return orig.apply(this, arguments);
-		};
-	}(HTMLCanvasElement.prototype.toDataURL));
+				return orig.apply(this, arguments);
+			};
+		}(item.obj[item.propName]));
+	});
 
 	// detect font enumeration
 	var observer = new MutationObserver(function (mutations) {
