@@ -67,7 +67,7 @@ Date/time queries | ✔ | ✔ | partial protection (need to adjust the entire ti
 Font enumeration | ✔ | ✗ | unable to override fontFamily getters/setters on the CSSStyleDeclaration prototype in Chrome; needs more investigation
 CSS media queries | ✗ | ✗ | needs investigation
 Canvas image data extraction | ✔ | ✗ | protection impeded by image rendering differences between Chrome and Firefox
-WebGL | ✗ | ✗ | needs investigation
+WebGL | ✔ | ✗ | needs investigation
 Request header ordering/checksum, window.navigator checksum, checksumming in general | ? | ? | needs investigation
 Flash/Java-driven queries | ✗ | ✗ | plugins need to be switched to click-to-play by default
 Third-party cookies | ✗ | ✗ | need to disable by default

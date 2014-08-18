@@ -295,6 +295,21 @@
 			objName: 'CanvasRenderingContext2D.prototype',
 			propName: 'getImageData',
 			obj: CanvasRenderingContext2D.prototype
+		},
+
+		// WebGL (1/2)
+		// TODO detection only for now
+		{
+			objName: 'WebGLRenderingContext.prototype',
+			propName: 'getParameter',
+			obj: window.WebGLRenderingContext.prototype
+		},
+
+		// WebGL (2/2)
+		{
+			objName: 'WebGLRenderingContext.prototype',
+			propName: 'getSupportedExtensions',
+			obj: window.WebGLRenderingContext.prototype
 		}
 	].forEach(function (item) {
 		item.obj[item.propName] = (function (orig) {
