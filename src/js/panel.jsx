@@ -51,8 +51,9 @@ var PanelApp = React.createClass({
 	getInitialState: function () {
 		return {
 			// TODO do we need a "loading" prop?
+			domains: {},
 			enabled: false,
-			scripts: {}
+			fontEnumeration: false
 		};
 	},
 
@@ -97,7 +98,9 @@ var PanelApp = React.createClass({
 					ref="header"
 					toggle={this.toggle} />
 				<hr />
-				<Report scripts={this.state.scripts} />
+				<Report
+					domainData={this.state.domains}
+					fontEnumeration={this.state.fontEnumeration} />
 			</div>
 		);
 	}
@@ -149,27 +152,44 @@ var Header = React.createClass({
 
 var Report = React.createClass({
 	render: function () {
-		var font_enumeration = '',
+		var domains = Object.keys(this.props.domainData),
+			font_enumeration = '',
 			reports = [];
 
-		Object.keys(this.props.scripts).sort().forEach(function (url) {
-			if (this.props.scripts[url].fontEnumeration) {
-				font_enumeration = <span><b>Font enumeration </b>and </span>;
-			}
+		if (this.props.fontEnumeration) {
+			font_enumeration = <span><b>Font enumeration </b>and </span>;
+		}
+
+		// TODO factor out into DomainReport?
+		domains.sort().forEach(function (domain) {
+			var scriptData = this.props.domainData[domain].scripts,
+				scriptReports = [];
+
+			Object.keys(scriptData).sort().forEach(function (url) {
+				scriptReports.push(
+					<ScriptReport
+						key={url}
+						counts={scriptData[url].counts}
+						fontEnumeration={scriptData[url].fontEnumeration}
+						url={url} />
+				);
+			});
+
 			reports.push(
-				<ScriptReport
-					key={url}
-					counts={this.props.scripts[url].counts}
-					fontEnumeration={this.props.scripts[url].fontEnumeration}
-					url={url} />
+				<div key={domain}>
+					<p className="domain ellipsis" title={domain}>
+						{domain}
+					</p>
+					{scriptReports}
+				</div>
 			);
 		}, this);
 
 		var status = reports.length ?
 			<p>
 				{font_enumeration}
-				<b>{utils.getAccessCount(this.props.scripts)}</b> property
-				accesses detected across <b>{reports.length}</b> scripts.
+				<b>{utils.getAccessCount(this.props.domainData)}</b> property
+				accesses detected across <b>{domains.length}</b> domains.
 			</p> :
 			<p>No property accesses detected.</p>;
 
@@ -231,7 +251,7 @@ var ScriptReport = React.createClass({
 
 		return (
 			<div>
-				<p title={this.props.url} className="script-url">
+				<p className="script-url ellipsis" title={this.props.url}>
 					{this.props.url}
 				</p>
 

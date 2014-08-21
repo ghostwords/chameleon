@@ -97,6 +97,19 @@ td:first-child div {
 
 /* sprites end */
 
+.domain {
+	background-color: pink;
+	font-weight: bold;
+	margin: 20px 0 0;
+	padding: 5px;
+}
+
+.ellipsis {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .font-enumeration {
 	padding: 5px 10px;
 	text-align: center;
@@ -104,9 +117,6 @@ td:first-child div {
 
 .script-url {
 	margin: 20px 0 5px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .toplogo {

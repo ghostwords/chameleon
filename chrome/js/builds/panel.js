@@ -54,8 +54,9 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 	getInitialState: function () {
 		return {
 			// TODO do we need a "loading" prop?
+			domains: {},
 			enabled: false,
-			scripts: {}
+			fontEnumeration: false
 		};
 	},
 
@@ -100,7 +101,9 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 					ref: "header", 
 					toggle: this.toggle}), 
 				React.DOM.hr(null), 
-				Report({scripts: this.state.scripts})
+				Report({
+					domainData: this.state.domains, 
+					fontEnumeration: this.state.fontEnumeration})
 			)
 		);
 	}
@@ -152,27 +155,44 @@ var Header = React.createClass({displayName: 'Header',
 
 var Report = React.createClass({displayName: 'Report',
 	render: function () {
-		var font_enumeration = '',
+		var domains = Object.keys(this.props.domainData),
+			font_enumeration = '',
 			reports = [];
 
-		Object.keys(this.props.scripts).sort().forEach(function (url) {
-			if (this.props.scripts[url].fontEnumeration) {
-				font_enumeration = React.DOM.span(null, React.DOM.b(null, "Font enumeration "), "and ");
-			}
+		if (this.props.fontEnumeration) {
+			font_enumeration = React.DOM.span(null, React.DOM.b(null, "Font enumeration "), "and ");
+		}
+
+		// TODO factor out into DomainReport?
+		domains.sort().forEach(function (domain) {
+			var scriptData = this.props.domainData[domain].scripts,
+				scriptReports = [];
+
+			Object.keys(scriptData).sort().forEach(function (url) {
+				scriptReports.push(
+					ScriptReport({
+						key: url, 
+						counts: scriptData[url].counts, 
+						fontEnumeration: scriptData[url].fontEnumeration, 
+						url: url})
+				);
+			});
+
 			reports.push(
-				ScriptReport({
-					key: url, 
-					counts: this.props.scripts[url].counts, 
-					fontEnumeration: this.props.scripts[url].fontEnumeration, 
-					url: url})
+				React.DOM.div({key: domain}, 
+					React.DOM.p({className: "domain ellipsis", title: domain}, 
+						domain
+					), 
+					scriptReports
+				)
 			);
 		}, this);
 
 		var status = reports.length ?
 			React.DOM.p(null, 
 				font_enumeration, 
-				React.DOM.b(null, utils.getAccessCount(this.props.scripts)), " property" + ' ' +
-				"accesses detected across ", React.DOM.b(null, reports.length), " scripts."
+				React.DOM.b(null, utils.getAccessCount(this.props.domainData)), " property" + ' ' +
+				"accesses detected across ", React.DOM.b(null, domains.length), " domains."
 			) :
 			React.DOM.p(null, "No property accesses detected.");
 
@@ -234,7 +254,7 @@ var ScriptReport = React.createClass({displayName: 'ScriptReport',
 
 		return (
 			React.DOM.div(null, 
-				React.DOM.p({title: this.props.url, className: "script-url"}, 
+				React.DOM.p({className: "script-url ellipsis", title: this.props.url}, 
 					this.props.url
 				), 
 
@@ -321,14 +341,18 @@ module.exports.sendMessage = function (name, message, callback) {
  */
 
 // used by the badge and the popup
-module.exports.getAccessCount = function (scripts) {
+module.exports.getAccessCount = function (domains) {
 	// count unique keys across all counts objects
 	var props = {};
 
 	// no need for hasOwnProperty loop checks in this context
-	for (var url in scripts) { // jshint ignore:line
-		for (var prop in scripts[url].counts) { // jshint ignore:line
-			props[prop] = true;
+	for (var domain in domains) { // jshint ignore:line
+		var scripts = domains[domain].scripts; // jshint ignore:line
+
+		for (var url in scripts) { // jshint ignore:line
+			for (var prop in scripts[url].counts) { // jshint ignore:line
+				props[prop] = true;
+			}
 		}
 	}
 

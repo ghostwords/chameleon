@@ -101,10 +101,9 @@ function updateBadge(tab_id) {
 		text = '';
 
 	if (data) {
-		text = utils.getAccessCount(data.scripts);
+		text = utils.getAccessCount(data.domains);
 
-		// count font enumeration once
-		if (_.some(data.scripts, function (s) { return s.fontEnumeration; })) {
+		if (data.fontEnumeration) {
 			text++;
 		}
 
@@ -136,13 +135,7 @@ function getCurrentTab(callback) {
 }
 
 function getPanelData(tab_id) {
-	return _.extend(
-		{
-			scripts: {},
-			enabled: ENABLED
-		},
-		tabData.get(tab_id)
-	);
+	return _.extend({ enabled: ENABLED }, tabData.get(tab_id));
 }
 
 function onMessage(request, sender, sendResponse) {
