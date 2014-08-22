@@ -26,7 +26,7 @@
 		}
 	}
 
-	// from underscore-1.6.0.js
+	// from Underscore v1.6.0
 	function debounce(func, wait, immediate) {
 		var timeout, args, context, timestamp, result;
 
