@@ -1,6 +1,6 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"private": true,
 	"dependencies": {
 		"browserify": "~3.44.2",
@@ -8,6 +8,7 @@
 		"glob": "~3.2.9",
 		"jsxhint": "0.4.14",
 		"moment": "~2.6.0",
+		"react": "~0.11.1",
 		"reactify": "~0.14.0",
 		"shelljs": "~0.2.6",
 		"tldjs": "~1.5.0",
