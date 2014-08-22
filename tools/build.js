@@ -39,26 +39,10 @@ function bundle(b, outpath) {
 	outStream.pipe(fs.createWriteStream(outpath));
 }
 
-var vendor_modules = [];
-
-// vendor JS bundles
-// TODO look into https://github.com/substack/factor-bundle
-glob.sync('./src/lib/vendor/*.js').forEach(function (inpath) {
-	var infile = path.basename(inpath),
-		outpath = './chrome/js/builds/vendor/' + infile,
-		// strip filename version info from module name
-		module_name = infile.replace(/-[\d\.]+\.js$/, '');
-
-	vendor_modules.push(module_name);
-
-	// need to use b.require when bundling vendor libs to make these libs
-	// available via require calls in other bundles
-	bundle(browserify().require(inpath, {
-		expose: module_name
-	}), outpath);
-});
-
 // extension JS bundles
+//
+// TODO look into https://github.com/substack/factor-bundle
+//
 // TODO allow requiring all modules used by background/panel pages in browser
 // TODO dev tools: https://github.com/substack/node-browserify/issues/533
 glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
@@ -67,12 +51,6 @@ glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 		b = browserify(inpath)
 			// compile JSX
 			.transform('reactify');
-
-	// don't bundle vendor libs; they get bundled separately
-	// and included manually via own script tags
-	vendor_modules.forEach(function (module) {
-		b = b.external(module);
-	});
 
 	// minify some files
 	var minify = [
