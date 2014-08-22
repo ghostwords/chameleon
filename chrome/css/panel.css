@@ -99,6 +99,7 @@ td:first-child div {
 
 .domain {
 	background-color: pink;
+	cursor: pointer;
 	font-weight: bold;
 	margin: 20px 0 0;
 	padding: 5px;
@@ -115,6 +116,11 @@ td:first-child div {
 	text-align: center;
 }
 
+.noselect {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
 .script-url {
 	margin: 20px 0 5px;
 }
@@ -122,6 +128,11 @@ td:first-child div {
 .toplogo {
 	float: left;
 	margin-top: 10px;
+}
+
+.triangle {
+	float: right;
+	padding: 0 5px;
 }
 
 .warning {

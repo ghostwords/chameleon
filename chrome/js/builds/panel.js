@@ -163,28 +163,12 @@ var Report = React.createClass({displayName: 'Report',
 			font_enumeration = React.DOM.span(null, React.DOM.b(null, "Font enumeration "), "and ");
 		}
 
-		// TODO factor out into DomainReport?
 		domains.sort().forEach(function (domain) {
-			var scriptData = this.props.domainData[domain].scripts,
-				scriptReports = [];
-
-			Object.keys(scriptData).sort().forEach(function (url) {
-				scriptReports.push(
-					ScriptReport({
-						key: url, 
-						counts: scriptData[url].counts, 
-						fontEnumeration: scriptData[url].fontEnumeration, 
-						url: url})
-				);
-			});
-
 			reports.push(
-				React.DOM.div({key: domain}, 
-					React.DOM.p({className: "domain ellipsis", title: domain}, 
-						domain
-					), 
-					scriptReports
-				)
+				DomainReport({
+					key: domain, 
+					domain: domain, 
+					scriptData: this.props.domainData[domain].scripts})
 			);
 		}, this);
 
@@ -199,6 +183,51 @@ var Report = React.createClass({displayName: 'Report',
 		return (
 			React.DOM.div(null, 
 				status, 
+				reports
+			)
+		);
+	}
+});
+
+var DomainReport = React.createClass({displayName: 'DomainReport',
+	getInitialState: function () {
+		return {
+			expanded: true
+		};
+	},
+
+	toggle: function () {
+		this.setState({
+			expanded: !this.state.expanded
+		});
+	},
+
+	render: function () {
+		var domain = this.props.domain,
+			reports = [];
+
+		if (this.state.expanded) {
+			Object.keys(this.props.scriptData).sort().forEach(function (url) {
+				var data = this.props.scriptData[url];
+
+				reports.push(
+					ScriptReport({
+						key: url, 
+						counts: data.counts, 
+						fontEnumeration: data.fontEnumeration, 
+						url: url})
+				);
+			}, this);
+		}
+
+		return (
+			React.DOM.div(null, 
+				React.DOM.p({className: "domain ellipsis", onClick: this.toggle, title: domain}, 
+					React.DOM.span({className: "noselect triangle"}, 
+						this.state.expanded ? '▾' : '▸'
+					), 
+					domain
+				), 
 				reports
 			)
 		);
