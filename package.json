@@ -1,6 +1,6 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.4.0",
+	"version": "1.5.0",
 	"private": true,
 	"dependencies": {
 		"browserify": "~5.11.0",
@@ -12,7 +12,7 @@
 		"reactify": "~0.14.0",
 		"shelljs": "~0.2.6",
 		"tldjs": "~1.5.0",
-		"uglifyify": "~2.1.1",
+		"uglifyify": "~2.5.0",
 		"underscore": "~1.6.0",
 		"watchify": "~1.0.2",
 		"yargs": "~1.2.1"
