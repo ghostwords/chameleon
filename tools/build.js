@@ -11,15 +11,16 @@
  *
  */
 
-var fs = require('fs'),
+var _ = require('underscore'),
+	browserify = require('browserify'),
+	fs = require('fs'),
 	glob = require('glob'),
-	path = require('path');
+	path = require('path'),
+	watchify = require('watchify');
 
 var args = require('yargs').default({
 	watch: false
 }).argv;
-
-var browserify = require(args.watch ? 'watchify' : 'browserify');
 
 // default to development
 if (!process.env.hasOwnProperty('NODE_ENV')) {
@@ -29,7 +30,6 @@ if (!process.env.hasOwnProperty('NODE_ENV')) {
 function bundle(b, outpath) {
 	console.log("Writing out %s ...", outpath);
 
-	// TODO check out source maps with bundle({ debug: true })
 	var outStream = b.bundle();
 
 	outStream.on('error', function (e) {
@@ -48,9 +48,24 @@ function bundle(b, outpath) {
 glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 	var infile = path.basename(inpath),
 		outpath = './chrome/js/builds/' + infile.replace(/\.jsx$/, '.js'),
-		b = browserify(inpath)
-			// compile JSX
-			.transform('reactify');
+		// TODO check out source maps with browserify({ debug: true })
+		// TODO speed up bundling with noparse
+		opts = {};
+
+	if (args.watch) {
+		opts = _.extend(opts, watchify.args);
+		// TODO https://github.com/substack/watchify/issues/78
+		opts.fullPaths = false;
+	}
+
+	var b = browserify(inpath, opts);
+
+	if (args.watch) {
+		b = watchify(b);
+	}
+
+	// compile JSX
+	b = b.transform('reactify');
 
 	// minify some files
 	var minify = [
