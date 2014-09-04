@@ -15,6 +15,7 @@ var _ = require('underscore'),
 // does the string start with an optional scheme/colon and two slashes?
 // TODO better IP regex, check for IPv6
 var IP_ADDRESS = /^\d+\.\d+\.\d+\.\d+(?::\d+)?$/,
+	// TODO could be a chrome-extension protocol URL: chrome-extension://boadgeojelhgndaghljhdicfkmllpafd/cast_sender.js
 	VALID_URL = /^(?:[a-z]+:)?\/\//;
 
 // TODO see getBaseDomain in https://github.com/adblockplus/adblockpluschrome/blob/f9c5bd397bb8a9d7d2890aee89d45e25178c4b7a/lib/basedomain.js
