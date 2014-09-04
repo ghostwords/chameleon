@@ -103,21 +103,22 @@ var tabData = {
 				scripts: {}
 			};
 		}
-		datum = datum.domains[domain];
+		var domainData = datum.domains[domain];
 
 		// initialize script-level data
-		if (!datum.scripts.hasOwnProperty(script_url)) {
-			datum.scripts[script_url] = {
+		if (!domainData.scripts.hasOwnProperty(script_url)) {
+			domainData.scripts[script_url] = {
 				counts: {},
 				fontEnumeration: false
 			};
 		}
+		var scriptData = domainData.scripts[script_url];
 
 		// JavaScript property access counts.
 		// Do not store style.fontFamily since it is already represented
 		// as fontEnumeration, plus its count is meaningless.
 		if (!font_enumeration_prop) {
-			var counts = datum.scripts[script_url].counts;
+			var counts = scriptData.counts;
 			if (!counts.hasOwnProperty(key)) {
 				counts[key] = 0;
 			}
@@ -126,7 +127,7 @@ var tabData = {
 
 		// font enumeration (script-level)
 		if (font_enumeration_prop) {
-			datum.scripts[script_url].fontEnumeration = true;
+			scriptData.fontEnumeration = true;
 		}
 	},
 
