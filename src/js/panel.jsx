@@ -14,34 +14,9 @@
 /*jshint newcap:false */
 
 var React = require('react'),
+	getFingerprintingScore = require('../lib/score.js').getFingerprintingScore,
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
-
-// TODO move scoring to lib/tabdata?
-function get_fingerprinting_score(scriptData) {
-	// 1 to 100
-	var score = 0;
-
-	// 95 points for font enumeration
-	if (scriptData.fontEnumeration) {
-		score += 95;
-	}
-
-	// 15 points for each property access
-	// TODO language/userAgent/common properties should count less, others should count more?
-	// TODO use non-linear scale?
-	// TODO third-party scripts should count more?
-	// TODO count across domains instead of individual scripts?
-	for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
-		score += 15;
-		if (score > 100) {
-			score = 100;
-			break;
-		}
-	}
-
-	return score;
-}
 
 function scale_int(num, old_min, old_max, new_min, new_max) {
 	return Math.round((num - old_min) * (new_max - new_min) / (old_max - old_min) + new_min);
@@ -236,7 +211,7 @@ var ScriptReport = React.createClass({
 		var font_enumeration,
 			property_accesses_table,
 			rows = [],
-			score = get_fingerprinting_score(this.props),
+			score = getFingerprintingScore(this.props),
 			score_style = {};
 
 		if (score > 50) {
