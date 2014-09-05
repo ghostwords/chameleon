@@ -129,12 +129,8 @@ var Header = React.createClass({displayName: 'Header',
 var Report = React.createClass({displayName: 'Report',
 	render: function () {
 		var domains = Object.keys(this.props.domainData),
-			font_enumeration = '',
+			num_fingerprinters = utils.getFingerprinterCount(this.props.domainData),
 			reports = [];
-
-		if (this.props.fontEnumeration) {
-			font_enumeration = React.DOM.span(null, React.DOM.b(null, "Font enumeration "), "and ");
-		}
 
 		domains.sort().forEach(function (domain) {
 			reports.push(
@@ -145,13 +141,12 @@ var Report = React.createClass({displayName: 'Report',
 			);
 		}, this);
 
-		var status = reports.length ?
+		var status = num_fingerprinters ?
 			React.DOM.p(null, 
-				font_enumeration, 
-				React.DOM.b(null, utils.getAccessCount(this.props.domainData)), " property" + ' ' +
-				"accesses detected across ", React.DOM.b(null, domains.length), " domains."
+				React.DOM.b(null, num_fingerprinters), " suspected fingerprinting script", 
+					num_fingerprinters > 1 ? 's' : '', " detected."
 			) :
-			React.DOM.p(null, "No property accesses detected.");
+			React.DOM.p(null, "No fingerprinting detected.");
 
 		return (
 			React.DOM.div(null, 
@@ -18835,23 +18830,24 @@ module.exports.getFingerprintingScore = function (scriptData) {
  *
  */
 
+var score = require('./score.js').getFingerprintingScore;
+
 // used by the badge and the popup
-module.exports.getAccessCount = function (domains) {
-	// count unique keys across all counts objects
-	var props = {};
+module.exports.getFingerprinterCount = function (domains) {
+	var count = 0;
 
 	// no need for hasOwnProperty loop checks in this context
 	for (var domain in domains) { // jshint ignore:line
-		var scripts = domains[domain].scripts; // jshint ignore:line
+		var scripts = domains[domain].scripts;
 
-		for (var url in scripts) { // jshint ignore:line
-			for (var prop in scripts[url].counts) { // jshint ignore:line
-				props[prop] = true;
+		for (var url in scripts) {
+			if (score(scripts[url]) > 50) {
+				count++;
 			}
 		}
 	}
 
-	return Object.keys(props).length;
+	return count;
 };
 
-},{}]},{},[1]);
+},{"./score.js":147}]},{},[1]);

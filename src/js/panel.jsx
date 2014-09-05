@@ -128,12 +128,8 @@ var Header = React.createClass({
 var Report = React.createClass({
 	render: function () {
 		var domains = Object.keys(this.props.domainData),
-			font_enumeration = '',
+			num_fingerprinters = utils.getFingerprinterCount(this.props.domainData),
 			reports = [];
-
-		if (this.props.fontEnumeration) {
-			font_enumeration = <span><b>Font enumeration </b>and </span>;
-		}
 
 		domains.sort().forEach(function (domain) {
 			reports.push(
@@ -144,13 +140,12 @@ var Report = React.createClass({
 			);
 		}, this);
 
-		var status = reports.length ?
+		var status = num_fingerprinters ?
 			<p>
-				{font_enumeration}
-				<b>{utils.getAccessCount(this.props.domainData)}</b> property
-				accesses detected across <b>{domains.length}</b> domains.
+				<b>{num_fingerprinters}</b> suspected fingerprinting script
+					{num_fingerprinters > 1 ? 's' : ''} detected.
 			</p> :
-			<p>No property accesses detected.</p>;
+			<p>No fingerprinting detected.</p>;
 
 		return (
 			<div>

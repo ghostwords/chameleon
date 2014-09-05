@@ -69,8 +69,7 @@ function get_domain(url) {
 				}
 			},
 			...
-		},
-		fontEnumeration: boolean true if any scripts for this tab have a true fontEnumeration property
+		}
 	},
 	...
 } */
@@ -87,16 +86,10 @@ var tabData = {
 		// initialize tab-level data
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
-				domains: {},
-				fontEnumeration: false
+				domains: {}
 			};
 		}
 		var datum = data[tab_id];
-
-		// font enumeration (tab-level)
-		if (font_enumeration_prop) {
-			datum.fontEnumeration = true;
-		}
 
 		// initialize domain-level data
 		if (!datum.domains.hasOwnProperty(domain)) {

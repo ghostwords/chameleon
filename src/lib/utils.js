@@ -9,21 +9,22 @@
  *
  */
 
+var score = require('./score.js').getFingerprintingScore;
+
 // used by the badge and the popup
-module.exports.getAccessCount = function (domains) {
-	// count unique keys across all counts objects
-	var props = {};
+module.exports.getFingerprinterCount = function (domains) {
+	var count = 0;
 
 	// no need for hasOwnProperty loop checks in this context
 	for (var domain in domains) { // jshint ignore:line
-		var scripts = domains[domain].scripts; // jshint ignore:line
+		var scripts = domains[domain].scripts;
 
-		for (var url in scripts) { // jshint ignore:line
-			for (var prop in scripts[url].counts) { // jshint ignore:line
-				props[prop] = true;
+		for (var url in scripts) {
+			if (score(scripts[url]) > 50) {
+				count++;
 			}
 		}
 	}
 
-	return Object.keys(props).length;
+	return count;
 };

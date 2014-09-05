@@ -99,22 +99,18 @@ function normalizeHeaders(details) {
 
 function updateBadge(tab_id) {
 	var data = tabData.get(tab_id),
-		text = '';
+		count = 0;
 
 	if (data) {
-		text = utils.getAccessCount(data.domains);
-
-		if (data.fontEnumeration) {
-			text++;
-		}
-
-		text = text.toString();
+		count = utils.getFingerprinterCount(data.domains);
 	}
 
-	chrome.browserAction.setBadgeText({
-		tabId: tab_id,
-		text: text
-	});
+	if (count) {
+		chrome.browserAction.setBadgeText({
+			tabId: tab_id,
+			text: count.toString()
+		});
+	}
 }
 
 function updateButton() {
@@ -226,7 +222,7 @@ chrome.webNavigation.onCommitted.addListener(onNavigation);
 // TODO switch to chrome.alarms?
 setInterval(tabData.clean, 300000);
 
-},{"../lib/content_script_utils":7,"../lib/tabdata":8,"../lib/utils":9,"underscore":6}],2:[function(require,module,exports){
+},{"../lib/content_script_utils":7,"../lib/tabdata":9,"../lib/utils":10,"underscore":6}],2:[function(require,module,exports){
 "use strict";
 
 var tld = require('./lib/tld.js').init();
@@ -2059,6 +2055,43 @@ module.exports.sendMessage = function (name, message, callback) {
  *
  */
 
+module.exports.getFingerprintingScore = function (scriptData) {
+	// a likelihood percentage
+	var score = 0;
+
+	// 95 points for font enumeration
+	if (scriptData.fontEnumeration) {
+		score += 95;
+	}
+
+	// 15 points for each property access
+	// TODO language/userAgent/common properties should count less, others should count more?
+	// TODO use non-linear scale?
+	// TODO third-party scripts should count more?
+	// TODO count across domains instead of individual scripts?
+	for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
+		score += 15;
+		if (score > 100) {
+			score = 100;
+			break;
+		}
+	}
+
+	return score;
+};
+
+},{}],9:[function(require,module,exports){
+/*!
+ * Chameleon
+ *
+ * Copyright 2014 ghostwords.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+
 var _ = require('underscore'),
 	tld = require('tldjs');
 
@@ -2119,8 +2152,7 @@ function get_domain(url) {
 				}
 			},
 			...
-		},
-		fontEnumeration: boolean true if any scripts for this tab have a true fontEnumeration property
+		}
 	},
 	...
 } */
@@ -2137,16 +2169,10 @@ var tabData = {
 		// initialize tab-level data
 		if (!data.hasOwnProperty(tab_id)) {
 			data[tab_id] = {
-				domains: {},
-				fontEnumeration: false
+				domains: {}
 			};
 		}
 		var datum = data[tab_id];
-
-		// font enumeration (tab-level)
-		if (font_enumeration_prop) {
-			datum.fontEnumeration = true;
-		}
 
 		// initialize domain-level data
 		if (!datum.domains.hasOwnProperty(domain)) {
@@ -2204,7 +2230,7 @@ var tabData = {
 
 module.exports = tabData;
 
-},{"tldjs":2,"underscore":6}],9:[function(require,module,exports){
+},{"tldjs":2,"underscore":6}],10:[function(require,module,exports){
 /*!
  * Chameleon
  *
@@ -2216,23 +2242,24 @@ module.exports = tabData;
  *
  */
 
+var score = require('./score.js').getFingerprintingScore;
+
 // used by the badge and the popup
-module.exports.getAccessCount = function (domains) {
-	// count unique keys across all counts objects
-	var props = {};
+module.exports.getFingerprinterCount = function (domains) {
+	var count = 0;
 
 	// no need for hasOwnProperty loop checks in this context
 	for (var domain in domains) { // jshint ignore:line
-		var scripts = domains[domain].scripts; // jshint ignore:line
+		var scripts = domains[domain].scripts;
 
-		for (var url in scripts) { // jshint ignore:line
-			for (var prop in scripts[url].counts) { // jshint ignore:line
-				props[prop] = true;
+		for (var url in scripts) {
+			if (score(scripts[url]) > 50) {
+				count++;
 			}
 		}
 	}
 
-	return Object.keys(props).length;
+	return count;
 };
 
-},{}]},{},[1]);
+},{"./score.js":8}]},{},[1]);

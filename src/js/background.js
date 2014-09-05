@@ -98,22 +98,18 @@ function normalizeHeaders(details) {
 
 function updateBadge(tab_id) {
 	var data = tabData.get(tab_id),
-		text = '';
+		count = 0;
 
 	if (data) {
-		text = utils.getAccessCount(data.domains);
-
-		if (data.fontEnumeration) {
-			text++;
-		}
-
-		text = text.toString();
+		count = utils.getFingerprinterCount(data.domains);
 	}
 
-	chrome.browserAction.setBadgeText({
-		tabId: tab_id,
-		text: text
-	});
+	if (count) {
+		chrome.browserAction.setBadgeText({
+			tabId: tab_id,
+			text: count.toString()
+		});
+	}
 }
 
 function updateButton() {
