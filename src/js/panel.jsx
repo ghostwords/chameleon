@@ -18,10 +18,6 @@ var React = require('react'),
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
-function scale_int(num, old_min, old_max, new_min, new_max) {
-	return Math.round((num - old_min) * (new_max - new_min) / (old_max - old_min) + new_min);
-}
-
 var PanelApp = React.createClass({
 	getInitialState: function () {
 		return {
@@ -177,14 +173,20 @@ var DomainReport = React.createClass({
 			Object.keys(this.props.scriptData).sort().forEach(function (url) {
 				var data = this.props.scriptData[url];
 
-				reports.push(
-					<ScriptReport
-						key={url}
-						counts={data.counts}
-						fontEnumeration={data.fontEnumeration}
-						url={url} />
-				);
+				if (getFingerprintingScore(data) > 50) {
+					reports.push(
+						<ScriptReport
+							key={url}
+							counts={data.counts}
+							fontEnumeration={data.fontEnumeration}
+							url={url} />
+					);
+				}
 			}, this);
+
+			if (!reports.length) {
+				return null;
+			}
 		}
 
 		return (
@@ -205,22 +207,11 @@ var ScriptReport = React.createClass({
 	render: function () {
 		var font_enumeration,
 			property_accesses_table,
-			rows = [],
-			score = getFingerprintingScore(this.props),
-			score_style = {};
-
-		if (score > 50) {
-			score_style.border =
-				// 1 or 2
-				scale_int(score, 51, 100, 1, 2) +
-					'px solid hsl(360, ' +
-					// 30 to 100
-					scale_int(score, 51, 100, 30, 100) + '%, 50%)';
-		}
+			rows = [];
 
 		if (this.props.fontEnumeration) {
 			font_enumeration = (
-				<div className="font-enumeration" style={score_style}>
+				<div className="font-enumeration">
 					Font enumeration detected.
 				</div>
 			);
@@ -234,7 +225,7 @@ var ScriptReport = React.createClass({
 
 		if (rows.length) {
 			property_accesses_table = (
-				<table style={score_style}>
+				<table>
 					<thead>
 						<tr>
 							<th>property</th>
