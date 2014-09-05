@@ -98,7 +98,7 @@ td:first-child div {
 /* sprites end */
 
 .domain {
-	background-color: pink;
+	border: 2px solid pink;
 	cursor: pointer;
 	font-weight: bold;
 	margin: 20px 0 0;
