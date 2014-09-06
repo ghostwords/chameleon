@@ -13,6 +13,12 @@ body {
 	width: 310px;
 }
 
+input[type=checkbox] {
+	margin: 0 4px 1px;
+	padding: 0;
+	vertical-align: bottom;
+}
+
 hr {
 	background-color: #ddd;
 	border: 0;
@@ -36,7 +42,7 @@ table {
 }
 
 .font-enumeration + table {
-	border-top: none !important;
+	margin-top: 5px;
 }
 
 tbody tr:nth-child(odd) {
@@ -98,11 +104,15 @@ td:first-child div {
 /* sprites end */
 
 .domain {
-	border: 2px solid pink;
+	background-color: #ddd;
 	cursor: pointer;
 	font-weight: bold;
 	margin: 20px 0 0;
 	padding: 5px;
+}
+
+.domain-fingerprinter {
+	background-color: pink;
 }
 
 .ellipsis {
@@ -111,7 +121,14 @@ td:first-child div {
 	white-space: nowrap;
 }
 
+.fingerprinter::before, .fingerprinter::after {
+	color: pink;
+	content: '\2666';
+	margin: 0 5px;
+}
+
 .font-enumeration {
+	border: 1px solid #ddd;
 	padding: 5px 10px;
 	text-align: center;
 }

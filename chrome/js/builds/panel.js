@@ -24,8 +24,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 		return {
 			// TODO do we need a "loading" prop?
 			domains: {},
-			enabled: false,
-			fontEnumeration: false
+			enabled: false
 		};
 	},
 
@@ -70,9 +69,7 @@ var PanelApp = React.createClass({displayName: 'PanelApp',
 					ref: "header", 
 					toggle: this.toggle}), 
 				React.DOM.hr(null), 
-				Report({
-					domainData: this.state.domains, 
-					fontEnumeration: this.state.fontEnumeration})
+				Report({domainData: this.state.domains})
 			)
 		);
 	}
@@ -123,30 +120,80 @@ var Header = React.createClass({displayName: 'Header',
 });
 
 var Report = React.createClass({displayName: 'Report',
+	getInitialState: function () {
+		var filtered = localStorage.getItem('filterReports');
+
+		if (filtered === null) {
+			filtered = true;
+		} else {
+			filtered = JSON.parse(filtered);
+		}
+
+		return {
+			filtered: filtered
+		};
+	},
+
+	filter: function () {
+		var filtered = !this.state.filtered;
+
+		localStorage.setItem('filterReports', JSON.stringify(filtered));
+
+		this.setState({
+			filtered: filtered
+		});
+	},
+
 	render: function () {
-		var domains = Object.keys(this.props.domainData),
+		var display_filter,
+			domains = Object.keys(this.props.domainData),
+			// TODO we get scores here and then again down at each script level
 			num_fingerprinters = utils.getFingerprinterCount(this.props.domainData),
+			num_scripts = 0,
 			reports = [];
 
 		domains.sort().forEach(function (domain) {
+			var scripts = this.props.domainData[domain].scripts;
+
+			num_scripts += Object.keys(scripts).length;
+
 			reports.push(
 				DomainReport({
 					key: domain, 
 					domain: domain, 
-					scriptData: this.props.domainData[domain].scripts})
+					filtered: this.state.filtered, 
+					scriptData: scripts})
 			);
 		}, this);
 
+		if (reports.length) {
+			reports = [React.DOM.hr(null)].concat(reports);
+		}
+
 		var status = num_fingerprinters ?
 			React.DOM.p(null, 
-				React.DOM.b(null, num_fingerprinters), " suspected fingerprinting script", 
+				React.DOM.b(null, num_fingerprinters), " suspected fingerprinter", 
 					num_fingerprinters > 1 ? 's' : '', " detected."
 			) :
 			React.DOM.p(null, "No fingerprinting detected.");
 
+		if (num_fingerprinters != num_scripts) {
+			display_filter = (
+				React.DOM.p({style: { fontSize: 'small'}}, 
+					React.DOM.label(null, 
+						React.DOM.input({type: "checkbox", 
+							checked: this.state.filtered, 
+							onChange: this.filter}), 
+						"Show fingerprinters only"
+					)
+				)
+			);
+		}
+
 		return (
 			React.DOM.div(null, 
 				status, 
+				display_filter, 
 				reports
 			)
 		);
@@ -168,31 +215,43 @@ var DomainReport = React.createClass({displayName: 'DomainReport',
 
 	render: function () {
 		var domain = this.props.domain,
+			has_fingerprinters = false,
 			reports = [];
 
-		if (this.state.expanded) {
-			Object.keys(this.props.scriptData).sort().forEach(function (url) {
-				var data = this.props.scriptData[url];
+		Object.keys(this.props.scriptData).sort().forEach(function (url) {
+			var data = this.props.scriptData[url],
+				fingerprinter = getFingerprintingScore(data) > 50;
 
-				if (getFingerprintingScore(data) > 50) {
-					reports.push(
-						ScriptReport({
-							key: url, 
-							counts: data.counts, 
-							fontEnumeration: data.fontEnumeration, 
-							url: url})
-					);
-				}
-			}, this);
-
-			if (!reports.length) {
-				return null;
+			if (fingerprinter) {
+				has_fingerprinters = true;
 			}
+
+			if (this.state.expanded && (!this.props.filtered || fingerprinter)) {
+				reports.push(
+					ScriptReport({
+						key: url, 
+						counts: data.counts, 
+						filtered: this.props.filtered, 
+						fingerprinter: fingerprinter, 
+						fontEnumeration: data.fontEnumeration, 
+						url: url})
+				);
+			}
+		}, this);
+
+		// hide the domain completely when all of its scripts got filtered out
+		if (!reports.length && this.props.filtered && !has_fingerprinters) {
+			return null;
+		}
+
+		var classes = ['domain', 'ellipsis'];
+		if (has_fingerprinters) {
+			classes.push('domain-fingerprinter');
 		}
 
 		return (
 			React.DOM.div(null, 
-				React.DOM.p({className: "domain ellipsis", onClick: this.toggle, title: domain}, 
+				React.DOM.p({className: classes.join(' '), onClick: this.toggle, title: domain}, 
 					React.DOM.span({className: "noselect triangle"}, 
 						this.state.expanded ? '▾' : '▸'
 					), 
@@ -206,14 +265,15 @@ var DomainReport = React.createClass({displayName: 'DomainReport',
 
 var ScriptReport = React.createClass({displayName: 'ScriptReport',
 	render: function () {
-		var font_enumeration,
+		var fingerprinter = '',
+			font_enumeration,
 			property_accesses_table,
 			rows = [];
 
 		if (this.props.fontEnumeration) {
 			font_enumeration = (
 				React.DOM.div({className: "font-enumeration"}, 
-					"Font enumeration detected."
+					React.DOM.b(null, "Font enumeration"), " detected."
 				)
 			);
 		}
@@ -240,9 +300,13 @@ var ScriptReport = React.createClass({displayName: 'ScriptReport',
 			);
 		}
 
+		if (this.props.fingerprinter && !this.props.filtered) {
+			fingerprinter = ' fingerprinter';
+		}
+
 		return (
 			React.DOM.div(null, 
-				React.DOM.p({className: "script-url ellipsis", title: this.props.url}, 
+				React.DOM.p({className: 'script-url ellipsis' + fingerprinter, title: this.props.url}, 
 					this.props.url
 				), 
 
