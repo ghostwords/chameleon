@@ -187,6 +187,13 @@ function onNavigation(details) {
 
 // initialization //////////////////////////////////////////////////////////////
 
+// TODO track all scripts (including ones loaded via XHR)
+//chrome.webRequest.onResponseStarted.addListener(
+//	function (details) { console.log(details); },
+//	_.extend(ALL_URLS, { types: ['script', 'xmlhttprequest'] }),
+//	['responseHeaders']
+//);
+
 // TODO filter out known fingerprinters
 //chrome.webRequest.onBeforeRequest.addListener(
 //	filterRequests,
