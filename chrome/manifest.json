@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Chameleon",
-	"version": "0.5.0",
+	"version": "0.6.0",
 
 	"default_locale": "en",
 	"description": "Browser fingerprinting protection for everybody.",
