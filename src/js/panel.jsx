@@ -165,10 +165,6 @@ var Report = React.createClass({
 			);
 		}, this);
 
-		if (reports.length) {
-			reports = [<hr />].concat(reports);
-		}
-
 		var status = num_fingerprinters ?
 			<p>
 				<b>{num_fingerprinters}</b> suspected fingerprinter
@@ -193,6 +189,7 @@ var Report = React.createClass({
 			<div>
 				{status}
 				{display_filter}
+				{!!reports.length && <hr />}
 				{reports}
 			</div>
 		);
