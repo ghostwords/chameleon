@@ -2062,13 +2062,12 @@ module.exports.sendMessage = function (name, message, callback) {
  *
  */
 
-module.exports.getFingerprintingScore = function (scriptData) {
-	// a likelihood percentage
-	var score = 0;
+module.exports.scoreScriptActivity = function (scriptData) {
+	var points = 0;
 
 	// 95 points for font enumeration
 	if (scriptData.fontEnumeration) {
-		score += 95;
+		points += 95;
 	}
 
 	// 15 points for each property access
@@ -2077,14 +2076,13 @@ module.exports.getFingerprintingScore = function (scriptData) {
 	// TODO third-party scripts should count more?
 	// TODO count across domains instead of individual scripts?
 	for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
-		score += 15;
-		if (score > 100) {
-			score = 100;
-			break;
-		}
+		points += 15;
 	}
 
-	return score;
+	return {
+		fingerprinter: (points > 50),
+		points: points
+	};
 };
 
 },{}],9:[function(require,module,exports){
@@ -2249,7 +2247,7 @@ module.exports = tabData;
  *
  */
 
-var score = require('./score.js').getFingerprintingScore;
+var score = require('./score.js').scoreScriptActivity;
 
 // used by the badge and the popup
 module.exports.getFingerprinterCount = function (domains) {
@@ -2260,7 +2258,7 @@ module.exports.getFingerprinterCount = function (domains) {
 		var scripts = domains[domain].scripts;
 
 		for (var url in scripts) {
-			if (score(scripts[url]) > 50) {
+			if (score(scripts[url]).fingerprinter) {
 				count++;
 			}
 		}

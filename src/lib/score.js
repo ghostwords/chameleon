@@ -9,13 +9,12 @@
  *
  */
 
-module.exports.getFingerprintingScore = function (scriptData) {
-	// a likelihood percentage
-	var score = 0;
+module.exports.scoreScriptActivity = function (scriptData) {
+	var points = 0;
 
 	// 95 points for font enumeration
 	if (scriptData.fontEnumeration) {
-		score += 95;
+		points += 95;
 	}
 
 	// 15 points for each property access
@@ -24,12 +23,11 @@ module.exports.getFingerprintingScore = function (scriptData) {
 	// TODO third-party scripts should count more?
 	// TODO count across domains instead of individual scripts?
 	for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
-		score += 15;
-		if (score > 100) {
-			score = 100;
-			break;
-		}
+		points += 15;
 	}
 
-	return score;
+	return {
+		fingerprinter: (points > 50),
+		points: points
+	};
 };

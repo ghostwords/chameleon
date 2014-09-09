@@ -14,7 +14,7 @@
 /*jshint newcap:false */
 
 var React = require('react'),
-	getFingerprintingScore = require('../lib/score.js').getFingerprintingScore,
+	score = require('../lib/score.js').scoreScriptActivity,
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
@@ -219,7 +219,7 @@ var DomainReport = React.createClass({
 
 		Object.keys(this.props.scriptData).sort().forEach(function (url) {
 			var data = this.props.scriptData[url],
-				fingerprinter = getFingerprintingScore(data) > 50;
+				fingerprinter = score(data).fingerprinter;
 
 			if (fingerprinter) {
 				has_fingerprinters = true;

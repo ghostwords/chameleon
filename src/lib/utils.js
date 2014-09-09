@@ -9,7 +9,7 @@
  *
  */
 
-var score = require('./score.js').getFingerprintingScore;
+var score = require('./score.js').scoreScriptActivity;
 
 // used by the badge and the popup
 module.exports.getFingerprinterCount = function (domains) {
@@ -20,7 +20,7 @@ module.exports.getFingerprinterCount = function (domains) {
 		var scripts = domains[domain].scripts;
 
 		for (var url in scripts) {
-			if (score(scripts[url]) > 50) {
+			if (score(scripts[url]).fingerprinter) {
 				count++;
 			}
 		}
