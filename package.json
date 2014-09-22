@@ -1,12 +1,14 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.6.0",
+	"version": "1.7.0",
 	"private": true,
 	"dependencies": {
 		"browserify": "~5.11.0",
 		"envify": "~3.0.0",
 		"glob": "~3.2.9",
+		"factor-bundle": "~2.2.1",
 		"jsxhint": "0.4.14",
+		"mkdirp": "~0.5.0",
 		"moment": "~2.6.0",
 		"react": "~0.11.1",
 		"reactify": "~0.14.0",

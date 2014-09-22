@@ -15,6 +15,7 @@ var _ = require('underscore'),
 	browserify = require('browserify'),
 	fs = require('fs'),
 	glob = require('glob'),
+	mkdirp = require('mkdirp'),
 	path = require('path'),
 	watchify = require('watchify');
 
@@ -39,26 +40,71 @@ function bundle(b, outpath) {
 	outStream.pipe(fs.createWriteStream(outpath));
 }
 
-// extension JS bundles
-//
-// TODO look into https://github.com/substack/factor-bundle
-//
-// TODO allow requiring all modules used by background/panel pages in browser
-// TODO dev tools: https://github.com/substack/node-browserify/issues/533
-glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
-	var infile = path.basename(inpath),
-		outpath = './chrome/js/builds/' + infile.replace(/\.jsx$/, '.js'),
-		// TODO check out source maps with browserify({ debug: true })
-		// TODO speed up bundling with noparse
-		opts = {};
+// TODO move elsewhere
+var conf = {
+	// js/jsx source (entry) files location
+	indir: 'src/js',
+	// minify all / some ((array of) directory name(s)) / no bundles
+	minify: ['injected'],
+	// output bundles go here
+	outdir: 'chrome/js/builds'
+};
 
-	if (args.watch) {
-		opts = _.extend(opts, watchify.args);
-		// TODO https://github.com/substack/watchify/issues/78
-		opts.fullPaths = false;
+var subdirs = ['.'].concat(fs.readdirSync(conf.indir).filter(function (file) {
+	return fs.statSync(path.resolve(conf.indir, file)).isDirectory();
+}));
+
+subdirs.forEach(function (subdir) {
+
+	var minify = false;
+	if (conf.minify === true ||
+		conf.minify === subdir ||
+		(_.isArray(conf.minify) && conf.minify.indexOf(subdir) != -1)
+	) {
+		minify = true;
 	}
 
-	var b = browserify(inpath, opts);
+	var inpaths = glob.sync(
+		path.resolve(conf.indir, subdir) + '/*.+(js|jsx)'
+	).map(function (inpath) {
+		return path.resolve(inpath);
+	});
+
+	var outdir = path.resolve(conf.outdir, subdir);
+	if (!fs.existsSync(outdir)) {
+		mkdirp.sync(outdir);
+	}
+
+	var outpaths = inpaths.map(function (inpath) {
+		var outpath = path.resolve(
+			outdir,
+			path.basename(inpath.replace(/\.jsx$/, '.js'))
+		);
+
+		if (minify) {
+			outpath = outpath.replace(/\.js$/, '.min.js');
+		}
+
+		return outpath;
+	});
+
+	var common_bundle_outpath = path.resolve(outdir, 'common.js');
+
+	// TODO check out source maps with browserify({ debug: true })
+	// TODO speed up bundling with noparse
+	var browserify_opts = {
+		entries: inpaths
+	};
+
+	if (args.watch) {
+		browserify_opts = _.extend(browserify_opts, watchify.args);
+		// TODO https://github.com/substack/watchify/issues/78
+		browserify_opts.fullPaths = false;
+	}
+
+	// TODO allow requiring all modules used by background/panel pages in browser
+	// TODO dev tools: https://github.com/substack/node-browserify/issues/533
+	var b = browserify(browserify_opts);
 
 	if (args.watch) {
 		b = watchify(b);
@@ -67,21 +113,23 @@ glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
 	// compile JSX
 	b = b.transform('reactify');
 
-	// minify some files
-	var minify = [
-		'./src/js/inject.js',
-		'./src/js/injected.js'
-	];
-	if (minify.indexOf(inpath) != -1) {
+	// factor out common modules
+	b = b.plugin('factor-bundle', {
+		// TODO https://github.com/substack/factor-bundle/issues/29#issuecomment-56258515
+		entries: inpaths,
+		o: outpaths
+	});
+
+	if (minify) {
 		b = b.transform('envify').transform('uglifyify');
-		outpath = outpath.replace(/\.js$/, '.min.js');
 	}
 
-	bundle(b, outpath);
+	bundle(b, common_bundle_outpath);
 
 	if (args.watch) {
 		b.on('update', function (/*ids*/) {
-			bundle(b, outpath);
+			bundle(b, common_bundle_outpath);
 		});
 	}
+
 });
