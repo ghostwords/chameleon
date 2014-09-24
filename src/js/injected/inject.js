@@ -17,7 +17,7 @@
 
 (function () {
 
-	var sendMessage = require('../lib/content_script_utils').sendMessage;
+	var sendMessage = require('../../lib/content_script_utils').sendMessage;
 
 	function insertScript(url, data) {
 		var head = document.getElementsByTagName('head')[0] || document.documentElement,
