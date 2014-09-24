@@ -49,7 +49,7 @@
 	});
 
 	insertScript(
-		'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js',
+		'chrome-extension://' + chrome.runtime.id + '/js/builds/injected/injected.min.js',
 		{ event_id: event_id }
 	);
 }());

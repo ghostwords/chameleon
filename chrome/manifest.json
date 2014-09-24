@@ -23,6 +23,7 @@
 	"author": "ghostwords",
 	"background": {
 		"scripts": [
+			"js/builds/common.js",
 			"js/builds/background.js"
 		]
 	},
@@ -30,7 +31,7 @@
 		{
 			"all_frames": true,
 			"js": [
-				"js/builds/inject.min.js"
+				"js/builds/injected/inject.min.js"
 			],
 			"matches": [
 				"http://*/*",
@@ -49,6 +50,6 @@
 		"webRequestBlocking"
 	],
 	"web_accessible_resources": [
-		"js/builds/injected.min.js"
+		"js/builds/injected/injected.min.js"
 	]
 }
