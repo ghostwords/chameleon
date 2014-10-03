@@ -2260,6 +2260,7 @@ module.exports.getFingerprinterCount = function (domains) {
 		for (var url in scripts) {
 			if (score(scripts[url]).fingerprinter) {
 				count++;
+				break;
 			}
 		}
 	}
