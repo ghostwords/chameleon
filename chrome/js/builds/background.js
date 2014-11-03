@@ -225,6 +225,8 @@ chrome.tabs.onRemoved.addListener(tabData.clear);
 
 chrome.webNavigation.onCommitted.addListener(onNavigation);
 
+updateButton();
+
 // see if we have any orphan data every five minutes
 // TODO switch to chrome.alarms?
 setInterval(tabData.clean, 300000);
