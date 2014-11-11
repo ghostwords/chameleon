@@ -91,6 +91,7 @@ function normalizeHeaders(details) {
 				value: value
 			};
 
+		// modify or remove?
 		if (typeOverrides.hasOwnProperty(name) || globalOverrides.hasOwnProperty(name)) {
 			if (typeOverrides.hasOwnProperty(name)) {
 				new_value = typeOverrides[name];
@@ -98,13 +99,14 @@ function normalizeHeaders(details) {
 				new_value = globalOverrides[name];
 			}
 
-			// modify or remove?
+			// modify
 			if (new_value) {
 				newHeader.value = new_value;
 				newHeaders.push(newHeader);
 			}
+
+		// just copy
 		} else {
-			// just copy
 			newHeaders.push(newHeader);
 		}
 	});
