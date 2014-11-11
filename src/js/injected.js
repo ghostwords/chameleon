@@ -15,8 +15,11 @@
 
 (function () {
 
+	// save locally to keep from getting overwritten by site code
+	var ERROR = Error;
+
 	// TODO unnecessary?
-	Error.stackTraceLimit = Infinity; // collect all frames
+	ERROR.stackTraceLimit = Infinity; // collect all frames
 
 	var event_id = document.currentScript.getAttribute('data-event-id');
 
@@ -89,17 +92,17 @@
 			stack;
 
 		if (structured) {
-			origFormatter = Error.prepareStackTrace;
-			Error.prepareStackTrace = function (err, structuredStackTrace) {
+			origFormatter = ERROR.prepareStackTrace;
+			ERROR.prepareStackTrace = function (err, structuredStackTrace) {
 				return structuredStackTrace;
 			};
 		}
 
-		Error.captureStackTrace(err, getStackTrace);
+		ERROR.captureStackTrace(err, getStackTrace);
 		stack = err.stack;
 
 		if (structured) {
-			Error.prepareStackTrace = origFormatter;
+			ERROR.prepareStackTrace = origFormatter;
 		}
 
 		return stack;
