@@ -38,13 +38,21 @@ var tabData = require('../lib/tabdata'),
 // Proxy-Connection
 // Transfer-Encoding
 var HEADER_OVERRIDES = {
-	'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
-	// TODO this matches Tor Browser on http://fingerprint.pet-portal.eu/?lang=en but not on Panopticlick ...
-	//'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-	'Accept': "text/html, */*",
-	'Accept-Language': "en-us,en;q=0.5",
-	'Accept-Encoding': "gzip, deflate",
-	'DNT': null // remove to match Tor Browser
+	'*': {
+		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
+		// TODO this matches Tor Browser on http://fingerprint.pet-portal.eu/?lang=en but not on Panopticlick ...
+		//'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+		'Accept': "text/html, */*",
+		'Accept-Language': "en-us,en;q=0.5",
+		'Accept-Encoding': "gzip, deflate",
+		'DNT': null // remove to match Tor Browser
+	},
+	'image': {
+		// TODO need to handle Accept for all content types properly to match Tor:
+		// TODO https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation
+		// TODO note that webRequest reports "main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", or "other" in details.type
+		'Accept': "image/png,image/*;q=0.8,*/*;q=0.5"
+	}
 };
 
 // functions ///////////////////////////////////////////////////////////////////
@@ -69,21 +77,30 @@ function normalizeHeaders(details) {
 		return;
 	}
 
-	var origHeaders = details.requestHeaders,
+	var typeOverrides = HEADER_OVERRIDES.hasOwnProperty(details.type) && HEADER_OVERRIDES[details.type] || {},
+		globalOverrides = HEADER_OVERRIDES['*'],
+		origHeaders = details.requestHeaders,
 		newHeaders = [];
 
 	origHeaders.forEach(function (header) {
 		var name = header.name,
 			value = header.value,
+			new_value,
 			newHeader = {
 				name: name,
 				value: value
 			};
 
-		if (HEADER_OVERRIDES.hasOwnProperty(name)) {
+		if (typeOverrides.hasOwnProperty(name) || globalOverrides.hasOwnProperty(name)) {
+			if (typeOverrides.hasOwnProperty(name)) {
+				new_value = typeOverrides[name];
+			} else if (globalOverrides.hasOwnProperty(name)) {
+				new_value = globalOverrides[name];
+			}
+
 			// modify or remove?
-			if (HEADER_OVERRIDES[name]) {
-				newHeader.value = HEADER_OVERRIDES[name];
+			if (new_value) {
+				newHeader.value = new_value;
 				newHeaders.push(newHeader);
 			}
 		} else {
