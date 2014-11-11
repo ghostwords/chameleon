@@ -232,7 +232,7 @@
 					length: 0,
 					refresh: function () {}
 				},
-				userAgent: "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
+				userAgent: "Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.0",
 				vendor: ""
 			}
 		},

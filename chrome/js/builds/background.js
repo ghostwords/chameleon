@@ -39,7 +39,7 @@ var tabData = require('../lib/tabdata'),
 // Transfer-Encoding
 var HEADER_OVERRIDES = {
 	'*': {
-		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20100101 Firefox/24.0",
+		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.0",
 		// TODO this matches Tor Browser on http://fingerprint.pet-portal.eu/?lang=en but not on Panopticlick ...
 		//'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 		'Accept': "text/html, */*",
