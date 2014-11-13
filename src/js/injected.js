@@ -211,7 +211,7 @@
 
 	// define nonexistent-in-Chrome properties (to match Tor Browser)
 	// TODO merge into trap()
-	window.navigator.buildID = "20000101000000";
+	window.navigator.buildID = "20100101";
 	window.navigator.oscpu = "Windows NT 6.1";
 
 	// JS objects to trap along with properties to override
