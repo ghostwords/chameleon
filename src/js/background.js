@@ -232,6 +232,8 @@ function onNavigation(details) {
 //	["blocking"]
 //);
 
+// TODO Tor Browser rejects web fonts? "downloadable font: download not allowed (font-family: "Open Sans" style:normal weight:normal stretch:normal src index:1): status=2147500037"
+
 // abort injecting the content script when Chameleon is disabled
 chrome.webRequest.onBeforeRequest.addListener(
 	// we redirect to a blank script instead of simply cancelling the request
