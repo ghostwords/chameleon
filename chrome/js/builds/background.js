@@ -37,21 +37,33 @@ var tabData = require('../lib/tabdata'),
 // Proxy-Authorization
 // Proxy-Connection
 // Transfer-Encoding
+
+// need to match Firefox/Tor Browser's Accept header across all content types
+// TODO video, audio, ...
+// TODO https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation
+// TODO note that webRequest reports "main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", or "other" in details.type
 var HEADER_OVERRIDES = {
 	'*': {
 		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.0",
-		// TODO this matches Tor Browser on http://fingerprint.pet-portal.eu/?lang=en but not on Panopticlick ...
-		//'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-		'Accept': "text/html, */*",
+		'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 		'Accept-Language': "en-us,en;q=0.5",
 		'Accept-Encoding': "gzip, deflate",
 		'DNT': null // remove to match Tor Browser
 	},
 	'image': {
-		// TODO need to handle Accept for all content types properly to match Tor:
-		// TODO https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation
-		// TODO note that webRequest reports "main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", or "other" in details.type
 		'Accept': "image/png,image/*;q=0.8,*/*;q=0.5"
+	},
+	'other': {
+		'Accept': "*/*"
+	},
+	'script': {
+		'Accept': "*/*"
+	},
+	'stylesheet': {
+		'Accept': "text/css,*/*;q=0.1"
+	},
+	'xmlhttprequest': {
+		'Accept': "text/html, */*"
 	}
 };
 
