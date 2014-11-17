@@ -11,12 +11,10 @@
  *
  */
 
-var _ = require('underscore'),
-	browserify = require('browserify'),
-	fs = require('fs'),
+var fs = require('fs'),
 	glob = require('glob'),
 	path = require('path'),
-	watchify = require('watchify');
+	webpack = require('webpack');
 
 var args = require('yargs').default({
 	watch: false
@@ -27,61 +25,116 @@ if (!process.env.hasOwnProperty('NODE_ENV')) {
 	process.env.NODE_ENV = 'development';
 }
 
-function bundle(b, outpath) {
-	console.log("Writing out %s ...", outpath);
+var OUT_DIR = path.join('chrome', 'js', 'builds');
 
-	var outStream = b.bundle();
+var FILES_TO_MINIFY = [
+	'inject.js',
+	'injected.js'
+];
 
-	outStream.on('error', function (e) {
-		console.error(String(e));
-	});
+// TODO allow requiring all modules used by background/panel pages in browser dev tools:
+// https://github.com/substack/node-browserify/issues/533
+// https://github.com/webpack/docs/wiki/webpack-for-browserify-users#external-requires
+// https://github.com/webpack/expose-loader
 
-	outStream.pipe(fs.createWriteStream(outpath));
+// TODO check out debugging with source maps
+
+// TODO another conditional compilation approach: https://github.com/webpack/webpack/issues/99
+
+var config = {
+	entry: glob.sync('./src/js/*').reduce(function (memo, inpath) {
+		var infile = path.basename(inpath);
+		memo[infile.slice(0, -path.extname(infile).length)] = inpath;
+		return memo;
+	}, {}),
+	output: {
+		path: OUT_DIR,
+		filename: "[name].js"
+	},
+	module: {
+		loaders: [
+			{
+				test: /\.json$/,
+				loader: "json"
+			},
+			{
+				test: /\.jsx$/,
+				loader: "jsx"
+			}
+		],
+	},
+	plugins: [
+		new webpack.DefinePlugin({
+			__DEV__: process.env.NODE_ENV == 'development'
+		}),
+		new webpack.optimize.CommonsChunkPlugin('common', 'common.js', ['background', 'panel']),
+		new webpack.optimize.OccurrenceOrderPlugin(),
+		new webpack.optimize.UglifyJsPlugin({
+			compress: {
+				warnings: false
+			},
+			include: FILES_TO_MINIFY
+		})
+	]
+};
+
+var compiler = webpack(config);
+
+if (args.watch) {
+	compiler.watch(200, handle_build_results);
+} else {
+	compiler.run(handle_build_results);
 }
 
-// extension JS bundles
-//
-// TODO look into https://github.com/substack/factor-bundle
-//
-// TODO allow requiring all modules used by background/panel pages in browser
-// TODO dev tools: https://github.com/substack/node-browserify/issues/533
-glob.sync('./src/js/*.+(js|jsx)').forEach(function (inpath) {
-	var infile = path.basename(inpath),
-		outpath = './chrome/js/builds/' + infile.replace(/\.jsx$/, '.js'),
-		// TODO check out source maps with browserify({ debug: true })
-		// TODO speed up bundling with noparse
-		opts = {};
-
-	if (args.watch) {
-		opts = _.extend(opts, watchify.args);
-		// TODO https://github.com/substack/watchify/issues/78
-		opts.fullPaths = false;
+function handle_build_results(err, stats) {
+	if (err) {
+		return fatal_error(err);
 	}
 
-	var b = browserify(inpath, opts);
+	var jsonStats = stats.toJson();
 
-	if (args.watch) {
-		b = watchify(b);
+	if (jsonStats.errors.length > 0) {
+		jsonStats.errors.forEach(function (err) {
+			console.error(err);
+		});
+		return;
 	}
 
-	// compile JSX
-	b = b.transform('reactify');
-
-	// minify some files
-	var minify = [
-		'./src/js/inject.js',
-		'./src/js/injected.js'
-	];
-	if (minify.indexOf(inpath) != -1) {
-		b = b.transform('envify').transform('uglifyify');
-		outpath = outpath.replace(/\.js$/, '.min.js');
-	}
-
-	bundle(b, outpath);
-
-	if (args.watch) {
-		b.on('update', function (/*ids*/) {
-			bundle(b, outpath);
+	if (jsonStats.warnings.length > 0) {
+		jsonStats.warnings.forEach(function (warn) {
+			console.warn(warn);
 		});
 	}
-});
+
+	FILES_TO_MINIFY.forEach(function (infile) {
+		var old_name = path.join(OUT_DIR, infile),
+			new_name = old_name.replace(/\.js$/, '.min.js');
+
+		if (fs.existsSync(old_name)) {
+			fs.renameSync(old_name, new_name);
+		}
+	});
+
+	console.log(stats.toString({
+		cached: false,
+		cachedAssets: false,
+		chunks: false,
+		colors: true,
+		exclude: ['node_modules'],
+		hash: false,
+		timings: false,
+		version: false
+	}));
+}
+
+function fatal_error(err) {
+	console.error(err.stack || err);
+	if (err.details) {
+		console.error(err.details);
+	}
+	if (!args.watch) {
+		process.on("exit", function () {
+			process.exit(1);
+		});
+	}
+}

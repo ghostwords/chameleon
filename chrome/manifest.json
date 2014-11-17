@@ -23,6 +23,7 @@
 	"author": "ghostwords",
 	"background": {
 		"scripts": [
+			"js/builds/common.js",
 			"js/builds/background.js"
 		]
 	},

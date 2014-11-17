@@ -24,7 +24,7 @@
 	var event_id = document.currentScript.getAttribute('data-event-id');
 
 	function log() {
-		if (process.env.NODE_ENV != 'production') {
+		if (__DEV__) {
 			console.log.apply(console, arguments);
 		}
 	}

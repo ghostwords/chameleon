@@ -1,20 +1,18 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.6.0",
+	"version": "1.7.0",
 	"private": true,
 	"dependencies": {
-		"browserify": "~5.11.0",
-		"envify": "~3.0.0",
 		"glob": "~3.2.9",
+		"json-loader": "~0.5.1",
+		"jsx-loader": "~0.11.2",
 		"jsxhint": "0.4.14",
 		"moment": "~2.6.0",
 		"react": "~0.11.1",
-		"reactify": "~0.14.0",
 		"shelljs": "~0.2.6",
 		"tldjs": "~1.5.0",
-		"uglifyify": "~2.5.0",
 		"underscore": "~1.6.0",
-		"watchify": "~1.0.2",
+		"webpack": "~1.4.13",
 		"yargs": "~1.2.1"
 	},
 	"scripts": {
