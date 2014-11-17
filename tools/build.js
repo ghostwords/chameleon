@@ -115,7 +115,7 @@ function handle_build_results(err, stats) {
 		}
 	});
 
-	console.log(stats.toString({
+	var summary = stats.toString({
 		cached: false,
 		cachedAssets: false,
 		chunks: false,
@@ -124,7 +124,11 @@ function handle_build_results(err, stats) {
 		hash: false,
 		timings: false,
 		version: false
-	}));
+	});
+
+	if (summary) {
+		console.log(summary);
+	}
 }
 
 function fatal_error(err) {
