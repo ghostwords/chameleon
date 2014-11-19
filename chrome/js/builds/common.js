@@ -92,7 +92,7 @@
 /************************************************************************/
 /******/ ({
 
-/***/ 33:
+/***/ 32:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -142,7 +142,7 @@
 
 /***/ },
 
-/***/ 79:
+/***/ 78:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -182,7 +182,7 @@
 
 /***/ },
 
-/***/ 80:
+/***/ 79:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -196,7 +196,7 @@
 	 *
 	 */
 	
-	var score = __webpack_require__(79).scoreScriptActivity;
+	var score = __webpack_require__(78).scoreScriptActivity;
 	
 	// used by the badge and the popup
 	module.exports.getFingerprinterCount = function (domains) {

@@ -16,14 +16,14 @@ webpackJsonp([4],{
 	
 	// globals /////////////////////////////////////////////////////////////////////
 	
-	var _ = __webpack_require__(78);
+	var _ = __webpack_require__(77);
 	
 	var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 		ENABLED = true;
 	
-	var tabData = __webpack_require__(154),
-		sendMessage = __webpack_require__(33).sendMessage,
-		utils = __webpack_require__(80);
+	var tabData = __webpack_require__(153),
+		sendMessage = __webpack_require__(32).sendMessage,
+		utils = __webpack_require__(79);
 	
 	// TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 	// The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -271,7 +271,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 78:
+/***/ 77:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.6.0
@@ -1621,7 +1621,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 81:
+/***/ 80:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -2448,20 +2448,20 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 151:
+/***/ 150:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var tld = __webpack_require__(153).init();
-	tld.rules = __webpack_require__(81);
+	var tld = __webpack_require__(152).init();
+	tld.rules = __webpack_require__(80);
 	
 	module.exports = tld;
 
 
 /***/ },
 
-/***/ 152:
+/***/ 151:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2544,12 +2544,12 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 153:
+/***/ 152:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var Rule = __webpack_require__(152);
+	var Rule = __webpack_require__(151);
 	var urlParts = /(^https?:?\/\/|^\/\/)?([^:]+(:[^@]+)?@)?([^:@\/]+)(:|\/|$)/; // 1 = protocol, 2/3 = auth, 4 = domain
 	
 	/**
@@ -2900,7 +2900,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 154:
+/***/ 153:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -2914,8 +2914,8 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var _ = __webpack_require__(78),
-		tld = __webpack_require__(151);
+	var _ = __webpack_require__(77),
+		tld = __webpack_require__(150);
 	
 	// does the string start with an optional scheme/colon and two slashes?
 	// TODO better IP regex, check for IPv6
