@@ -32,14 +32,12 @@ var FILES_TO_MINIFY = [
 	'injected.js'
 ];
 
+// TODO check out debugging with source maps (and minifying everything)
+
 // TODO allow requiring all modules used by background/panel pages in browser dev tools:
 // https://github.com/substack/node-browserify/issues/533
 // https://github.com/webpack/docs/wiki/webpack-for-browserify-users#external-requires
 // https://github.com/webpack/expose-loader
-
-// TODO check out debugging with source maps
-
-// TODO another conditional compilation approach: https://github.com/webpack/webpack/issues/99
 
 var config = {
 	entry: glob.sync('./src/js/*').reduce(function (memo, inpath) {
@@ -62,11 +60,15 @@ var config = {
 				loader: "jsx"
 			}
 		],
+		postLoaders: [
+			{
+				test: /\.js$/,
+				// TODO cacheable?
+				loader: "transform?envify"
+			}
+		]
 	},
 	plugins: [
-		new webpack.DefinePlugin({
-			__DEV__: process.env.NODE_ENV == 'development'
-		}),
 		new webpack.optimize.CommonsChunkPlugin('common', 'common.js', ['background', 'panel']),
 		new webpack.optimize.OccurrenceOrderPlugin(),
 		new webpack.optimize.UglifyJsPlugin({

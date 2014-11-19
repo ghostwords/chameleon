@@ -24,7 +24,7 @@
 	var event_id = document.currentScript.getAttribute('data-event-id');
 
 	function log() {
-		if (__DEV__) {
+		if (process.env.NODE_ENV == 'development') {
 			console.log.apply(console, arguments);
 		}
 	}

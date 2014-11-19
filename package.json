@@ -1,8 +1,9 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.7.0",
+	"version": "1.8.0",
 	"private": true,
 	"dependencies": {
+		"envify": "~3.2.0",
 		"glob": "~3.2.9",
 		"json-loader": "~0.5.1",
 		"jsx-loader": "~0.11.2",
@@ -11,6 +12,7 @@
 		"react": "~0.11.1",
 		"shelljs": "~0.2.6",
 		"tldjs": "~1.5.0",
+		"transform-loader": "~0.2.1",
 		"underscore": "~1.6.0",
 		"webpack": "~1.4.13",
 		"yargs": "~1.2.1"
