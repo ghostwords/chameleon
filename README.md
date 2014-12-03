@@ -16,7 +16,7 @@ The next step for Chameleon is to block scripts from loading based on their use 
 
 Chameleon detects [font enumeration](http://www.lalit.org/lab/javascript-css-font-detect/) and intercepts accesses of fingerprinting-associated JavaScript objects like [Window.navigator](https://developer.mozilla.org/en-US/docs/Web/API/Navigator).
 
-The number over Chameleon's button counts the number of distinct attempts to collect information about your browser on the current page. Higher numbers suggest fingerprinting might be taking place.
+The number over Chameleon's button counts the number of suspected fingerprinters on the current page.
 
 ### Protection
 
