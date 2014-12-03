@@ -33,6 +33,13 @@ var result = shell.exec([
 	'zip -qr -9 -X ../dist/' + package_name + '.zip .'
 ].join(' && ')).code;
 
+if (result === 0) {
+	console.log("Successfully created packages:");
+	shell.ls('dist/*.zip', 'dist/*.crx').forEach(function (file) {
+		console.log(file);
+	});
+}
+
 shell.exit(result);
 
 /*
