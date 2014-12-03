@@ -21,7 +21,7 @@ webpackJsonp([4],{
 	var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
 		ENABLED = true;
 	
-	var tabData = __webpack_require__(153),
+	var tabData = __webpack_require__(81),
 		sendMessage = __webpack_require__(32).sendMessage,
 		utils = __webpack_require__(79);
 	
@@ -2448,12 +2448,20 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 150:
+/***/ 81:
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(154);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+
+/***/ 151:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var tld = __webpack_require__(152).init();
+	var tld = __webpack_require__(153).init();
 	tld.rules = __webpack_require__(80);
 	
 	module.exports = tld;
@@ -2461,7 +2469,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 151:
+/***/ 152:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2544,12 +2552,12 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 152:
+/***/ 153:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var Rule = __webpack_require__(151);
+	var Rule = __webpack_require__(152);
 	var urlParts = /(^https?:?\/\/|^\/\/)?([^:]+(:[^@]+)?@)?([^:@\/]+)(:|\/|$)/; // 1 = protocol, 2/3 = auth, 4 = domain
 	
 	/**
@@ -2900,7 +2908,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 153:
+/***/ 154:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -2915,7 +2923,7 @@ webpackJsonp([4],{
 	 */
 	
 	var _ = __webpack_require__(77),
-		tld = __webpack_require__(150);
+		tld = __webpack_require__(151);
 	
 	// does the string start with an optional scheme/colon and two slashes?
 	// TODO better IP regex, check for IPv6

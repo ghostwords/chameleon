@@ -1,9 +1,10 @@
 {
 	"name": "chameleon-browser-extension-tools",
-	"version": "1.8.0",
+	"version": "1.9.0",
 	"private": true,
 	"dependencies": {
 		"envify": "~3.2.0",
+		"expose-loader": "~0.6.0",
 		"glob": "~3.2.9",
 		"json-loader": "~0.5.1",
 		"jsx-loader": "~0.11.2",
@@ -20,8 +21,9 @@
 	"scripts": {
 		"build": "./tools/build.js",
 		"clean": "rm -rf dist/*",
-		"dist": "NODE_ENV=production npm run build && npm run test && npm run clean && ./tools/dist.js && npm run build",
+		"dist": "npm run build && npm run test && npm run clean && ./tools/dist.js",
 		"lint": "jsxhint .",
+		"release": "NODE_ENV=production npm run dist && npm run build",
 		"test": "npm run lint && echo 'One day, this will run tests.'",
 		"watch": "./tools/build.js --watch"
 	}

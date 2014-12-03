@@ -80,6 +80,15 @@ var config = {
 	]
 };
 
+if (process.env.NODE_ENV == 'development') {
+	config.module.postLoaders.push(
+		{
+			test: require.resolve("../src/lib/tabdata.js"),
+			loader: "expose?tabData"
+		}
+	);
+}
+
 var compiler = webpack(config);
 
 if (args.watch) {
