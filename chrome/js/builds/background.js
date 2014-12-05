@@ -2451,7 +2451,7 @@ webpackJsonp([4],{
 /***/ 81:
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(154);
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(155);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -2922,8 +2922,7 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var _ = __webpack_require__(77),
-		tld = __webpack_require__(151);
+	var tld = __webpack_require__(151);
 	
 	// does the string start with an optional scheme/colon and two slashes?
 	// TODO better IP regex, check for IPv6
@@ -2933,7 +2932,7 @@ webpackJsonp([4],{
 	
 	// TODO see getBaseDomain in https://github.com/adblockplus/adblockpluschrome/blob/f9c5bd397bb8a9d7d2890aee89d45e25178c4b7a/lib/basedomain.js
 	// TODO punycode? https://publicsuffix.org/list/ and http://www.w3.org/International/articles/idn-and-iri/
-	function get_domain(url) {
+	module.exports.get_domain = function (url) {
 		var domain,
 			hostname,
 			UNKNOWN_DOMAIN = '<unknown domain>';
@@ -2964,7 +2963,27 @@ webpackJsonp([4],{
 		}
 	
 		return domain;
-	}
+	};
+
+
+/***/ },
+
+/***/ 155:
+/***/ function(module, exports, __webpack_require__) {
+
+	/*!
+	 * Chameleon
+	 *
+	 * Copyright 2014 ghostwords.
+	 *
+	 * This Source Code Form is subject to the terms of the Mozilla Public
+	 * License, v. 2.0. If a copy of the MPL was not distributed with this
+	 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+	 *
+	 */
+	
+	var _ = __webpack_require__(77),
+		uri = __webpack_require__(154);
 	
 	/* data = {
 		<tab_id>: {
@@ -2991,7 +3010,7 @@ webpackJsonp([4],{
 	var tabData = {
 		// TODO review performance impact
 		record: function (tab_id, access) {
-			var domain = get_domain(access.scriptUrl),
+			var domain = uri.get_domain(access.scriptUrl),
 				font_enumeration_prop = (access.prop == 'style.fontFamily'),
 				key = access.obj + '.' + access.prop,
 				script_url = access.scriptUrl || '<unknown script>';
