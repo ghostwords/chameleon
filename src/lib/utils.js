@@ -9,7 +9,7 @@
  *
  */
 
-var score = require('./score.js').scoreScriptActivity;
+var score = require('./score').scoreScriptActivity;
 
 // used by the badge and the popup
 module.exports.getFingerprinterCount = function (domains) {
@@ -28,4 +28,13 @@ module.exports.getFingerprinterCount = function (domains) {
 	}
 
 	return count;
+};
+
+module.exports.storage = function (key, value) {
+	if (typeof value != 'undefined') {
+		localStorage.setItem(key, JSON.stringify(value));
+	} else {
+		value = localStorage.getItem(key);
+		return value && JSON.parse(value);
+	}
 };

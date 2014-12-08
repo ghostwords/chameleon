@@ -10,7 +10,7 @@
  */
 
 var _ = require('underscore'),
-	uri = require('./uri.js');
+	uri = require('./uri');
 
 /* data = {
 	<tab_id>: {
@@ -28,13 +28,26 @@ var _ = require('underscore'),
 				}
 			},
 			...
-		}
+		},
+		injected: boolean,
+		url: string,
+		hostname: string
 	},
 	...
 } */
 var data = {};
 
 var tabData = {
+	// initialize tab-level data
+	init: function (tab_id, tab_url) {
+		data[tab_id] = {
+			domains: {},
+			hostname: new URL(tab_url).hostname,
+			injected: false,
+			url: tab_url
+		};
+	},
+
 	// TODO review performance impact
 	record: function (tab_id, access) {
 		var domain = uri.get_domain(access.scriptUrl),
@@ -42,12 +55,6 @@ var tabData = {
 			key = access.obj + '.' + access.prop,
 			script_url = access.scriptUrl || '<unknown script>';
 
-		// initialize tab-level data
-		if (!data.hasOwnProperty(tab_id)) {
-			data[tab_id] = {
-				domains: {}
-			};
-		}
 		var datum = data[tab_id];
 
 		// initialize domain-level data

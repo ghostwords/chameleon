@@ -69,8 +69,7 @@ td:first-child div {
 #header-contents {
 	font-size: 16px;
 	line-height: 1.2em;
-	margin: 0 auto;
-	padding: 10px 70px;
+	padding: 10px 20px 10px 70px;
 }
 
 #status-text {

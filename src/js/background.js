@@ -13,12 +13,12 @@
 
 var _ = require('underscore');
 
-var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
-	ENABLED = true;
+var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 
 var tabData = require('../lib/tabdata'),
 	sendMessage = require('../lib/content_script_utils').sendMessage,
-	utils = require('../lib/utils');
+	utils = require('../lib/utils'),
+	whitelist = require('../lib/whitelist');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 // The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -72,7 +72,7 @@ var HEADER_OVERRIDES = {
 //function filterRequests(details) {
 //	var cancel = false;
 //
-//	if (!ENABLED) {
+//	if (!isEnabled(details.tabId) {
 //		return;
 //	}
 //
@@ -84,7 +84,7 @@ var HEADER_OVERRIDES = {
 //}
 
 function normalizeHeaders(details) {
-	if (!ENABLED) {
+	if (!isEnabled(details.tabId)) {
 		return;
 	}
 
@@ -127,6 +127,11 @@ function normalizeHeaders(details) {
 	};
 }
 
+function isEnabled(tab_id) {
+	var data = tabData.get(tab_id);
+	return data.injected && !whitelist.whitelisted(data.hostname);
+}
+
 function updateBadge(tab_id) {
 	var data = tabData.get(tab_id),
 		count = 0;
@@ -143,13 +148,25 @@ function updateBadge(tab_id) {
 	}
 }
 
-function updateButton() {
-	chrome.browserAction.setIcon({
-		path: {
-			19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
-			38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
-		}
-	});
+function updateButton(tab_id) {
+	function _updateButton(tab_id) {
+		var enabled = isEnabled(tab_id);
+
+		chrome.browserAction.setIcon({
+			path: {
+				19: 'icons/19' + (enabled ? '' : '_off') + '.png',
+				38: 'icons/38' + (enabled ? '' : '_off') + '.png'
+			}
+		});
+	}
+
+	if (tab_id) {
+		_.defer(_updateButton, tab_id);
+	} else {
+		getCurrentTab(function (tab) {
+			_updateButton(tab.id);
+		});
+	}
 }
 
 function getCurrentTab(callback) {
@@ -161,8 +178,14 @@ function getCurrentTab(callback) {
 	});
 }
 
-function getPanelData(tab_id) {
-	return _.extend({ enabled: ENABLED }, tabData.get(tab_id));
+function getPanelData(tab) {
+	return _.extend(tabData.get(tab.id) || {}, {
+		invalid_page: (
+			tab.url.indexOf('http') !== 0 ||
+			tab.url.indexOf('https://chrome.google.com/webstore/') === 0
+		),
+		whitelisted: whitelist.whitelisted(tab.id)
+	});
 }
 
 function onMessage(request, sender, sendResponse) {
@@ -183,21 +206,20 @@ function onMessage(request, sender, sendResponse) {
 		getCurrentTab(function (tab) {
 			// but only if this message is for the current tab
 			if (tab.id == sender.tab.id) {
-				sendMessage('panelData', getPanelData(tab.id));
+				sendMessage('panelData', getPanelData(tab));
 			}
 		});
 
 	} else if (request.name == 'panelLoaded') {
-		// TODO fails when inspecting popup: we send inspector tab instead
 		getCurrentTab(function (tab) {
-			sendResponse(getPanelData(tab.id));
+			sendResponse(getPanelData(tab));
 		});
 
 		// we will send the response asynchronously
 		return true;
 
 	} else if (request.name == 'panelToggle') {
-		ENABLED = !ENABLED;
+		whitelist.toggle(request.message.hostname);
 		updateButton();
 	}
 
@@ -212,7 +234,8 @@ function onNavigation(details) {
 		return;
 	}
 
-	tabData.clear(tab_id);
+	tabData.init(tab_id, details.url);
+	updateButton(tab_id);
 	updateBadge(tab_id);
 }
 
@@ -236,10 +259,26 @@ function onNavigation(details) {
 
 // abort injecting the content script when Chameleon is disabled
 chrome.webRequest.onBeforeRequest.addListener(
-	// we redirect to a blank script instead of simply cancelling the request
-	// because cancelling makes pages spin forever for some reason
-	function () { if (!ENABLED) { return { redirectUrl: 'data:text/javascript,' }; } },
-	{ urls: ['chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'] },
+	function (details) {
+		var tab_id = details.tabId;
+
+		if (whitelist.whitelisted(tab_id)) {
+			// we redirect to a blank script instead of simply cancelling the request
+			// because cancelling makes pages spin forever for some reason
+			return {
+				redirectUrl: 'data:text/javascript,'
+			};
+
+		} else {
+			tabData.get(tab_id).injected = true;
+			updateButton(tab_id);
+		}
+	},
+	{
+		urls: [
+			'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'
+		]
+	},
 	["blocking"]
 );
 
@@ -253,11 +292,12 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.runtime.onMessage.addListener(onMessage);
 
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+	updateButton(activeInfo.tabId);
+});
 chrome.tabs.onRemoved.addListener(tabData.clear);
 
 chrome.webNavigation.onCommitted.addListener(onNavigation);
-
-updateButton();
 
 // see if we have any orphan data every five minutes
 // TODO switch to chrome.alarms?

@@ -32,7 +32,7 @@ module.exports.get_domain = function (url) {
 		return UNKNOWN_DOMAIN;
 	}
 
-	hostname = url.split('/')[2];
+	hostname = new URL(url).hostname;
 
 	// TODO tld.js does not properly handle IP (v4 or v6) addresses
 	if (!IP_ADDRESS.test(hostname)) {

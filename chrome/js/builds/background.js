@@ -16,14 +16,14 @@ webpackJsonp([4],{
 	
 	// globals /////////////////////////////////////////////////////////////////////
 	
-	var _ = __webpack_require__(77);
+	var _ = __webpack_require__(49);
 	
-	var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] },
-		ENABLED = true;
+	var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 	
-	var tabData = __webpack_require__(81),
+	var tabData = __webpack_require__(51),
 		sendMessage = __webpack_require__(32).sendMessage,
-		utils = __webpack_require__(79);
+		utils = __webpack_require__(50),
+		whitelist = __webpack_require__(155);
 	
 	// TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
 	// The following headers are currently not provided to the onBeforeSendHeaders event.
@@ -77,7 +77,7 @@ webpackJsonp([4],{
 	//function filterRequests(details) {
 	//	var cancel = false;
 	//
-	//	if (!ENABLED) {
+	//	if (!isEnabled(details.tabId) {
 	//		return;
 	//	}
 	//
@@ -89,7 +89,7 @@ webpackJsonp([4],{
 	//}
 	
 	function normalizeHeaders(details) {
-		if (!ENABLED) {
+		if (!isEnabled(details.tabId)) {
 			return;
 		}
 	
@@ -132,6 +132,11 @@ webpackJsonp([4],{
 		};
 	}
 	
+	function isEnabled(tab_id) {
+		var data = tabData.get(tab_id);
+		return data.injected && !whitelist.whitelisted(data.hostname);
+	}
+	
 	function updateBadge(tab_id) {
 		var data = tabData.get(tab_id),
 			count = 0;
@@ -148,13 +153,25 @@ webpackJsonp([4],{
 		}
 	}
 	
-	function updateButton() {
-		chrome.browserAction.setIcon({
-			path: {
-				19: 'icons/19' + (ENABLED ? '' : '_off') + '.png',
-				38: 'icons/38' + (ENABLED ? '' : '_off') + '.png'
-			}
-		});
+	function updateButton(tab_id) {
+		function _updateButton(tab_id) {
+			var enabled = isEnabled(tab_id);
+	
+			chrome.browserAction.setIcon({
+				path: {
+					19: 'icons/19' + (enabled ? '' : '_off') + '.png',
+					38: 'icons/38' + (enabled ? '' : '_off') + '.png'
+				}
+			});
+		}
+	
+		if (tab_id) {
+			_.defer(_updateButton, tab_id);
+		} else {
+			getCurrentTab(function (tab) {
+				_updateButton(tab.id);
+			});
+		}
 	}
 	
 	function getCurrentTab(callback) {
@@ -166,8 +183,14 @@ webpackJsonp([4],{
 		});
 	}
 	
-	function getPanelData(tab_id) {
-		return _.extend({ enabled: ENABLED }, tabData.get(tab_id));
+	function getPanelData(tab) {
+		return _.extend(tabData.get(tab.id) || {}, {
+			invalid_page: (
+				tab.url.indexOf('http') !== 0 ||
+				tab.url.indexOf('https://chrome.google.com/webstore/') === 0
+			),
+			whitelisted: whitelist.whitelisted(tab.id)
+		});
 	}
 	
 	function onMessage(request, sender, sendResponse) {
@@ -188,21 +211,20 @@ webpackJsonp([4],{
 			getCurrentTab(function (tab) {
 				// but only if this message is for the current tab
 				if (tab.id == sender.tab.id) {
-					sendMessage('panelData', getPanelData(tab.id));
+					sendMessage('panelData', getPanelData(tab));
 				}
 			});
 	
 		} else if (request.name == 'panelLoaded') {
-			// TODO fails when inspecting popup: we send inspector tab instead
 			getCurrentTab(function (tab) {
-				sendResponse(getPanelData(tab.id));
+				sendResponse(getPanelData(tab));
 			});
 	
 			// we will send the response asynchronously
 			return true;
 	
 		} else if (request.name == 'panelToggle') {
-			ENABLED = !ENABLED;
+			whitelist.toggle(request.message.hostname);
 			updateButton();
 		}
 	
@@ -217,7 +239,8 @@ webpackJsonp([4],{
 			return;
 		}
 	
-		tabData.clear(tab_id);
+		tabData.init(tab_id, details.url);
+		updateButton(tab_id);
 		updateBadge(tab_id);
 	}
 	
@@ -241,10 +264,26 @@ webpackJsonp([4],{
 	
 	// abort injecting the content script when Chameleon is disabled
 	chrome.webRequest.onBeforeRequest.addListener(
-		// we redirect to a blank script instead of simply cancelling the request
-		// because cancelling makes pages spin forever for some reason
-		function () { if (!ENABLED) { return { redirectUrl: 'data:text/javascript,' }; } },
-		{ urls: ['chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'] },
+		function (details) {
+			var tab_id = details.tabId;
+	
+			if (whitelist.whitelisted(tab_id)) {
+				// we redirect to a blank script instead of simply cancelling the request
+				// because cancelling makes pages spin forever for some reason
+				return {
+					redirectUrl: 'data:text/javascript,'
+				};
+	
+			} else {
+				tabData.get(tab_id).injected = true;
+				updateButton(tab_id);
+			}
+		},
+		{
+			urls: [
+				'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'
+			]
+		},
 		["blocking"]
 	);
 	
@@ -258,11 +297,12 @@ webpackJsonp([4],{
 	
 	chrome.runtime.onMessage.addListener(onMessage);
 	
+	chrome.tabs.onActivated.addListener(function (activeInfo) {
+		updateButton(activeInfo.tabId);
+	});
 	chrome.tabs.onRemoved.addListener(tabData.clear);
 	
 	chrome.webNavigation.onCommitted.addListener(onNavigation);
-	
-	updateButton();
 	
 	// see if we have any orphan data every five minutes
 	// TODO switch to chrome.alarms?
@@ -271,7 +311,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 77:
+/***/ 49:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscore.js 1.6.0
@@ -1621,7 +1661,15 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 80:
+/***/ 51:
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(156);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+
+/***/ 81:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -2448,21 +2496,13 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 81:
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(155);
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-
 /***/ 151:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
 	var tld = __webpack_require__(153).init();
-	tld.rules = __webpack_require__(80);
+	tld.rules = __webpack_require__(81);
 	
 	module.exports = tld;
 
@@ -2945,7 +2985,7 @@ webpackJsonp([4],{
 			return UNKNOWN_DOMAIN;
 		}
 	
-		hostname = url.split('/')[2];
+		hostname = new URL(url).hostname;
 	
 		// TODO tld.js does not properly handle IP (v4 or v6) addresses
 		if (!IP_ADDRESS.test(hostname)) {
@@ -2982,7 +3022,64 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var _ = __webpack_require__(77),
+	var tabData = __webpack_require__(51),
+		utils = __webpack_require__(50),
+		_ = __webpack_require__(49);
+	
+	var list = utils.storage('whitelist') || {};
+	
+	function whitelisted(tab_id_or_hostname) {
+		var hostname = tab_id_or_hostname;
+	
+		if (_.isNumber(tab_id_or_hostname)) {
+			hostname = tabData.get(tab_id_or_hostname).hostname;
+	
+			if (!hostname) {
+				// don't have a cached hostname for this tab ID,
+				// Chameleon must have been loaded after the tab ...
+				return false;
+			}
+		}
+	
+		return list.hasOwnProperty(hostname);
+	}
+	
+	function toggle(hostname) {
+		if (whitelisted(hostname)) {
+			delete list[hostname];
+		} else {
+			list[hostname] = true;
+		}
+		save();
+	}
+	
+	var save = _.debounce(function () {
+		utils.storage('whitelist', list);
+	}, 250);
+	
+	module.exports = {
+		toggle: toggle,
+		whitelisted: whitelisted,
+	};
+
+
+/***/ },
+
+/***/ 156:
+/***/ function(module, exports, __webpack_require__) {
+
+	/*!
+	 * Chameleon
+	 *
+	 * Copyright 2014 ghostwords.
+	 *
+	 * This Source Code Form is subject to the terms of the Mozilla Public
+	 * License, v. 2.0. If a copy of the MPL was not distributed with this
+	 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+	 *
+	 */
+	
+	var _ = __webpack_require__(49),
 		uri = __webpack_require__(154);
 	
 	/* data = {
@@ -3001,13 +3098,26 @@ webpackJsonp([4],{
 					}
 				},
 				...
-			}
+			},
+			injected: boolean,
+			url: string,
+			hostname: string
 		},
 		...
 	} */
 	var data = {};
 	
 	var tabData = {
+		// initialize tab-level data
+		init: function (tab_id, tab_url) {
+			data[tab_id] = {
+				domains: {},
+				hostname: new URL(tab_url).hostname,
+				injected: false,
+				url: tab_url
+			};
+		},
+	
 		// TODO review performance impact
 		record: function (tab_id, access) {
 			var domain = uri.get_domain(access.scriptUrl),
@@ -3015,12 +3125,6 @@ webpackJsonp([4],{
 				key = access.obj + '.' + access.prop,
 				script_url = access.scriptUrl || '<unknown script>';
 	
-			// initialize tab-level data
-			if (!data.hasOwnProperty(tab_id)) {
-				data[tab_id] = {
-					domains: {}
-				};
-			}
 			var datum = data[tab_id];
 	
 			// initialize domain-level data

@@ -14,16 +14,19 @@
 /*jshint newcap:false */
 
 var React = require('react'),
-	score = require('../lib/score.js').scoreScriptActivity,
+	score = require('../lib/score').scoreScriptActivity,
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	utils = require('../lib/utils');
 
 var PanelApp = React.createClass({
 	getInitialState: function () {
+		// TODO do we need a "loading" prop?
 		return {
-			// TODO do we need a "loading" prop?
 			domains: {},
-			enabled: false
+			hostname: '',
+			injected: false,
+			invalid_page: false,
+			whitelisted: false,
 		};
 	},
 
@@ -51,9 +54,11 @@ var PanelApp = React.createClass({
 	},
 
 	toggle: function () {
-		sendMessage('panelToggle', function () {
+		sendMessage('panelToggle', {
+			hostname: this.state.hostname
+		}, function () {
 			this.setState({
-				enabled: !this.state.enabled
+				whitelisted: !this.state.whitelisted,
 			}, function () {
 				this.refs.header.animate();
 			});
@@ -61,14 +66,34 @@ var PanelApp = React.createClass({
 	},
 
 	render: function () {
+		var report;
+
+		if (this.state.invalid_page) {
+			report = <p style={{
+				marginLeft:'40px',
+				marginRight:'40px'
+			}}>Chameleon does not work on special browser pages.</p>;
+		} else if (this.state.whitelisted) {
+			report = <p>Chameleon is disabled on this page.</p>;
+		} else {
+			if (this.state.injected) {
+				report = <Report domainData={this.state.domains} />;
+			} else {
+				// TODO add link
+				report = <p>Please reload the page.</p>;
+			}
+		}
+
 		return (
 			<div>
 				<Header
-					enabled={this.state.enabled}
+					hostname={this.state.hostname}
+					invalid_page={this.state.invalid_page}
 					ref="header"
-					toggle={this.toggle} />
+					toggle={this.toggle}
+					whitelisted={this.state.whitelisted} />
 				<hr />
-				<Report domainData={this.state.domains} />
+				{report}
 			</div>
 		);
 	}
@@ -91,27 +116,43 @@ var Header = React.createClass({
 	},
 
 	render: function () {
+		var enabled = !this.props.invalid_page && !this.props.whitelisted;
+
 		var logoClasses = [
 			'sprites',
 			'toplogo',
-			'logo-' + (this.props.enabled ? '' : 'in') + 'active'
+			'logo-' + (enabled ? '' : 'in') + 'active'
 		];
 
-		var text = this.props.enabled ?
-			'enabled' :
-			<span className="warning">disabled</span>;
+		var text = (enabled ? 'enabled' : <span className="warning">disabled</span>);
+
+		var header_contents_style,
+			toggle_link;
+
+		if (!this.props.invalid_page && this.props.hostname) {
+			toggle_link = (
+				<div className="ellipsis">
+					<a href="#" id="toggle" onClick={this.toggle}>
+						{this.props.whitelisted ? 'Enable' : 'Disable'} on <span title={this.props.hostname}>
+							{this.props.hostname}
+						</span>
+					</a>
+				</div>
+			);
+		} else {
+			header_contents_style = {
+				lineHeight: '2.4em'
+			};
+		}
 
 		return (
 			<div>
 				<span className={logoClasses.join(' ')}></span>
-				<div id="header-contents">
+				<div id="header-contents" style={header_contents_style}>
 					Chameleon is <span id="status-text" ref="statusText">
 						{text}
 					</span>
-					<br />
-					<a href="#" id="toggle" onClick={this.toggle}>
-						{this.props.enabled ? 'Disable' : 'Enable'}
-					</a>
+					{toggle_link}
 				</div>
 			</div>
 		);
@@ -120,12 +161,10 @@ var Header = React.createClass({
 
 var Report = React.createClass({
 	getInitialState: function () {
-		var filtered = localStorage.getItem('filterReports');
+		var filtered = utils.storage('filterReports');
 
 		if (filtered === null) {
 			filtered = true;
-		} else {
-			filtered = JSON.parse(filtered);
 		}
 
 		return {
@@ -136,7 +175,7 @@ var Report = React.createClass({
 	filter: function () {
 		var filtered = !this.state.filtered;
 
-		localStorage.setItem('filterReports', JSON.stringify(filtered));
+		utils.storage('filterReports', filtered);
 
 		this.setState({
 			filtered: filtered
