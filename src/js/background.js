@@ -156,7 +156,8 @@ function updateButton(tab_id) {
 			path: {
 				19: 'icons/19' + (enabled ? '' : '_off') + '.png',
 				38: 'icons/38' + (enabled ? '' : '_off') + '.png'
-			}
+			},
+			tabId: tab_id
 		});
 	}
 
@@ -292,9 +293,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.runtime.onMessage.addListener(onMessage);
 
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-	updateButton(activeInfo.tabId);
-});
 chrome.tabs.onRemoved.addListener(tabData.clear);
 
 chrome.webNavigation.onCommitted.addListener(onNavigation);

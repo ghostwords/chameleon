@@ -161,7 +161,8 @@ webpackJsonp([4],{
 				path: {
 					19: 'icons/19' + (enabled ? '' : '_off') + '.png',
 					38: 'icons/38' + (enabled ? '' : '_off') + '.png'
-				}
+				},
+				tabId: tab_id
 			});
 		}
 	
@@ -297,9 +298,6 @@ webpackJsonp([4],{
 	
 	chrome.runtime.onMessage.addListener(onMessage);
 	
-	chrome.tabs.onActivated.addListener(function (activeInfo) {
-		updateButton(activeInfo.tabId);
-	});
 	chrome.tabs.onRemoved.addListener(tabData.clear);
 	
 	chrome.webNavigation.onCommitted.addListener(onNavigation);
