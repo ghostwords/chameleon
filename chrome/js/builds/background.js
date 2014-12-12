@@ -146,6 +146,7 @@ webpackJsonp([4],{
 		}
 	
 		if (count) {
+			// TODO Unchecked runtime.lastError while running browserAction.setBadgeText: No tab with id: XXX.
 			chrome.browserAction.setBadgeText({
 				tabId: tab_id,
 				text: count.toString()
@@ -157,6 +158,7 @@ webpackJsonp([4],{
 		function _updateButton(tab_id) {
 			var enabled = isEnabled(tab_id);
 	
+			// TODO Unchecked runtime.lastError while running browserAction.setIcon: No tab with id: XXX.
 			chrome.browserAction.setIcon({
 				path: {
 					19: 'icons/19' + (enabled ? '' : '_off') + '.png',
@@ -271,6 +273,7 @@ webpackJsonp([4],{
 			if (whitelist.whitelisted(tab_id)) {
 				// we redirect to a blank script instead of simply cancelling the request
 				// because cancelling makes pages spin forever for some reason
+				// TODO Gmail: Refused to load the script 'data:text/javascript,' because it violates the following Content Security Policy directive: "script-src 'unsafe-inline' 'unsafe-eval' 'self'
 				return {
 					redirectUrl: 'data:text/javascript,'
 				};
@@ -3145,6 +3148,7 @@ webpackJsonp([4],{
 			var datum = data[tab_id];
 	
 			// initialize domain-level data
+			// TODO Error in event handler for runtime.onMessage: TypeError: Cannot read property 'domains' of undefined
 			if (!datum.domains.hasOwnProperty(domain)) {
 				datum.domains[domain] = {
 					scripts: {}

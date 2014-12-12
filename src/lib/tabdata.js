@@ -77,6 +77,7 @@ var tabData = {
 		var datum = data[tab_id];
 
 		// initialize domain-level data
+		// TODO Error in event handler for runtime.onMessage: TypeError: Cannot read property 'domains' of undefined
 		if (!datum.domains.hasOwnProperty(domain)) {
 			datum.domains[domain] = {
 				scripts: {}

@@ -141,6 +141,7 @@ function updateBadge(tab_id) {
 	}
 
 	if (count) {
+		// TODO Unchecked runtime.lastError while running browserAction.setBadgeText: No tab with id: XXX.
 		chrome.browserAction.setBadgeText({
 			tabId: tab_id,
 			text: count.toString()
@@ -152,6 +153,7 @@ function updateButton(tab_id) {
 	function _updateButton(tab_id) {
 		var enabled = isEnabled(tab_id);
 
+		// TODO Unchecked runtime.lastError while running browserAction.setIcon: No tab with id: XXX.
 		chrome.browserAction.setIcon({
 			path: {
 				19: 'icons/19' + (enabled ? '' : '_off') + '.png',
@@ -266,6 +268,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 		if (whitelist.whitelisted(tab_id)) {
 			// we redirect to a blank script instead of simply cancelling the request
 			// because cancelling makes pages spin forever for some reason
+			// TODO Gmail: Refused to load the script 'data:text/javascript,' because it violates the following Content Security Policy directive: "script-src 'unsafe-inline' 'unsafe-eval' 'self'
 			return {
 				redirectUrl: 'data:text/javascript,'
 			};
