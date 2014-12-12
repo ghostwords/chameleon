@@ -269,6 +269,7 @@ webpackJsonp([3],[
 					reports.push(
 						ScriptReport({
 							key: url, 
+							canvasFingerprinting: data.canvas.fingerprinting, 
 							counts: data.counts, 
 							filtered: this.props.filtered, 
 							fingerprinter: fingerprinter, 
@@ -304,14 +305,23 @@ webpackJsonp([3],[
 	
 	var ScriptReport = React.createClass({displayName: 'ScriptReport',
 		render: function () {
-			var fingerprinter = '',
+			var canvas_fingerprinting,
+				fingerprinter = '',
 				font_enumeration,
 				property_accesses_table,
 				rows = [];
 	
+			if (this.props.canvasFingerprinting) {
+				canvas_fingerprinting = (
+					React.DOM.div({className: "fp-technique"}, 
+						React.DOM.b(null, "Canvas fingerprinting"), " detected."
+					)
+				);
+			}
+	
 			if (this.props.fontEnumeration) {
 				font_enumeration = (
-					React.DOM.div({className: "font-enumeration"}, 
+					React.DOM.div({className: "fp-technique"}, 
 						React.DOM.b(null, "Font enumeration"), " detected."
 					)
 				);
@@ -348,6 +358,8 @@ webpackJsonp([3],[
 					React.DOM.p({className: 'script-url ellipsis' + fingerprinter, title: this.props.url}, 
 						this.props.url
 					), 
+	
+					canvas_fingerprinting, 
 	
 					font_enumeration, 
 	

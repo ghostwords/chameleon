@@ -211,6 +211,11 @@
 			points += 95;
 		}
 	
+		// 95 points for canvas fingerprinting
+		if (scriptData.canvas.fingerprinting) {
+			points += 95;
+		}
+	
 		// 15 points for each property access
 		// TODO language/userAgent/common properties should count less, others should count more?
 		// TODO use non-linear scale?
