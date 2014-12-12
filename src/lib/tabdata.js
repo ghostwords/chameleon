@@ -12,12 +12,32 @@
 var _ = require('underscore'),
 	uri = require('./uri');
 
+var CANVAS_WRITE = {
+	fillText: true,
+	strokeText: true
+};
+var CANVAS_READ = {
+	getImageData: true,
+	toDataURL: true
+};
+
 /* data = {
 	<tab_id>: {
 		domains: {
 			<domain>: {
 				scripts: {
 					<script_url>: {
+						canvas: {
+							fingerprinting: boolean,
+							reads: [
+								<access_object>,
+								...
+							],
+							writes: [
+								<access_object>,
+								...
+							]
+						},
 						counts: {
 							<accessed_object_property>: number count,
 							...
@@ -51,9 +71,8 @@ var tabData = {
 	// TODO review performance impact
 	record: function (tab_id, access) {
 		var domain = uri.get_domain(access.scriptUrl),
-			font_enumeration_prop = (access.prop == 'style.fontFamily'),
-			key = access.obj + '.' + access.prop,
-			script_url = access.scriptUrl || '<unknown script>';
+			script_url = access.scriptUrl || '<unknown script>',
+			extra = access.hasOwnProperty('extra') && access.extra;
 
 		var datum = data[tab_id];
 
@@ -68,26 +87,56 @@ var tabData = {
 		// initialize script-level data
 		if (!domainData.scripts.hasOwnProperty(script_url)) {
 			domainData.scripts[script_url] = {
+				canvas: {
+					fingerprinting: false,
+					reads: [],
+					writes: []
+				},
 				counts: {},
 				fontEnumeration: false
 			};
 		}
 		var scriptData = domainData.scripts[script_url];
 
-		// JavaScript property access counts.
-		// Do not store style.fontFamily since it is already represented
-		// as fontEnumeration, plus its count is meaningless.
-		if (!font_enumeration_prop) {
-			var counts = scriptData.counts;
+		// count JavaScript property accesses
+		if (!extra) {
+			var counts = scriptData.counts,
+				key = access.obj + '.' + access.prop;
+
 			if (!counts.hasOwnProperty(key)) {
 				counts[key] = 0;
 			}
-			counts[key]++;
-		}
 
-		// font enumeration (script-level)
-		if (font_enumeration_prop) {
-			scriptData.fontEnumeration = true;
+			counts[key]++;
+
+		// don't count records with an "extra" property
+		} else {
+			// font enumeration
+			if (extra.hasOwnProperty('fontEnumeration')) {
+				scriptData.fontEnumeration = extra.fontEnumeration;
+
+			// canvas fingerprinting
+			} else if (extra.hasOwnProperty('canvas')) {
+				var canvas_reads = scriptData.canvas.reads,
+					canvas_writes = scriptData.canvas.writes;
+
+				if (CANVAS_WRITE.hasOwnProperty(access.prop)) {
+					canvas_writes.push(access);
+				} else if (CANVAS_READ.hasOwnProperty(access.prop)) {
+					canvas_reads.push(access);
+				}
+
+				if (!scriptData.canvas.fingerprinting) {
+					if (canvas_writes.length && canvas_reads.length) {
+						// if the last canvas read got enough data,
+						// let's call it fingerprinting
+						var canvas_extra = canvas_reads[canvas_reads.length-1].extra;
+						if (canvas_extra.width > 16 && canvas_extra.height > 16) {
+							scriptData.canvas.fingerprinting = true;
+						}
+					}
+				}
+			}
 		}
 	},
 

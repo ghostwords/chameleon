@@ -265,6 +265,7 @@ var DomainReport = React.createClass({
 				reports.push(
 					<ScriptReport
 						key={url}
+						canvasFingerprinting={data.canvas.fingerprinting}
 						counts={data.counts}
 						filtered={this.props.filtered}
 						fingerprinter={fingerprinter}
@@ -300,14 +301,23 @@ var DomainReport = React.createClass({
 
 var ScriptReport = React.createClass({
 	render: function () {
-		var fingerprinter = '',
+		var canvas_fingerprinting,
+			fingerprinter = '',
 			font_enumeration,
 			property_accesses_table,
 			rows = [];
 
+		if (this.props.canvasFingerprinting) {
+			canvas_fingerprinting = (
+				<div className="fp-technique">
+					<b>Canvas fingerprinting</b> detected.
+				</div>
+			);
+		}
+
 		if (this.props.fontEnumeration) {
 			font_enumeration = (
-				<div className="font-enumeration">
+				<div className="fp-technique">
 					<b>Font enumeration</b> detected.
 				</div>
 			);
@@ -344,6 +354,8 @@ var ScriptReport = React.createClass({
 				<p className={'script-url ellipsis' + fingerprinter} title={this.props.url}>
 					{this.props.url}
 				</p>
+
+				{canvas_fingerprinting}
 
 				{font_enumeration}
 

@@ -13,10 +13,7 @@
  * Injected via inject.js. Not a content script, no chrome.* API access.
  */
 
-(function () {
-
-	// save locally to keep from getting overwritten by site code
-	var ERROR = Error;
+(function (undef, ERROR) {
 
 	// TODO unnecessary?
 	ERROR.stackTraceLimit = Infinity; // collect all frames
@@ -200,7 +197,7 @@
 					scriptUrl: stripLineAndColumnNumbers(script_url)
 				});
 
-				if (override !== undefined) {
+				if (override !== undef) {
 					return override;
 				}
 
@@ -271,7 +268,7 @@
 	trap(document.documentElement, 'clientHeight');
 
 	// override instance methods
-	[
+	var methods = [
 		// override Date
 		// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
 		{
@@ -281,52 +278,93 @@
 			override: 0
 		},
 
-		// canvas fingerprinting (1/2)
-		// TODO detection only for now ... to protect, need to generate an
-		// TODO empty canvas with matching dimensions, but Chrome and
-		// TODO Firefox produce different PNGs from same inputs somehow
-		//c.setAttribute('width', this.width);
-		//c.setAttribute('height', this.height);
-		{
-			objName: 'HTMLCanvasElement.prototype',
-			propName: 'toDataURL',
-			obj: HTMLCanvasElement.prototype
-		},
-
-		// canvas fingerprinting (2/2)
-		{
-			objName: 'CanvasRenderingContext2D.prototype',
-			propName: 'getImageData',
-			obj: CanvasRenderingContext2D.prototype
-		},
-
-		// WebGL (1/2)
+		// WebGL
 		// TODO detection only for now
 		{
 			objName: 'WebGLRenderingContext.prototype',
 			propName: 'getParameter',
 			obj: window.WebGLRenderingContext.prototype
 		},
-
-		// WebGL (2/2)
 		{
 			objName: 'WebGLRenderingContext.prototype',
 			propName: 'getSupportedExtensions',
 			obj: window.WebGLRenderingContext.prototype
 		}
-	].forEach(function (item) {
+	];
+
+	// canvas fingerprinting
+	// TODO detection only for now ... to protect, need to generate an
+	// TODO empty canvas with matching dimensions, but Chrome and
+	// TODO Firefox produce different PNGs from same inputs somehow
+	methods.push({
+		objName: 'HTMLCanvasElement.prototype',
+		propName: 'toDataURL',
+		obj: HTMLCanvasElement.prototype,
+		extra: function () {
+			// "this" is a canvas element
+			return {
+				canvas: true,
+				width: this.width,
+				height: this.height
+			};
+		}
+	});
+	// TODO toBlob? Firefox-only ...
+	['getImageData', 'fillText', 'strokeText'].forEach(function (method) {
+		var item = {
+			objName: 'CanvasRenderingContext2D.prototype',
+			propName: method,
+			obj: CanvasRenderingContext2D.prototype,
+			extra: function () {
+				return {
+					canvas: true
+				};
+			}
+		};
+
+		if (method == 'getImageData') {
+			item.extra = function () {
+				var args = arguments,
+					width = args[2],
+					height = args[3];
+
+				// "this" is a CanvasRenderingContext2D object
+				if (width === undef) {
+					width = this.canvas.width;
+				}
+				if (height === undef) {
+					height = this.canvas.height;
+				}
+
+				return {
+					canvas: true,
+					width: width,
+					height: height
+				};
+			};
+		}
+
+		methods.push(item);
+	});
+
+	methods.forEach(function (item) {
 		item.obj[item.propName] = (function (orig) {
 			// TODO merge into trap()
 			return function () {
-				var script_url = getOriginatingScriptUrl();
+				var script_url = getOriginatingScriptUrl(),
+					msg = {
+						obj: item.objName,
+						prop: item.propName,
+						scriptUrl: stripLineAndColumnNumbers(script_url)
+					};
+
+				if (item.hasOwnProperty('extra')) {
+					msg.extra = item.extra.apply(this, arguments);
+				}
 
 				log("%s.%s prop access: %s", item.objName, item.propName, script_url);
 
-				send({
-					obj: item.objName,
-					prop: item.propName,
-					scriptUrl: stripLineAndColumnNumbers(script_url)
-				});
+				send(msg);
 
 				if (item.hasOwnProperty('override')) {
 					return item.override;
@@ -371,8 +409,9 @@
 				// TODO since MutationObserver is async, a stack trace now
 				// TODO won't get us the script that originated the scanning
 				send({
-					obj: getObjectName(target),
-					prop: 'style.fontFamily'
+					extra: {
+						fontEnumeration: true
+					}
 				});
 
 				// no need to keep listening
@@ -393,4 +432,5 @@
 		subtree: true
 	});
 
-}());
+// save locally to keep from getting overwritten by site code
+}(undefined, Error));

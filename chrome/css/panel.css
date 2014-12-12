@@ -41,7 +41,7 @@ table {
 	width: 100%;
 }
 
-.font-enumeration + table {
+.fp-technique + table {
 	margin-top: 5px;
 }
 
@@ -126,7 +126,7 @@ td:first-child div {
 	margin: 0 5px;
 }
 
-.font-enumeration {
+.fp-technique {
 	border: 1px solid #ddd;
 	padding: 5px 10px;
 	text-align: center;
