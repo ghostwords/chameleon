@@ -15,9 +15,9 @@ var _ = require('underscore');
 
 var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 
-var tabData = require('../lib/tabdata'),
+var score = require('../lib/score').scoreScriptActivity,
 	sendMessage = require('../lib/content_script_utils').sendMessage,
-	utils = require('../lib/utils'),
+	tabData = require('../lib/tabdata'),
 	whitelist = require('../lib/whitelist');
 
 // TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
@@ -137,7 +137,17 @@ function updateBadge(tab_id) {
 		count = 0;
 
 	if (data) {
-		count = utils.getFingerprinterCount(data.domains);
+		// no need for hasOwnProperty loop checks in this context
+		for (var domain in data.domains) { // jshint ignore:line
+			var scripts = data.domains[domain].scripts;
+
+			for (var url in scripts) {
+				if (score(scripts[url]).fingerprinter) {
+					count++;
+					break;
+				}
+			}
+		}
 	}
 
 	if (count) {

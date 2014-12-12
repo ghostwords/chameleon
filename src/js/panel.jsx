@@ -185,33 +185,51 @@ var Report = React.createClass({
 	render: function () {
 		var display_filter,
 			domains = Object.keys(this.props.domainData),
-			// TODO we get scores here and then again down at each script level
-			num_fingerprinters = utils.getFingerprinterCount(this.props.domainData),
+			num_fingerprinter_domains = 0,
+			num_fingerprinter_scripts = 0,
 			num_scripts = 0,
 			reports = [];
 
 		domains.sort().forEach(function (domain) {
-			var scripts = this.props.domainData[domain].scripts;
+			var has_fingerprinters = false,
+				scripts = this.props.domainData[domain].scripts;
 
-			num_scripts += Object.keys(scripts).length;
+			// no need for hasOwnProperty loop checks in this context
+			for (var url in scripts) { // jshint ignore:line
+				var data = scripts[url];
+
+				data.fingerprinter = score(data).fingerprinter;
+
+				if (data.fingerprinter) {
+					num_fingerprinter_scripts++;
+					has_fingerprinters = true;
+				}
+
+				num_scripts++;
+			}
+
+			if (has_fingerprinters) {
+				num_fingerprinter_domains++;
+			}
 
 			reports.push(
 				<DomainReport
 					key={domain}
 					domain={domain}
 					filtered={this.state.filtered}
+					hasFingerprinters={has_fingerprinters}
 					scriptData={scripts} />
 			);
 		}, this);
 
-		var status = num_fingerprinters ?
+		var status = num_fingerprinter_domains ?
 			<p>
-				<b>{num_fingerprinters}</b> suspected fingerprinter
-					{num_fingerprinters > 1 ? 's' : ''} detected.
+				<b>{num_fingerprinter_domains}</b> suspected fingerprinter
+					{num_fingerprinter_domains > 1 ? 's' : ''} detected.
 			</p> :
 			<p>No fingerprinting detected.</p>;
 
-		if (num_fingerprinters != num_scripts) {
+		if (num_fingerprinter_scripts != num_scripts) {
 			display_filter = (
 				<p style={{ fontSize: 'small' }}>
 					<label>
@@ -250,25 +268,19 @@ var DomainReport = React.createClass({
 
 	render: function () {
 		var domain = this.props.domain,
-			has_fingerprinters = false,
 			reports = [];
 
 		Object.keys(this.props.scriptData).sort().forEach(function (url) {
-			var data = this.props.scriptData[url],
-				fingerprinter = score(data).fingerprinter;
+			var data = this.props.scriptData[url];
 
-			if (fingerprinter) {
-				has_fingerprinters = true;
-			}
-
-			if (this.state.expanded && (!this.props.filtered || fingerprinter)) {
+			if (this.state.expanded && (!this.props.filtered || data.fingerprinter)) {
 				reports.push(
 					<ScriptReport
 						key={url}
 						canvasFingerprinting={data.canvas.fingerprinting}
 						counts={data.counts}
 						filtered={this.props.filtered}
-						fingerprinter={fingerprinter}
+						fingerprinter={data.fingerprinter}
 						fontEnumeration={data.fontEnumeration}
 						url={url} />
 				);
@@ -276,12 +288,12 @@ var DomainReport = React.createClass({
 		}, this);
 
 		// hide the domain completely when all of its scripts got filtered out
-		if (!reports.length && this.props.filtered && !has_fingerprinters) {
+		if (!reports.length && this.props.filtered && !this.props.hasFingerprinters) {
 			return null;
 		}
 
 		var classes = ['domain', 'ellipsis'];
-		if (has_fingerprinters) {
+		if (this.props.hasFingerprinters) {
 			classes.push('domain-fingerprinter');
 		}
 

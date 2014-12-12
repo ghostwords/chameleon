@@ -20,9 +20,9 @@ webpackJsonp([4],{
 	
 	var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 	
-	var tabData = __webpack_require__(51),
+	var score = __webpack_require__(79).scoreScriptActivity,
 		sendMessage = __webpack_require__(32).sendMessage,
-		utils = __webpack_require__(50),
+		tabData = __webpack_require__(50),
 		whitelist = __webpack_require__(155);
 	
 	// TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
@@ -142,7 +142,17 @@ webpackJsonp([4],{
 			count = 0;
 	
 		if (data) {
-			count = utils.getFingerprinterCount(data.domains);
+			// no need for hasOwnProperty loop checks in this context
+			for (var domain in data.domains) { // jshint ignore:line
+				var scripts = data.domains[domain].scripts;
+	
+				for (var url in scripts) {
+					if (score(scripts[url]).fingerprinter) {
+						count++;
+						break;
+					}
+				}
+			}
 		}
 	
 		if (count) {
@@ -1662,7 +1672,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 51:
+/***/ 50:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(156);
@@ -3023,8 +3033,8 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var tabData = __webpack_require__(51),
-		utils = __webpack_require__(50),
+	var tabData = __webpack_require__(50),
+		utils = __webpack_require__(80),
 		_ = __webpack_require__(49);
 	
 	var list = utils.storage('whitelist') || {};
