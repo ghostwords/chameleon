@@ -189,7 +189,9 @@
 				var script_url = getOriginatingScriptUrl();
 
 				log("%s.%s prop access: %s", obj, prop, script_url);
-				log(getStackTrace()); // TODO
+				if (process.env.NODE_ENV == 'development') {
+					log(getStackTrace());
+				}
 
 				send({
 					obj: getObjectName(obj),
