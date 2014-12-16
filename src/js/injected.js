@@ -13,12 +13,14 @@
  * Injected via inject.js. Not a content script, no chrome.* API access.
  */
 
-(function (undef, ERROR) {
+(function (undef, ERROR, navigator) {
 
 	// TODO unnecessary?
 	ERROR.stackTraceLimit = Infinity; // collect all frames
 
 	var event_id = document.currentScript.getAttribute('data-event-id');
+
+	var NAVIGATOR_ENUMERATION = {};
 
 	function log() {
 		if (process.env.NODE_ENV == 'development') {
@@ -79,6 +81,54 @@
 			messages.push(msg);
 
 			_send();
+		};
+	}());
+
+	var detectNavigatorEnumeration = (function () {
+		var accesses = {},
+			checkers = {};
+
+		var make_checker = function (script_url) {
+			return function () {
+				var enumeration = true;
+
+				for (var key in NAVIGATOR_ENUMERATION) {
+					if (NAVIGATOR_ENUMERATION.hasOwnProperty(key)) {
+						if (!accesses[script_url].hasOwnProperty(key)) {
+							enumeration = false;
+							break;
+						}
+					}
+				}
+
+				if (enumeration) {
+					log("Navigator enumeration detected from", script_url);
+					send({
+						extra: {
+							navigatorEnumeration: true
+						},
+						scriptUrl: script_url
+					});
+				}
+
+				// clean up
+				delete accesses[script_url];
+				delete checkers[script_url];
+			};
+		};
+
+		return function (prop, script_url) {
+			// store the access
+			if (!accesses.hasOwnProperty(script_url)) {
+				accesses[script_url] = {};
+			}
+			accesses[script_url][prop] = true;
+
+			// check if enumeration has happened in a bit
+			if (!checkers.hasOwnProperty(script_url)) {
+				checkers[script_url] = debounce(make_checker(script_url), 90);
+			}
+			checkers[script_url]();
 		};
 	}());
 
@@ -176,7 +226,8 @@
 			return;
 		}
 
-		var orig_val = obj[prop];
+		var is_navigator = (obj === navigator),
+			orig_val = obj[prop];
 
 		//if (orig_val == console || orig_val == console.log) {
 		//	return;
@@ -193,10 +244,16 @@
 					log(getStackTrace());
 				}
 
+				script_url = stripLineAndColumnNumbers(script_url);
+
+				if (is_navigator) {
+					detectNavigatorEnumeration(prop, script_url);
+				}
+
 				send({
 					obj: getObjectName(obj),
 					prop: prop.toString(),
-					scriptUrl: stripLineAndColumnNumbers(script_url)
+					scriptUrl: script_url
 				});
 
 				if (override !== undef) {
@@ -210,13 +267,13 @@
 
 	// define nonexistent-in-Chrome properties (to match Tor Browser)
 	// TODO merge into trap()
-	window.navigator.buildID = "20100101";
-	window.navigator.oscpu = "Windows NT 6.1";
+	navigator.buildID = "20100101";
+	navigator.oscpu = "Windows NT 6.1";
 
 	// JS objects to trap along with properties to override
 	[
 		{
-			obj: window.navigator,
+			obj: navigator,
 			overrides: {
 				appCodeName: "Mozilla",
 				appName: "Netscape",
@@ -249,9 +306,13 @@
 			}
 		}
 	].forEach(function (item) {
+		var obj = item.obj;
 		// trap all enumerable keys on the object and its prototype chain
-		for (var prop in item.obj) { // jshint ignore:line
-			trap(item.obj, prop, item.overrides[prop]);
+		for (var prop in obj) { // jshint ignore:line
+			if (obj === navigator) {
+				NAVIGATOR_ENUMERATION[prop] = true;
+			}
+			trap(obj, prop, item.overrides[prop]);
 		}
 	});
 
@@ -435,4 +496,4 @@
 	});
 
 // save locally to keep from getting overwritten by site code
-}(undefined, Error));
+}(undefined, Error, window.navigator));

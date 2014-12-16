@@ -45,6 +45,10 @@ table {
 	margin-top: 5px;
 }
 
+.fp-technique + .fp-technique {
+	margin-top: 5px;
+}
+
 tbody tr:nth-child(odd) {
 	background-color: #eee;
 }

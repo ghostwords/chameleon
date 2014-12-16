@@ -282,6 +282,7 @@ var DomainReport = React.createClass({
 						filtered={this.props.filtered}
 						fingerprinter={data.fingerprinter}
 						fontEnumeration={data.fontEnumeration}
+						navigatorEnumeration={data.navigatorEnumeration}
 						url={url} />
 				);
 			}
@@ -313,27 +314,26 @@ var DomainReport = React.createClass({
 
 var ScriptReport = React.createClass({
 	render: function () {
-		var canvas_fingerprinting,
-			fingerprinter = '',
-			font_enumeration,
+		var fingerprinter = '',
 			property_accesses_table,
-			rows = [];
+			rows = [],
+			techniques = [];
 
-		if (this.props.canvasFingerprinting) {
-			canvas_fingerprinting = (
-				<div className="fp-technique">
-					<b>Canvas fingerprinting</b> detected.
-				</div>
-			);
-		}
-
-		if (this.props.fontEnumeration) {
-			font_enumeration = (
-				<div className="fp-technique">
-					<b>Font enumeration</b> detected.
-				</div>
-			);
-		}
+		[
+			'canvasFingerprinting',
+			'fontEnumeration',
+			'navigatorEnumeration'
+		].forEach(function (tech) {
+			if (this.props[tech]) {
+				var name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+				name = name[0].toUpperCase() + name.slice(1);
+				techniques.push(
+					<div className="fp-technique" key={tech}>
+						<b>{name}</b> detected.
+					</div>
+				);
+			}
+		}, this);
 
 		Object.keys(this.props.counts).sort().forEach(function (name) {
 			rows.push(
@@ -367,9 +367,7 @@ var ScriptReport = React.createClass({
 					{this.props.url}
 				</p>
 
-				{canvas_fingerprinting}
-
-				{font_enumeration}
+				{techniques}
 
 				{property_accesses_table}
 			</div>

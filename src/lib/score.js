@@ -12,13 +12,15 @@
 module.exports.scoreScriptActivity = function (scriptData) {
 	var points = 0;
 
-	// 95 points for font enumeration
+	if (scriptData.canvas.fingerprinting) {
+		points += 95;
+	}
+
 	if (scriptData.fontEnumeration) {
 		points += 95;
 	}
 
-	// 95 points for canvas fingerprinting
-	if (scriptData.canvas.fingerprinting) {
+	if (scriptData.navigatorEnumeration) {
 		points += 95;
 	}
 
