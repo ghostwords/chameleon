@@ -61,7 +61,7 @@ CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
 Fingerprinting technique | Detection | Protection | Notes
 ------------------------ |:---------:|:----------:| -----
 Request header values | ✗ | ✔ | detection of passive fingerprinting requires an indirect approach
-window.navigator values | ✔ | ✔ | partial protection (navigator.javaEnabled not yet overriden, ...)
+window.navigator values | ✔ | ✔ | partial protection
 window.screen values | ✔ | ✔
 Date/time queries | ✔ | ✔ | partial protection (need to adjust the entire timezone, not just getTimezoneOffset)
 Font enumeration | ✔ | ✗ | unable to override fontFamily getters/setters on the CSSStyleDeclaration prototype in Chrome; needs more investigation
