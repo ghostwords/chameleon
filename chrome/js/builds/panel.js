@@ -286,6 +286,7 @@ webpackJsonp([3],[
 							filtered: this.props.filtered, 
 							fingerprinter: data.fingerprinter, 
 							fontEnumeration: data.fontEnumeration, 
+							navigatorEnumeration: data.navigatorEnumeration, 
 							url: url})
 					);
 				}
@@ -317,27 +318,26 @@ webpackJsonp([3],[
 	
 	var ScriptReport = React.createClass({displayName: 'ScriptReport',
 		render: function () {
-			var canvas_fingerprinting,
-				fingerprinter = '',
-				font_enumeration,
+			var fingerprinter = '',
 				property_accesses_table,
-				rows = [];
+				rows = [],
+				techniques = [];
 	
-			if (this.props.canvasFingerprinting) {
-				canvas_fingerprinting = (
-					React.DOM.div({className: "fp-technique"}, 
-						React.DOM.b(null, "Canvas fingerprinting"), " detected."
-					)
-				);
-			}
-	
-			if (this.props.fontEnumeration) {
-				font_enumeration = (
-					React.DOM.div({className: "fp-technique"}, 
-						React.DOM.b(null, "Font enumeration"), " detected."
-					)
-				);
-			}
+			[
+				'canvasFingerprinting',
+				'fontEnumeration',
+				'navigatorEnumeration'
+			].forEach(function (tech) {
+				if (this.props[tech]) {
+					var name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+					name = name[0].toUpperCase() + name.slice(1);
+					techniques.push(
+						React.DOM.div({className: "fp-technique", key: tech}, 
+							React.DOM.b(null, name), " detected."
+						)
+					);
+				}
+			}, this);
 	
 			Object.keys(this.props.counts).sort().forEach(function (name) {
 				rows.push(
@@ -371,9 +371,7 @@ webpackJsonp([3],[
 						this.props.url
 					), 
 	
-					canvas_fingerprinting, 
-	
-					font_enumeration, 
+					techniques, 
 	
 					property_accesses_table
 				)

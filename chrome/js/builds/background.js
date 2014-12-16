@@ -3123,7 +3123,8 @@ webpackJsonp([4],{
 								<accessed_object_property>: number count,
 								...
 							},
-							fontEnumeration: boolean
+							fontEnumeration: boolean,
+							navigatorEnumeration: boolean
 						},
 						...
 					}
@@ -3178,12 +3179,12 @@ webpackJsonp([4],{
 					fontEnumeration: false
 				};
 			}
-			var scriptData = domainData.scripts[script_url];
+			var scriptData = domainData.scripts[script_url],
+				counts = scriptData.counts;
 	
 			// count JavaScript property accesses
 			if (!extra) {
-				var counts = scriptData.counts,
-					key = access.obj + '.' + access.prop;
+				var key = access.obj + '.' + access.prop;
 	
 				if (!counts.hasOwnProperty(key)) {
 					counts[key] = 0;
@@ -3193,9 +3194,25 @@ webpackJsonp([4],{
 	
 			// don't count records with an "extra" property
 			} else {
-				// font enumeration
 				if (extra.hasOwnProperty('fontEnumeration')) {
 					scriptData.fontEnumeration = extra.fontEnumeration;
+	
+				} else if (extra.hasOwnProperty('navigatorEnumeration')) {
+					scriptData.navigatorEnumeration = extra.navigatorEnumeration;
+	
+					// decrement Navigator counts
+					if (scriptData.navigatorEnumeration) {
+						_.each(counts, function (count, key) {
+							if (key.indexOf('Navigator') === 0) {
+								count--;
+								if (count === 0) {
+									delete counts[key];
+								} else {
+									counts[key] = count;
+								}
+							}
+						});
+					}
 	
 				// canvas fingerprinting
 				} else if (extra.hasOwnProperty('canvas')) {
