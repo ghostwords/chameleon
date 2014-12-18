@@ -15,6 +15,12 @@
 
 (function (undef, ERROR, navigator) {
 
+	// TODO defend all overridden methods against toString inspection
+	// for example:
+	//navigator.taintEnabled.toString = function () {
+	//	return "function taintEnabled() {\n    [native code]\n}";
+	//};
+
 	// TODO unnecessary?
 	ERROR.stackTraceLimit = Infinity; // collect all frames
 
