@@ -60,18 +60,20 @@ CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
 
 Fingerprinting technique | Detection | Protection | Notes
 ------------------------ |:---------:|:----------:| -----
-Request header values | ✗ | ✔ | detection of passive fingerprinting requires an indirect approach
+Request header values | ✗ | ✔ | detection not possible in a browser extension?
 window.navigator values | ✔ | ✔ | partial protection
+window.navigator enumeration | ✔ | ✗ | detection only: [object enumeration order differs between browsers](http://stackoverflow.com/questions/280713/elements-order-in-a-for-in-loop)
 window.screen values | ✔ | ✔
 Date/time queries | ✔ | ✔ | partial protection (need to adjust the entire timezone, not just getTimezoneOffset)
 Font enumeration | ✔ | ✗ | unable to override fontFamily getters/setters on the CSSStyleDeclaration prototype in Chrome; needs more investigation
+[System color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#System_Colors) enumeration | ✗ | ✗ | detection planned, protection seems to run into the same issue as font enumeration
 CSS media queries | ✗ | ✗ | needs investigation
-Canvas image data extraction | ✔ | ✗ | protection impeded by image rendering differences between Chrome and Firefox
-WebGL | ✔ | ✗ | needs investigation
-Request header ordering/checksum, window.navigator checksum, checksumming in general | ? | ? | needs investigation
+Canvas image data extraction | ✔ | ✗ | protection impeded by image rendering differences between Chrome and Firefox, but this is only a problem if we are trying to match Tor Browser.
+WebGL | ? | ✗ | detection needs more work, protection needs investigation
+Request header ordering/checksum, window.navigator checksum, checksumming in general | ✗ | ✗ | needs investigation
 Flash/Java-driven queries | ✗ | ✗ | plugins need to be switched to click-to-play by default
 Third-party cookies | ✗ | ✗ | need to disable by default
-JS/rendering engine differences | ✗ | ✗ | needs investigation
+JS/rendering engine differences | ✗ | ✗ | Tor Browser masquerading showstopper ...
 Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extension
 
 
@@ -81,7 +83,9 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 
 - Block fingerprinter resource loading.
 
-- Replace Tor masquerading with randomization.
+- Replace Tor masquerading with randomization: [#1](https://github.com/ghostwords/chameleon/issues/1)
+
+- Create Chameleon for Firefox.
 
 - Fix getOriginatingScriptUrl for eval'd code:
 	- The [V8 stack trace API](http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi) fails to deliver file URLs brought in via eval'd code. For example, see all the misattributed (to jQuery) accesses on http://fingerprint.pet-portal.eu/ during a fingerprint test.
