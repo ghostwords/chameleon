@@ -77,7 +77,11 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 
 ## Roadmap
 
-- Add heuristic for what constitutes fingerprinting and mark scripts accordingly.
+- Improve fingerprinting heuristic to minimize false positives.
+
+- Block fingerprinter resource loading.
+
+- Replace Tor masquerading with randomization.
 
 - Fix getOriginatingScriptUrl for eval'd code:
 	- The [V8 stack trace API](http://code.google.com/p/v8/wiki/JavaScriptStackTraceApi) fails to deliver file URLs brought in via eval'd code. For example, see all the misattributed (to jQuery) accesses on http://fingerprint.pet-portal.eu/ during a fingerprint test.
@@ -89,12 +93,6 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 	- We can try matching the function to page script sources. The function we have doesn't have to look anything like the originating scripts ... because `eval`. Can try unpacking packed scripts. What if multiple eval's? What if data/javascript URIs? Not clear how far this will get us.
 
 - Simplify the UI (fingerprinting detected vs. not; expand to see more info).
-
-- Block fingerprinting scripts.
-
-- Add user-initiated blocking/unblocking.
-
-- Reevaluate Tor masquerading vs. randomizing (see issue #1).
 
 - Add help/about link; explain what the UI shows.
 
