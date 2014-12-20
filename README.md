@@ -94,8 +94,6 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 
 - Add user-initiated blocking/unblocking.
 
-- Add site whitelisting.
-
 - Reevaluate Tor masquerading vs. randomizing (see issue #1).
 
 - Add help/about link; explain what the UI shows.
