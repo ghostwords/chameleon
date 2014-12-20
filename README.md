@@ -61,7 +61,7 @@ CSS sprites were generated with [ZeroSprites](http://zerosprites.com/).
 Fingerprinting technique | Detection | Protection | Notes
 ------------------------ |:---------:|:----------:| -----
 Request header values | ✗ | ✔ | detection not possible in a browser extension?
-window.navigator values | ✔ | ✔ | partial protection
+window.navigator values | ✔ | ✔ | partial protection (not all Firefox-specific Navigator properties added, Chrome-specific properties not yet removed)
 window.navigator enumeration | ✔ | ✗ | detection only: [object enumeration order differs between browsers](http://stackoverflow.com/questions/280713/elements-order-in-a-for-in-loop)
 window.screen values | ✔ | ✔
 Date/time queries | ✔ | ✔ | partial protection (need to adjust the entire timezone, not just getTimezoneOffset)
@@ -79,7 +79,7 @@ Packet inspection/clock skew (?) | ✗ | ✗ | not possible in a browser extensi
 
 ## Roadmap
 
-- Improve fingerprinting heuristic to minimize false positives.
+- Minimize false positives.
 
 - Block fingerprinter resource loading.
 
