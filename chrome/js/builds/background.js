@@ -3176,7 +3176,8 @@ webpackJsonp([4],{
 						writes: []
 					},
 					counts: {},
-					fontEnumeration: false
+					fontEnumeration: false,
+					navigatorEnumeration: false
 				};
 			}
 			var scriptData = domainData.scripts[script_url],
