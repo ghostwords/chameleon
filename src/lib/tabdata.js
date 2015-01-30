@@ -104,7 +104,7 @@ var tabData = {
 
 		// count JavaScript property accesses
 		if (!extra) {
-			var key = access.obj + '.' + access.prop;
+			var key = access.obj + (access.hasOwnProperty('prop') ? '.' + access.prop : '');
 
 			if (!counts.hasOwnProperty(key)) {
 				counts[key] = 0;

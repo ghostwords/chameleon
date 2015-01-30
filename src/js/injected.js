@@ -337,6 +337,7 @@
 	trap(document.documentElement, 'clientHeight');
 
 	// override instance methods
+
 	var methods = [
 		// override Date
 		// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
@@ -442,6 +443,42 @@
 				return orig.apply(this, arguments);
 			};
 		}(item.obj[item.propName]));
+	});
+
+	// trap constructors
+
+	// from http://nullprogram.com/blog/2013/03/24/
+	function create(constructor) {
+		var Factory = constructor.bind.apply(constructor, arguments);
+		return new Factory();
+	}
+	[
+		// WebRTC
+		{
+			obj: window,
+			prop: 'RTCPeerConnection'
+		},
+		{
+			obj: window,
+			prop: 'webkitRTCPeerConnection'
+		}
+	].forEach(function (item) {
+		if (item.obj.hasOwnProperty(item.prop)) {
+			item.obj[item.prop] = (function (Orig) {
+				return function () {
+					var script_url = getOriginatingScriptUrl();
+
+					log("%s constructor call: %s", item.prop, script_url);
+					send({
+						obj: item.prop,
+						scriptUrl: stripLineAndColumnNumbers(script_url)
+					});
+
+					var args = [Orig].concat(Array.prototype.slice.call(arguments));
+					return create.apply(this, args);
+				};
+			}(item.obj[item.prop]));
+		}
 	});
 
 	// detect font enumeration
