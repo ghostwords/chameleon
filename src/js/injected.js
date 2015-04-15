@@ -224,7 +224,7 @@
 		return o.toString().replace(/^\[object ([^\]]+)\]/, '$1');
 	}
 
-	function trap(obj, prop, override) {
+	function trap(obj, prop) {
 		var desc = Object.getOwnPropertyDescriptor(obj, prop);
 
 		if (desc && !desc.configurable) {
@@ -262,69 +262,29 @@
 					scriptUrl: script_url
 				});
 
-				if (override !== undef) {
-					return override;
-				}
-
 				return orig_val;
 			}
 		});
 	}
 
-	// define nonexistent-in-Chrome properties (to match Tor Browser)
-	// TODO merge into trap()
-	navigator.buildID = "20100101";
-	navigator.oscpu = "Windows NT 6.1";
+	// JS objects to trap
 
-	// JS objects to trap along with properties to override
 	[
-		{
-			obj: navigator,
-			overrides: {
-				appCodeName: "Mozilla",
-				appName: "Netscape",
-				appVersion: "5.0 (Windows)",
-				doNotTrack: "unspecified",
-				javaEnabled: function () {
-					return false;
-				},
-				language: "en-US",
-				mimeTypes: {
-					length: 0
-				},
-				platform: "Win32",
-				plugins: {
-					length: 0,
-					refresh: function () {}
-				},
-				userAgent: "Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.0",
-				vendor: ""
-			}
-		},
-		{
-			obj: window.screen,
-			overrides: {
-				availWidth: 1000,
-				availHeight: 700,
-				width: 1000,
-				height: 700,
-				colorDepth: 24
-			}
-		}
-	].forEach(function (item) {
-		var obj = item.obj;
+		navigator,
+		window.screen
+	].forEach(function (obj) {
 		// trap all enumerable keys on the object and its prototype chain
 		for (var prop in obj) { // jshint ignore:line
 			if (obj === navigator) {
 				NAVIGATOR_ENUMERATION[prop] = true;
 			}
-			trap(obj, prop, item.overrides[prop]);
+			trap(obj, prop);
 		}
 	});
 
 	trap(window, 'devicePixelRatio');
-	trap(window, 'innerWidth', 1000);
-	trap(window, 'innerHeight', 700);
+	trap(window, 'innerWidth');
+	trap(window, 'innerHeight');
 
 	// TODO breaks setting document.cookie since there is a getter but no setter
 	//trap(document, 'cookie');
@@ -336,20 +296,17 @@
 	trap(document.documentElement, 'clientWidth');
 	trap(document.documentElement, 'clientHeight');
 
-	// override instance methods
+	// trap instance methods
 
 	var methods = [
-		// override Date
-		// TODO Tor also changes the time to match timezone 0 (getHours(), etc.)
+		// Date
 		{
 			objName: 'Date.prototype',
 			propName: 'getTimezoneOffset',
-			obj: Date.prototype,
-			override: 0
+			obj: Date.prototype
 		},
 
 		// WebGL
-		// TODO detection only for now
 		{
 			objName: 'WebGLRenderingContext.prototype',
 			propName: 'getParameter',
@@ -363,9 +320,6 @@
 	];
 
 	// canvas fingerprinting
-	// TODO detection only for now ... to protect, need to generate an
-	// TODO empty canvas with matching dimensions, but Chrome and
-	// TODO Firefox produce different PNGs from same inputs somehow
 	methods.push({
 		objName: 'HTMLCanvasElement.prototype',
 		propName: 'toDataURL',
@@ -379,7 +333,6 @@
 			};
 		}
 	});
-	// TODO toBlob? Firefox-only ...
 	['getImageData', 'fillText', 'strokeText'].forEach(function (method) {
 		var item = {
 			objName: 'CanvasRenderingContext2D.prototype',
@@ -435,10 +388,6 @@
 				log("%s.%s prop access: %s", item.objName, item.propName, script_url);
 
 				send(msg);
-
-				if (item.hasOwnProperty('override')) {
-					return item.override;
-				}
 
 				return orig.apply(this, arguments);
 			};

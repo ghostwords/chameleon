@@ -9,64 +9,22 @@
  *
  */
 
+
 // globals /////////////////////////////////////////////////////////////////////
+
 
 var _ = require('underscore');
 
-var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
+//var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 
 var score = require('../lib/score').scoreScriptActivity,
 	sendMessage = require('../lib/content_script_utils').sendMessage,
 	tabData = require('../lib/tabdata'),
 	whitelist = require('../lib/whitelist');
 
-// TODO https://developer.chrome.com/extensions/webRequest#life_cycle_footnote
-// The following headers are currently not provided to the onBeforeSendHeaders event.
-// This list is not guaranteed to be complete nor stable.
-// Authorization
-// Cache-Control
-// Connection
-// Content-Length
-// Host
-// If-Modified-Since
-// If-None-Match
-// If-Range
-// Partial-Data
-// Pragma
-// Proxy-Authorization
-// Proxy-Connection
-// Transfer-Encoding
-
-// need to match Firefox/Tor Browser's Accept header across all content types
-// TODO video, audio, ...
-// TODO https://developer.mozilla.org/en-US/docs/Web/HTTP/Content_negotiation
-// TODO note that webRequest reports "main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", or "other" in details.type
-var HEADER_OVERRIDES = {
-	'*': {
-		'User-Agent': "Mozilla/5.0 (Windows NT 6.1; rv:31.0) Gecko/20100101 Firefox/31.0",
-		'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-		'Accept-Language': "en-us,en;q=0.5",
-		'Accept-Encoding': "gzip, deflate",
-		'DNT': null // remove to match Tor Browser
-	},
-	'image': {
-		'Accept': "image/png,image/*;q=0.8,*/*;q=0.5"
-	},
-	'other': {
-		'Accept': "*/*"
-	},
-	'script': {
-		'Accept': "*/*"
-	},
-	'stylesheet': {
-		'Accept': "text/css,*/*;q=0.1"
-	},
-	'xmlhttprequest': {
-		'Accept': "text/html, */*"
-	}
-};
 
 // functions ///////////////////////////////////////////////////////////////////
+
 
 // TODO handlerBehaviorChanged, etc.: https://developer.chrome.com/extensions/webRequest#implementation
 //function filterRequests(details) {
@@ -82,50 +40,6 @@ var HEADER_OVERRIDES = {
 //		cancel: cancel
 //	};
 //}
-
-function normalizeHeaders(details) {
-	if (!isEnabled(details.tabId)) {
-		return;
-	}
-
-	var typeOverrides = HEADER_OVERRIDES.hasOwnProperty(details.type) && HEADER_OVERRIDES[details.type] || {},
-		globalOverrides = HEADER_OVERRIDES['*'],
-		origHeaders = details.requestHeaders,
-		newHeaders = [];
-
-	origHeaders.forEach(function (header) {
-		var name = header.name,
-			value = header.value,
-			new_value,
-			newHeader = {
-				name: name,
-				value: value
-			};
-
-		// modify or remove?
-		if (typeOverrides.hasOwnProperty(name) || globalOverrides.hasOwnProperty(name)) {
-			if (typeOverrides.hasOwnProperty(name)) {
-				new_value = typeOverrides[name];
-			} else if (globalOverrides.hasOwnProperty(name)) {
-				new_value = globalOverrides[name];
-			}
-
-			// modify
-			if (new_value) {
-				newHeader.value = new_value;
-				newHeaders.push(newHeader);
-			}
-
-		// just copy
-		} else {
-			newHeaders.push(newHeader);
-		}
-	});
-
-	return {
-		requestHeaders: newHeaders
-	};
-}
 
 function isEnabled(tab_id) {
 	var data = tabData.get(tab_id);
@@ -252,7 +166,9 @@ function onNavigation(details) {
 	updateBadge(tab_id);
 }
 
+
 // initialization //////////////////////////////////////////////////////////////
+
 
 // TODO track all scripts (including ones loaded via XHR)
 //chrome.webRequest.onResponseStarted.addListener(
@@ -267,8 +183,6 @@ function onNavigation(details) {
 //	ALL_URLS,
 //	["blocking"]
 //);
-
-// TODO Tor Browser rejects web fonts? "downloadable font: download not allowed (font-family: "Open Sans" style:normal weight:normal stretch:normal src index:1): status=2147500037"
 
 // abort injecting the content script when Chameleon is disabled
 chrome.webRequest.onBeforeRequest.addListener(
@@ -294,12 +208,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 		]
 	},
 	["blocking"]
-);
-
-chrome.webRequest.onBeforeSendHeaders.addListener(
-	normalizeHeaders,
-	ALL_URLS,
-	["blocking", "requestHeaders"]
 );
 
 // TODO set plugins to "ask by default"
