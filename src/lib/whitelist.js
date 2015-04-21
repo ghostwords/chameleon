@@ -9,13 +9,16 @@
  *
  */
 
-var tabData = require('./tabdata'),
-	utils = require('./utils'),
+//var tabData = require('./tabdata'),
+var utils = require('./utils'),
 	_ = require('underscore');
 
 var list = utils.storage('whitelist') || {};
 
-function whitelisted(tab_id_or_hostname) {
+function whitelisted(/*tab_id_or_hostname*/) {
+	// TODO whitelisting is disabled pending https://crbug.com/377978
+	return false;
+/*
 	var hostname = tab_id_or_hostname;
 
 	if (_.isNumber(tab_id_or_hostname)) {
@@ -29,6 +32,7 @@ function whitelisted(tab_id_or_hostname) {
 	}
 
 	return list.hasOwnProperty(hostname);
+*/
 }
 
 function toggle(hostname) {

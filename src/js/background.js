@@ -41,9 +41,14 @@ var score = require('../lib/score').scoreScriptActivity,
 //	};
 //}
 
+function isInvalidPage(url) {
+	return (url.indexOf('http') !== 0 ||
+		url.indexOf('https://chrome.google.com/webstore/') === 0);
+}
+
 function isEnabled(tab_id) {
 	var data = tabData.get(tab_id);
-	return data.injected && !whitelist.whitelisted(data.hostname);
+	return data.injected && !isInvalidPage(data.url) && !whitelist.whitelisted(data.hostname);
 }
 
 function updateBadge(tab_id) {
@@ -107,10 +112,7 @@ function getCurrentTab(callback) {
 
 function getPanelData(tab) {
 	return _.extend(tabData.get(tab.id) || {}, {
-		invalid_page: (
-			tab.url.indexOf('http') !== 0 ||
-			tab.url.indexOf('https://chrome.google.com/webstore/') === 0
-		),
+		invalid_page: isInvalidPage(tab.url),
 		whitelisted: whitelist.whitelisted(tab.id)
 	});
 }
@@ -183,32 +185,6 @@ function onNavigation(details) {
 //	ALL_URLS,
 //	["blocking"]
 //);
-
-// abort injecting the content script when Chameleon is disabled
-chrome.webRequest.onBeforeRequest.addListener(
-	function (details) {
-		var tab_id = details.tabId;
-
-		if (whitelist.whitelisted(tab_id)) {
-			// we redirect to a blank script instead of simply cancelling the request
-			// because cancelling makes pages spin forever for some reason
-			// TODO Gmail: Refused to load the script 'data:text/javascript,' because it violates the following Content Security Policy directive: "script-src 'unsafe-inline' 'unsafe-eval' 'self'
-			return {
-				redirectUrl: 'data:text/javascript,'
-			};
-
-		} else {
-			tabData.get(tab_id).injected = true;
-			updateButton(tab_id);
-		}
-	},
-	{
-		urls: [
-			'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'
-		]
-	},
-	["blocking"]
-);
 
 // TODO set plugins to "ask by default"
 

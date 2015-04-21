@@ -64,7 +64,7 @@ var tabData = {
 		data[tab_id] = {
 			domains: {},
 			hostname: new URL(tab_url).hostname,
-			injected: false,
+			injected: true,
 			url: tab_url
 		};
 	},

@@ -88,6 +88,7 @@ var PanelApp = React.createClass({
 			<div>
 				<Header
 					hostname={this.state.hostname}
+					injected={this.state.injected}
 					invalid_page={this.state.invalid_page}
 					ref="header"
 					toggle={this.toggle}
@@ -116,7 +117,7 @@ var Header = React.createClass({
 	},
 
 	render: function () {
-		var enabled = !this.props.invalid_page && !this.props.whitelisted;
+		var enabled = this.props.injected && !this.props.invalid_page && !this.props.whitelisted;
 
 		var logoClasses = [
 			'sprites',
@@ -129,7 +130,8 @@ var Header = React.createClass({
 		var header_contents_style,
 			toggle_link;
 
-		if (!this.props.invalid_page && this.props.hostname) {
+		// TODO whitelisting is disabled pending https://crbug.com/377978
+		if (false && !this.props.invalid_page && this.props.hostname) {
 			toggle_link = (
 				<div className="ellipsis">
 					<a href="#" id="toggle" onClick={this.toggle}>
