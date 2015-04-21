@@ -49,8 +49,5 @@
 		"webNavigation",
 		"webRequest",
 		"webRequestBlocking"
-	],
-	"web_accessible_resources": [
-		"js/builds/injected.min.js"
 	]
 }

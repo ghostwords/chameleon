@@ -10,6 +10,7 @@
 		"jsx-loader": "~0.11.2",
 		"jsxhint": "0.4.14",
 		"moment": "~2.6.0",
+		"raw-loader": "~0.5.1",
 		"react": "~0.11.1",
 		"shelljs": "~0.2.6",
 		"tldjs": "~1.5.0",

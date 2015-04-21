@@ -10,26 +10,18 @@
  */
 
 /*
- * Injects injected.js from a chrome-extension:// URL. This way injected.js
- * goes through the webRequest API. This is a hack to support programmatic
- * injection of a before-anything-else-on-the-page content script.
+ * Injects injected.js into the page frame's execution environment
+ * to work around Chrome's content script security sandbox/"isolated world".
  */
 
 (function () {
 
-	var sendMessage = require('../lib/content_script_utils').sendMessage;
-
-	function insertScript(url, data) {
-		var head = document.getElementsByTagName('head')[0] || document.documentElement,
+	function insertScript(text, data) {
+		var parent = document.documentElement,
 			script = document.createElement('script');
 
-		script.src = url;
+		script.text = text;
 		script.async = false;
-
-		// TODO onload?
-		script.onload = function () {
-			head.removeChild(script);
-		};
 
 		for (var key in data) { // jshint ignore:line
 			//if (data.hasOwnProperty(key)) { // unnecessary
@@ -37,10 +29,13 @@
 			//}
 		}
 
-		head.insertBefore(script, head.firstChild);
+		parent.insertBefore(script, parent.firstChild);
+		parent.removeChild(script);
 	}
 
-	var event_id = Math.random();
+	var event_id = Math.random(),
+		script = require('raw!../../chrome/js/builds/injected.min.js'),
+		sendMessage = require('../lib/content_script_utils').sendMessage;
 
 	// listen for messages from the script we are about to insert
 	document.addEventListener(event_id, function (e) {
@@ -48,8 +43,5 @@
 		sendMessage('trapped', e.detail);
 	});
 
-	insertScript(
-		'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js',
-		{ event_id: event_id }
-	);
+	insertScript(script, { event_id: event_id });
 }());
