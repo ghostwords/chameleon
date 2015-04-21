@@ -22,10 +22,10 @@ webpackJsonp([4],{
 	
 	//var ALL_URLS = { urls: ['http://*/*', 'https://*/*'] };
 	
-	var score = __webpack_require__(79).scoreScriptActivity,
+	var score = __webpack_require__(78).scoreScriptActivity,
 		sendMessage = __webpack_require__(32).sendMessage,
-		tabData = __webpack_require__(50),
-		whitelist = __webpack_require__(155);
+		tabData = __webpack_require__(81),
+		whitelist = __webpack_require__(156);
 	
 	
 	// functions ///////////////////////////////////////////////////////////////////
@@ -46,9 +46,14 @@ webpackJsonp([4],{
 	//	};
 	//}
 	
+	function isInvalidPage(url) {
+		return (url.indexOf('http') !== 0 ||
+			url.indexOf('https://chrome.google.com/webstore/') === 0);
+	}
+	
 	function isEnabled(tab_id) {
 		var data = tabData.get(tab_id);
-		return data.injected && !whitelist.whitelisted(data.hostname);
+		return data.injected && !isInvalidPage(data.url) && !whitelist.whitelisted(data.hostname);
 	}
 	
 	function updateBadge(tab_id) {
@@ -112,10 +117,7 @@ webpackJsonp([4],{
 	
 	function getPanelData(tab) {
 		return _.extend(tabData.get(tab.id) || {}, {
-			invalid_page: (
-				tab.url.indexOf('http') !== 0 ||
-				tab.url.indexOf('https://chrome.google.com/webstore/') === 0
-			),
+			invalid_page: isInvalidPage(tab.url),
 			whitelisted: whitelist.whitelisted(tab.id)
 		});
 	}
@@ -188,32 +190,6 @@ webpackJsonp([4],{
 	//	ALL_URLS,
 	//	["blocking"]
 	//);
-	
-	// abort injecting the content script when Chameleon is disabled
-	chrome.webRequest.onBeforeRequest.addListener(
-		function (details) {
-			var tab_id = details.tabId;
-	
-			if (whitelist.whitelisted(tab_id)) {
-				// we redirect to a blank script instead of simply cancelling the request
-				// because cancelling makes pages spin forever for some reason
-				// TODO Gmail: Refused to load the script 'data:text/javascript,' because it violates the following Content Security Policy directive: "script-src 'unsafe-inline' 'unsafe-eval' 'self'
-				return {
-					redirectUrl: 'data:text/javascript,'
-				};
-	
-			} else {
-				tabData.get(tab_id).injected = true;
-				updateButton(tab_id);
-			}
-		},
-		{
-			urls: [
-				'chrome-extension://' + chrome.runtime.id + '/js/builds/injected.min.js'
-			]
-		},
-		["blocking"]
-	);
 	
 	// TODO set plugins to "ask by default"
 	
@@ -1580,15 +1556,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 50:
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(156);
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-
-/***/ 81:
+/***/ 80:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -2415,20 +2383,28 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 151:
+/***/ 81:
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["tabData"] = __webpack_require__(157);
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+
+/***/ 152:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var tld = __webpack_require__(153).init();
-	tld.rules = __webpack_require__(81);
+	var tld = __webpack_require__(154).init();
+	tld.rules = __webpack_require__(80);
 	
 	module.exports = tld;
 
 
 /***/ },
 
-/***/ 152:
+/***/ 153:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2511,12 +2487,12 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 153:
+/***/ 154:
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	
-	var Rule = __webpack_require__(152);
+	var Rule = __webpack_require__(153);
 	var urlParts = /(^https?:?\/\/|^\/\/)?([^:]+(:[^@]+)?@)?([^:@\/]+)(:|\/|$)/; // 1 = protocol, 2/3 = auth, 4 = domain
 	
 	/**
@@ -2867,7 +2843,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 154:
+/***/ 155:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -2881,7 +2857,7 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var tld = __webpack_require__(151);
+	var tld = __webpack_require__(152);
 	
 	// does the string start with an optional scheme/colon and two slashes?
 	// TODO better IP regex, check for IPv6
@@ -2927,7 +2903,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 155:
+/***/ 156:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -2941,13 +2917,16 @@ webpackJsonp([4],{
 	 *
 	 */
 	
-	var tabData = __webpack_require__(50),
-		utils = __webpack_require__(80),
+	//var tabData = require('./tabdata'),
+	var utils = __webpack_require__(79),
 		_ = __webpack_require__(49);
 	
 	var list = utils.storage('whitelist') || {};
 	
-	function whitelisted(tab_id_or_hostname) {
+	function whitelisted(/*tab_id_or_hostname*/) {
+		// TODO whitelisting is disabled pending https://crbug.com/377978
+		return false;
+	/*
 		var hostname = tab_id_or_hostname;
 	
 		if (_.isNumber(tab_id_or_hostname)) {
@@ -2961,6 +2940,7 @@ webpackJsonp([4],{
 		}
 	
 		return list.hasOwnProperty(hostname);
+	*/
 	}
 	
 	function toggle(hostname) {
@@ -2984,7 +2964,7 @@ webpackJsonp([4],{
 
 /***/ },
 
-/***/ 156:
+/***/ 157:
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -2999,7 +2979,7 @@ webpackJsonp([4],{
 	 */
 	
 	var _ = __webpack_require__(49),
-		uri = __webpack_require__(154);
+		uri = __webpack_require__(155);
 	
 	var CANVAS_WRITE = {
 		fillText: true,
@@ -3053,7 +3033,7 @@ webpackJsonp([4],{
 			data[tab_id] = {
 				domains: {},
 				hostname: new URL(tab_url).hostname,
-				injected: false,
+				injected: true,
 				url: tab_url
 			};
 		},
