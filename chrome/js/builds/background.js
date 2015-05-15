@@ -2998,14 +2998,7 @@ webpackJsonp([4],{
 						<script_url>: {
 							canvas: {
 								fingerprinting: boolean,
-								reads: [
-									<access_object>,
-									...
-								],
-								writes: [
-									<access_object>,
-									...
-								]
+								write: boolean
 							},
 							counts: {
 								<accessed_object_property>: number count,
@@ -3060,8 +3053,7 @@ webpackJsonp([4],{
 				domainData.scripts[script_url] = {
 					canvas: {
 						fingerprinting: false,
-						reads: [],
-						writes: []
+						write: false
 					},
 					counts: {},
 					fontEnumeration: false,
@@ -3104,25 +3096,25 @@ webpackJsonp([4],{
 					}
 	
 				// canvas fingerprinting
+				// TODO check that the write and the read happened to the same canvas element
 				} else if (extra.hasOwnProperty('canvas')) {
-					var canvas_reads = scriptData.canvas.reads,
-						canvas_writes = scriptData.canvas.writes;
-	
-					if (CANVAS_WRITE.hasOwnProperty(access.prop)) {
-						canvas_writes.push(access);
-					} else if (CANVAS_READ.hasOwnProperty(access.prop)) {
-						canvas_reads.push(access);
+					if (scriptData.canvas.fingerprinting) {
+						return;
 					}
 	
-					if (!scriptData.canvas.fingerprinting) {
-						if (canvas_writes.length && canvas_reads.length) {
-							// if the last canvas read got enough data,
-							// let's call it fingerprinting
-							var canvas_extra = canvas_reads[canvas_reads.length-1].extra;
-							if (canvas_extra.width > 16 && canvas_extra.height > 16) {
+					// if this script already had a canvas write
+					if (scriptData.canvas.write) {
+						// and if this is a canvas read
+						if (CANVAS_READ.hasOwnProperty(access.prop)) {
+							// and it got enough data
+							if (access.extra.width > 16 && access.extra.height > 16) {
+								// let's call it fingerprinting
 								scriptData.canvas.fingerprinting = true;
 							}
 						}
+					// this is a canvas write
+					} else if (CANVAS_WRITE.hasOwnProperty(access.prop)) {
+						scriptData.canvas.write = true;
 					}
 				}
 			}
