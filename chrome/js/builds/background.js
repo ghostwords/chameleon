@@ -139,7 +139,7 @@ webpackJsonp([4],{
 			// message the popup to rerender with latest data
 			getCurrentTab(function (tab) {
 				// but only if this message is for the current tab
-				if (tab.id == sender.tab.id) {
+				if (tab && tab.id == sender.tab.id) {
 					sendMessage('panelData', getPanelData(tab));
 				}
 			});
