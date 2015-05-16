@@ -371,6 +371,10 @@
 	});
 
 	methods.forEach(function (item) {
+		var is_canvas_write = (
+			item.propName == 'fillText' || item.propName == 'strokeText'
+		);
+
 		item.obj[item.propName] = (function (orig) {
 			// TODO merge into trap()
 			return function () {
@@ -388,6 +392,13 @@
 				log("%s.%s prop access: %s", item.objName, item.propName, script_url);
 
 				send(msg);
+
+				if (is_canvas_write) {
+					// optimization: one canvas write is enough,
+					// restore original write method
+					// to this CanvasRenderingContext2D object instance
+					this[item.propName] = orig;
+				}
 
 				return orig.apply(this, arguments);
 			};
