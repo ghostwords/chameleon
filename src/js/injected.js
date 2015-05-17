@@ -378,6 +378,16 @@
 		item.obj[item.propName] = (function (orig) {
 			// TODO merge into trap()
 			return function () {
+				var args = arguments;
+
+				if (is_canvas_write) {
+					// to avoid false positives,
+					// bail if the text being written is too short
+					if (!args[0] || args[0].length < 5) {
+						return orig.apply(this, args);
+					}
+				}
+
 				var script_url = getOriginatingScriptUrl(),
 					msg = {
 						obj: item.objName,
@@ -386,7 +396,7 @@
 					};
 
 				if (item.hasOwnProperty('extra')) {
-					msg.extra = item.extra.apply(this, arguments);
+					msg.extra = item.extra.apply(this, args);
 				}
 
 				log("%s.%s prop access: %s", item.objName, item.propName, script_url);
@@ -400,7 +410,7 @@
 					this[item.propName] = orig;
 				}
 
-				return orig.apply(this, arguments);
+				return orig.apply(this, args);
 			};
 		}(item.obj[item.propName]));
 	});
