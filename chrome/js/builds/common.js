@@ -19,51 +19,51 @@
 /******/ 			callbacks.shift().call(null, __webpack_require__);
 /******/ 		if(moreModules[0]) {
 /******/ 			installedModules[0] = 0;
-/******/ 			__webpack_require__(0);
+/******/ 			return __webpack_require__(0);
 /******/ 		}
 /******/ 	};
-/******/
+
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-/******/
+
 /******/ 	// object to store loaded and loading chunks
 /******/ 	// "0" means "already loaded"
 /******/ 	// Array means "loading", array contains callbacks
 /******/ 	var installedChunks = {
 /******/ 		0:0
 /******/ 	};
-/******/
+
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-/******/
+
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/
+
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-/******/
+
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+
 /******/ 	// This file contains only the entry chunk.
 /******/ 	// The chunk loading function for additional chunks
 /******/ 	__webpack_require__.e = function requireEnsure(chunkId, callback) {
 /******/ 		// "0" is the signal for "already loaded"
 /******/ 		if(installedChunks[chunkId] === 0)
 /******/ 			return callback.call(null, __webpack_require__);
-/******/
+
 /******/ 		// an array means "currently loading".
 /******/ 		if(installedChunks[chunkId] !== undefined) {
 /******/ 			installedChunks[chunkId].push(callback);
@@ -75,17 +75,18 @@
 /******/ 			script.type = 'text/javascript';
 /******/ 			script.charset = 'utf-8';
 /******/ 			script.async = true;
+
 /******/ 			script.src = __webpack_require__.p + "" + chunkId + "." + ({"3":"panel","4":"background"}[chunkId]||chunkId) + ".js";
 /******/ 			head.appendChild(script);
 /******/ 		}
 /******/ 	};
-/******/
+
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-/******/
+
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
+
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/ })
@@ -105,7 +106,7 @@
 	 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 	 *
 	 */
-	
+
 	/*
 	 * This module needs to work both inside content scripts and the rest of the
 	 * extension, like the browser popup.
@@ -113,7 +114,7 @@
 	 * Content scripts have certain limitations in Chrome:
 	 * https://developer.chrome.com/extensions/content_scripts
 	 */
-	
+
 	// acceptable signatures:
 	// name
 	// name, message
@@ -121,7 +122,7 @@
 	// name, message, callback
 	module.exports.sendMessage = function (name, message, callback) {
 		var args = [{ name: name }];
-	
+
 		if (Object.prototype.toString.call(message) == '[object Function]') {
 			// name, callback
 			args.push(message);
@@ -135,7 +136,7 @@
 				args.push(callback);
 			}
 		}
-	
+
 		chrome.runtime.sendMessage.apply(chrome.runtime, args);
 	};
 
@@ -155,22 +156,22 @@
 	 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 	 *
 	 */
-	
+
 	module.exports.scoreScriptActivity = function (scriptData) {
 		var points = 0;
-	
+
 		if (scriptData.canvas.fingerprinting) {
 			points += 95;
 		}
-	
+
 		if (scriptData.fontEnumeration) {
 			points += 95;
 		}
-	
+
 		if (scriptData.navigatorEnumeration) {
 			points += 95;
 		}
-	
+
 		// 15 points for each property access
 		// TODO language/userAgent/common properties should count less, others should count more?
 		// TODO use non-linear scale?
@@ -179,7 +180,7 @@
 		for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
 			points += 15;
 		}
-	
+
 		return {
 			fingerprinter: (points > 50),
 			points: points
@@ -202,7 +203,7 @@
 	 * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 	 *
 	 */
-	
+
 	module.exports.storage = function (key, value) {
 		if (typeof value != 'undefined') {
 			localStorage.setItem(key, JSON.stringify(value));
@@ -215,4 +216,4 @@
 
 /***/ }
 
-/******/ })
+/******/ });

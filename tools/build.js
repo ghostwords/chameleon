@@ -63,7 +63,7 @@ var config = {
 		postLoaders: [
 			{
 				test: /\.js$/,
-				// TODO cacheable?
+				// TODO cacheable? https://github.com/webpack/transform-loader#typical-brfs-example
 				loader: "transform?envify"
 			}
 		]
