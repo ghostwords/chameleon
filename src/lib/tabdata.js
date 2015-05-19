@@ -28,6 +28,7 @@ var CANVAS_READ = {
 				scripts: {
 					<script_url>: {
 						canvas: {
+							dataURL: string,
 							fingerprinting: boolean,
 							write: boolean
 						},
@@ -83,6 +84,7 @@ var tabData = {
 		if (!domainData.scripts.hasOwnProperty(script_url)) {
 			domainData.scripts[script_url] = {
 				canvas: {
+					dataURL: '',
 					fingerprinting: false,
 					write: false
 				},
@@ -127,7 +129,6 @@ var tabData = {
 				}
 
 			// canvas fingerprinting
-			// TODO check that the write and the read happened to the same canvas element
 			} else if (extra.hasOwnProperty('canvas')) {
 				if (scriptData.canvas.fingerprinting) {
 					return;
@@ -141,6 +142,7 @@ var tabData = {
 						if (access.extra.width > 16 && access.extra.height > 16) {
 							// let's call it fingerprinting
 							scriptData.canvas.fingerprinting = true;
+							scriptData.canvas.dataURL = access.extra.dataURL;
 						}
 					}
 				// this is a canvas write

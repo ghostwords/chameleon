@@ -283,6 +283,7 @@ webpackJsonp([3],[
 					reports.push(
 						ScriptReport({
 							key: url, 
+							canvasDataURL: data.canvas.dataURL, 
 							canvasFingerprinting: data.canvas.fingerprinting, 
 							counts: data.counts, 
 							filtered: this.props.filtered, 
@@ -331,11 +332,23 @@ webpackJsonp([3],[
 				'navigatorEnumeration'
 			].forEach(function (tech) {
 				if (this.props[tech]) {
-					var name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+					var canvasDataURL,
+						name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+
 					name = name[0].toUpperCase() + name.slice(1);
+
+					if (tech == 'canvasFingerprinting') {
+						canvasDataURL = React.DOM.div(null, 
+							React.DOM.img({src: this.props.canvasDataURL, 
+								className: "canvas-image-data", 
+								title: "Canvas image data"})
+						);
+					}
+
 					techniques.push(
 						React.DOM.div({className: "fp-technique", key: tech}, 
-							React.DOM.b(null, name), " detected."
+							React.DOM.b(null, name), " detected.", 
+							canvasDataURL
 						)
 					);
 				}

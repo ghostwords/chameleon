@@ -106,6 +106,12 @@ td:first-child div {
 
 /* sprites end */
 
+.canvas-image-data {
+	border: 2px dotted pink;
+	margin: 5px 0;
+	max-width: 270px;
+}
+
 .domain {
 	background-color: #ddd;
 	cursor: pointer;

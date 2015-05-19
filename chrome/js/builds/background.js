@@ -3217,6 +3217,7 @@ webpackJsonp([4],{
 					scripts: {
 						<script_url>: {
 							canvas: {
+								dataURL: string,
 								fingerprinting: boolean,
 								write: boolean
 							},
@@ -3272,6 +3273,7 @@ webpackJsonp([4],{
 			if (!domainData.scripts.hasOwnProperty(script_url)) {
 				domainData.scripts[script_url] = {
 					canvas: {
+						dataURL: '',
 						fingerprinting: false,
 						write: false
 					},
@@ -3316,7 +3318,6 @@ webpackJsonp([4],{
 					}
 
 				// canvas fingerprinting
-				// TODO check that the write and the read happened to the same canvas element
 				} else if (extra.hasOwnProperty('canvas')) {
 					if (scriptData.canvas.fingerprinting) {
 						return;
@@ -3330,6 +3331,7 @@ webpackJsonp([4],{
 							if (access.extra.width > 16 && access.extra.height > 16) {
 								// let's call it fingerprinting
 								scriptData.canvas.fingerprinting = true;
+								scriptData.canvas.dataURL = access.extra.dataURL;
 							}
 						}
 					// this is a canvas write

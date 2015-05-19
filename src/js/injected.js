@@ -267,116 +267,13 @@
 		});
 	}
 
-	// JS objects to trap
-
-	[
-		navigator,
-		window.screen
-	].forEach(function (obj) {
-		// trap all enumerable keys on the object and its prototype chain
-		for (var prop in obj) { // jshint ignore:line
-			if (obj === navigator) {
-				NAVIGATOR_ENUMERATION[prop] = true;
-			}
-			trap(obj, prop);
-		}
-	});
-
-	trap(window, 'devicePixelRatio');
-	trap(window, 'innerWidth');
-	trap(window, 'innerHeight');
-
-	// TODO breaks setting document.cookie since there is a getter but no setter
-	//trap(document, 'cookie');
-
-	// TODO document.body might not yet be available at this point
-	//trap(document.body, 'clientWidth');
-	//trap(document.body, 'clientHeight');
-
-	trap(document.documentElement, 'clientWidth');
-	trap(document.documentElement, 'clientHeight');
-
-	// trap instance methods
-
-	var methods = [
-		// Date
-		{
-			objName: 'Date.prototype',
-			propName: 'getTimezoneOffset',
-			obj: Date.prototype
-		},
-
-		// WebGL
-		{
-			objName: 'WebGLRenderingContext.prototype',
-			propName: 'getParameter',
-			obj: window.WebGLRenderingContext.prototype
-		},
-		{
-			objName: 'WebGLRenderingContext.prototype',
-			propName: 'getSupportedExtensions',
-			obj: window.WebGLRenderingContext.prototype
-		}
-	];
-
-	// canvas fingerprinting
-	methods.push({
-		objName: 'HTMLCanvasElement.prototype',
-		propName: 'toDataURL',
-		obj: HTMLCanvasElement.prototype,
-		extra: function () {
-			// "this" is a canvas element
-			return {
-				canvas: true,
-				width: this.width,
-				height: this.height
-			};
-		}
-	});
-	['getImageData', 'fillText', 'strokeText'].forEach(function (method) {
-		var item = {
-			objName: 'CanvasRenderingContext2D.prototype',
-			propName: method,
-			obj: CanvasRenderingContext2D.prototype,
-			extra: function () {
-				return {
-					canvas: true
-				};
-			}
-		};
-
-		if (method == 'getImageData') {
-			item.extra = function () {
-				var args = arguments,
-					width = args[2],
-					height = args[3];
-
-				// "this" is a CanvasRenderingContext2D object
-				if (width === undef) {
-					width = this.canvas.width;
-				}
-				if (height === undef) {
-					height = this.canvas.height;
-				}
-
-				return {
-					canvas: true,
-					width: width,
-					height: height
-				};
-			};
-		}
-
-		methods.push(item);
-	});
-
-	methods.forEach(function (item) {
+	function trapInstanceMethod(item) {
 		var is_canvas_write = (
 			item.propName == 'fillText' || item.propName == 'strokeText'
 		);
 
 		item.obj[item.propName] = (function (orig) {
-			// TODO merge into trap()
+
 			return function () {
 				var args = arguments;
 
@@ -412,10 +309,132 @@
 
 				return orig.apply(this, args);
 			};
+
 		}(item.obj[item.propName]));
+	}
+
+	// JS objects to trap //////////////////////////////////////////////////////////
+
+	[
+		navigator,
+		window.screen
+	].forEach(function (obj) {
+		// trap all enumerable keys on the object and its prototype chain
+		for (var prop in obj) { // jshint ignore:line
+			if (obj === navigator) {
+				NAVIGATOR_ENUMERATION[prop] = true;
+			}
+			trap(obj, prop);
+		}
 	});
 
-	// trap constructors
+	trap(window, 'devicePixelRatio');
+	trap(window, 'innerWidth');
+	trap(window, 'innerHeight');
+
+	// TODO breaks setting document.cookie since there is a getter but no setter
+	//trap(document, 'cookie');
+
+	// TODO document.body might not yet be available at this point
+	//trap(document.body, 'clientWidth');
+	//trap(document.body, 'clientHeight');
+
+	trap(document.documentElement, 'clientWidth');
+	trap(document.documentElement, 'clientHeight');
+
+	// trap instance methods ///////////////////////////////////////////////////////
+
+	var methods = [
+		// Date
+		{
+			objName: 'Date.prototype',
+			propName: 'getTimezoneOffset',
+			obj: Date.prototype
+		},
+
+		// WebGL
+		{
+			objName: 'WebGLRenderingContext.prototype',
+			propName: 'getParameter',
+			obj: window.WebGLRenderingContext.prototype
+		},
+		{
+			objName: 'WebGLRenderingContext.prototype',
+			propName: 'getSupportedExtensions',
+			obj: window.WebGLRenderingContext.prototype
+		}
+	];
+
+	// canvas fingerprinting
+	['getImageData', 'fillText', 'strokeText'].forEach(function (method) {
+		var item = {
+			objName: 'CanvasRenderingContext2D.prototype',
+			propName: method,
+			obj: CanvasRenderingContext2D.prototype,
+			extra: function () {
+				return {
+					canvas: true
+				};
+			}
+		};
+
+		if (method == 'getImageData') {
+			item.extra = (function (getImageDataOrig, toDataURLOrig) {
+				return function () {
+					var args = arguments,
+						width = args[2],
+						height = args[3];
+
+					// "this" is a CanvasRenderingContext2D object
+					if (width === undef) {
+						width = this.canvas.width;
+					}
+					if (height === undef) {
+						height = this.canvas.height;
+					}
+
+					return {
+						canvas: true,
+						dataURL: (function () {
+							var el = document.createElement('canvas');
+							el.width = width;
+							el.height = height;
+							el.getContext('2d').putImageData(
+								getImageDataOrig.call(
+									this, 0, 0, width, height
+								), 0, 0
+							);
+							return toDataURLOrig.call(el);
+						}.call(this)),
+						width: width,
+						height: height
+					};
+				};
+			}(CanvasRenderingContext2D.prototype.getImageData, HTMLCanvasElement.prototype.toDataURL));
+		}
+
+		methods.push(item);
+	});
+	methods.push({
+		objName: 'HTMLCanvasElement.prototype',
+		propName: 'toDataURL',
+		obj: HTMLCanvasElement.prototype,
+		extra: (function (toDataURLOrig) {
+			return function () {
+				// "this" is a canvas element
+				return {
+					canvas: true,
+					dataURL: toDataURLOrig.call(this),
+					width: this.width,
+					height: this.height
+				};
+			};
+		}(HTMLCanvasElement.prototype.toDataURL))
+	});
+
+	methods.forEach(trapInstanceMethod);
+
+	// trap constructors ///////////////////////////////////////////////////////////
 
 	// from http://nullprogram.com/blog/2013/03/24/
 	function create(constructor) {
@@ -451,7 +470,8 @@
 		}
 	});
 
-	// detect font enumeration
+	// font enumeration detection workaround ///////////////////////////////////////
+
 	var observer = new MutationObserver(function (mutations) {
 		for (var i = 0; i < mutations.length; i++) {
 			var mutation = mutations[i];

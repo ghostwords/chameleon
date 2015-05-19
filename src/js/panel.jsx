@@ -279,6 +279,7 @@ var DomainReport = React.createClass({
 				reports.push(
 					<ScriptReport
 						key={url}
+						canvasDataURL={data.canvas.dataURL}
 						canvasFingerprinting={data.canvas.fingerprinting}
 						counts={data.counts}
 						filtered={this.props.filtered}
@@ -327,11 +328,23 @@ var ScriptReport = React.createClass({
 			'navigatorEnumeration'
 		].forEach(function (tech) {
 			if (this.props[tech]) {
-				var name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+				var canvasDataURL,
+					name = tech.replace(/([A-Z])/g, ' $1').toLowerCase();
+
 				name = name[0].toUpperCase() + name.slice(1);
+
+				if (tech == 'canvasFingerprinting') {
+					canvasDataURL = <div>
+						<img src={this.props.canvasDataURL}
+							className="canvas-image-data"
+							title="Canvas image data" />
+					</div>;
+				}
+
 				techniques.push(
 					<div className="fp-technique" key={tech}>
 						<b>{name}</b> detected.
+						{canvasDataURL}
 					</div>
 				);
 			}
