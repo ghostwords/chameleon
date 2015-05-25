@@ -29,9 +29,9 @@ module.exports.scoreScriptActivity = function (scriptData) {
 	// TODO use non-linear scale?
 	// TODO third-party scripts should count more?
 	// TODO count across domains instead of individual scripts?
-	for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
-		points += 15;
-	}
+	//for (var i = 0, ln = Object.keys(scriptData.counts).length; i < ln; i++) {
+	//	points += 15;
+	//}
 
 	return {
 		fingerprinter: (points > 50),
