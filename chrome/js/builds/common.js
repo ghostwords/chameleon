@@ -94,7 +94,7 @@
 /******/ ({
 
 /***/ 32:
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	/*!
 	 * Chameleon
@@ -144,7 +144,7 @@
 /***/ },
 
 /***/ 78:
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	/*!
 	 * Chameleon
@@ -191,7 +191,7 @@
 /***/ },
 
 /***/ 79:
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	/*!
 	 * Chameleon
